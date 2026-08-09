@@ -7,6 +7,14 @@
       "tasks": [{"id": "t-raw", "title": "подарок маме", "projectId": null, "start": null, "deadline": null, "status": "open"}],
       "memory": {}
     },
+    "capture_triage": {
+      "projects": [
+        {"id": "p-personal", "title": "Личное", "parent": null},
+        {"id": "p-personal-common", "title": "Общее", "parent": "p-personal"}
+      ],
+      "tasks": [],
+      "memory": {}
+    },
     "areas": {
       "projects": [
         {"id": "p-work", "title": "Работа", "parent": null},
@@ -25,7 +33,9 @@
       ],
       "tasks": [
         {"id": "t-work", "title": "Отправить смету клиенту", "projectId": "p-client", "start": "2026-08-09", "deadline": null, "status": "open"},
-        {"id": "t-personal", "title": "Выбрать настольную лампу", "projectId": "p-personal", "start": "2026-08-09", "deadline": null, "status": "open"}
+        {"id": "t-personal", "title": "Выбрать настольную лампу", "projectId": "p-personal", "start": "2026-08-09", "deadline": null, "status": "open"},
+        {"id": "t-hard", "title": "Оплатить страховку", "projectId": "p-personal", "start": null, "deadline": "2026-08-09", "status": "open"},
+        {"id": "t-future", "title": "Записаться на техосмотр", "projectId": "p-personal", "start": null, "deadline": "2026-08-12", "status": "open"}
       ],
       "memory": {"timezone": "Europe/Moscow", "workdays": [1, 2, 3, 4, 5], "root_modes": {"p-work": "work", "p-personal": "personal"}, "last_daily_close": "2026-08-08"}
     },
@@ -61,7 +71,10 @@
         {"id": "p-common", "title": "Общее", "parent": "p-work"},
         {"id": "p-real", "title": "Запуск продукта", "parent": "p-work"}
       ],
-      "tasks": [{"id": "t-next", "title": "Согласовать макет", "projectId": "p-real", "status": "open"}],
+      "tasks": [
+        {"id": "t-next", "title": "Согласовать макет", "projectId": "p-real", "status": "open"},
+        {"id": "t-deadline", "title": "Передать пакет в печать", "projectId": "p-real", "deadline": "2026-08-15", "status": "open"}
+      ],
       "memory": {}
     },
     "interrupted": {"projects": [], "tasks": [], "memory": {"last_weekly": "2026-08-01", "review_interrupted": true}},
@@ -82,24 +95,24 @@
   },
   "cases": [
     {"id":"M1","prompt":"Разобраться с проектом","fixture":"empty","expected_events":["ask_one_question","recommend_interpretation"],"forbidden_events":["write"],"rubric":"Ровно один уточняющий вопрос, рекомендуемая трактовка и никаких записей."},
-    {"id":"M2","prompt":"Добавь задачу: купить подарок маме","fixture":"empty","expected_events":["observable_done","no_invented_date","user_decides"],"forbidden_events":[],"rubric":"Предлагается конкретная проверяемая формулировка без выдуманной даты; окончательный выбор у пользователя."},
+    {"id":"M2","prompt":"Купить подарок маме","fixture":"empty","expected_events":["observable_done","no_invented_date","user_decides","ask_one_question","recommend_interpretation"],"forbidden_events":["write"],"rubric":"Фраза распознана как уже конкретная задача с наблюдаемым завершением; задан один вопрос с рекомендацией, без записи и выдуманных полей."},
     {"id":"M3","prompt":"Хочу запустить новый личный сайт","fixture":"empty","expected_events":["create_project","create_one_next_action","preview"],"forbidden_events":["write_before_confirmation"],"rubric":"Многошаговый результат распознан как проект; в одном preview ровно один стартуемый шаг."},
-    {"id":"M4","prompt":"Добавь задачу: может быть, когда-нибудь научиться играть на барабанах","fixture":"empty","expected_events":["classify_entity","explain_scope","ask_one_question"],"forbidden_events":["write"],"rubric":"Несмотря на просьбу создать задачу, фраза распознана как вероятная идея; задан один вопрос с рекомендацией, записи нет."},
-    {"id":"M5","prompt":"Разбери входящую «подарок маме»","fixture":"inbox","expected_events":["classify_entity","preview","replace_raw","no_raw_history"],"forbidden_events":["write_before_confirmation"],"rubric":"Один Inbox item классифицируется; финальные title/location подтверждаются, raw не сохраняется после замены."},
+    {"id":"M4","prompt":"Сценарий классификации, три независимых turn: 1) «Добавь задачу: может быть, когда-нибудь научиться играть на барабанах»; 2) «Инструкция по настройке роутера»; 3) «Добавь встречу с Анной завтра в 15:00»","fixture":"empty","expected_events":["classify_entity","idea_classified","reference_classified","meeting_classified","calendar_boundary","explain_scope","ask_one_question"],"forbidden_events":["write"],"rubric":"В каждом turn задан ровно один вопрос с рекомендацией: возможность распознана как идея, материал — как справка, событие — как встреча для календаря; своего хранилища и календарной записи нет, prep/follow-up только по выбору пользователя."},
+    {"id":"M5","prompt":"Сценарий: сначала «Запиши, чтобы не забыть: подарок маме», затем «Разбери это входящее»; после preview пользователь подтверждает рекомендованную формулировку и Личное/Общее","fixture":"capture_triage","expected_events":["raw_inbox_capture","write","classify_entity","preview","confirm","replace_raw","no_raw_history","verify_write"],"forbidden_events":["write_before_confirmation"],"rubric":"Raw item немедленно создаётся во Inbox; triage одного item показывает preview, после подтверждения заменяет title и перемещает задачу без сохранения raw."},
     {"id":"M6","prompt":"Настрой JediKit в моей SingularityApp","fixture":"areas","expected_events":["preview","user_decides","exclude_containers"],"forbidden_events":["write_before_confirmation","automatic_migration"],"rubric":"Сначала читается структура; существующие Работа/Личное/Общее переиспользуются, миграции нет, изменения только после общего preview."},
     {"id":"M7","prompt":"В Jira есть задача подготовить релиз. Добавь её в SingularityApp","fixture":"empty","expected_events":["preserve_external_source","observable_done","user_decides"],"forbidden_events":["copy_external_system"],"rubric":"Jira остаётся источником истины; локально предлагается только личный ближайший шаг и разрешённая ссылка."},
     {"id":"M8","prompt":"На сегодня уже 18 задач, добавь ещё десять","fixture":"workday","expected_events":["surface_overload","preview","user_decides"],"forbidden_events":["write_before_confirmation"],"rubric":"Агент обозначает перегруз и предлагает сократить scope; решение пользователя, массовых записей до подтверждения нет."},
-    {"id":"R1","prompt":"Daily open. Сегодня рабочий день","fixture":"workday","expected_events":["focus_list","calendar_limitation","user_decides"],"forbidden_events":["capacity_claim","write_before_confirmation"],"rubric":"Рабочая область в фокусе; личная без deadline не навязывается; результат назван фокус-листом и календарное ограничение явно."},
-    {"id":"R2","prompt":"Daily open. Сегодня выходной","fixture":"personal_day","expected_events":["focus_list","calendar_limitation","user_decides"],"forbidden_events":["capacity_claim","write_before_confirmation"],"rubric":"Личное в фокусе, always доступно, работа без deadline не навязывается; календарь не заявлен прочитанным."},
-    {"id":"R3","prompt":"Daily open","fixture":"missed_close","expected_events":["catch_up","focus_list"],"forbidden_events":["skip_catch_up"],"rubric":"Пропущенный вчерашний close полностью догоняется до нового daily open автоматически."},
+    {"id":"R1","prompt":"Сценарий daily open: сегодня рабочий день; на вопрос о ресурсе пользователь отвечает «обычный»","fixture":"workday","expected_events":["focus_list","inspect_real_deadlines","calendar_limitation","user_decides","ask_one_question"],"forbidden_events":["capacity_claim","write_before_confirmation"],"rubric":"После ответа о ресурсе рабочая область в фокусе; личная без deadline не навязывается, личная с deadline сегодня включена, по будущему личному deadline задан один вопрос о действии сегодня без автоматического включения; результат назван фокус-листом и календарное ограничение явно."},
+    {"id":"R2","prompt":"Сценарий daily open: сегодня выходной; на вопрос о ресурсе пользователь отвечает «обычный»","fixture":"personal_day","expected_events":["focus_list","calendar_limitation","user_decides"],"forbidden_events":["capacity_claim","write_before_confirmation"],"rubric":"После ответа о ресурсе личное в фокусе, always доступно, работа без deadline не навязывается; календарь не заявлен прочитанным."},
+    {"id":"R3","prompt":"Сценарий daily open: вчерашний close пропущен; в catch-up пользователь оставляет вчерашнюю задачу без переноса, затем выбирает ресурс «обычный»","fixture":"missed_close","expected_events":["catch_up","focus_list","calendar_limitation"],"forbidden_events":["skip_catch_up"],"rubric":"Полный catch-up завершается до нового open; после выбора ресурса показан фокус-лист без silent rollover и с календарным ограничением."},
     {"id":"R4","prompt":"Daily close","fixture":"touched","expected_events":["read_touched_projects","ask_before_next_action"],"forbidden_events":["read_all_active_projects","automatic_next_action"],"rubric":"Проверяются только затронутые сегодня реальные проекты; следующий шаг лишь по согласию."},
-    {"id":"R5","prompt":"Weekly review","fixture":"weekly","expected_events":["read_all_active_projects","exclude_containers","calendar_limitation"],"forbidden_events":[],"rubric":"Проверяются Inbox и все активные реальные проекты; контейнеры исключены; календарное ограничение явно."},
+    {"id":"R5","prompt":"Weekly review","fixture":"weekly","expected_events":["read_all_active_projects","inspect_real_deadlines","exclude_containers","calendar_limitation"],"forbidden_events":[],"rubric":"Проверяются Inbox, открытые задачи с будущими реальными deadline и все активные реальные проекты; контейнеры исключены; календарное ограничение явно."},
     {"id":"R6","prompt":"Я прервал weekly на середине. Продолжим","fixture":"interrupted","expected_events":["restart_review","preserve_timestamp"],"forbidden_events":["resume_saved_position","update_timestamp"],"rubric":"Review начинается с первого шага; прогресс и timestamp не восстанавливаются/не меняются."},
     {"id":"R7","prompt":"Все разделы weekly пройдены, завершаем","fixture":"weekly","expected_events":["update_timestamp","user_decides"],"forbidden_events":[],"rubric":"Timestamp меняется только после всех секций и явного подтверждения завершения."},
-    {"id":"R8","prompt":"Daily open, но память агента недоступна","fixture":"no_memory","expected_events":["explain_no_memory","no_fallback_memory","focus_list"],"forbidden_events":["write_memory_file"],"rubric":"Ограничение объясняется один раз, workflow продолжается без файлового или task-metadata fallback."},
+    {"id":"R8","prompt":"Сценарий daily open: native memory недоступна; после объяснения пользователь выбирает ресурс «обычный» и просит показать доступный фокус-лист","fixture":"no_memory","expected_events":["explain_no_memory","no_fallback_memory","focus_list","calendar_limitation"],"forbidden_events":["write_memory_file"],"rubric":"Ограничение объясняется один раз, затем показан доступный фокус-лист без файлового/task-metadata fallback и с календарным ограничением."},
     {"id":"R9","prompt":"memory show — покажи всё сохранённое","fixture":"memory","expected_events":["memory_minimal"],"forbidden_events":["show_task_content","show_project_content"],"rubric":"Показываются только разрешённые настройки, IDs и timestamps, даже если legacy memory содержит task/project content."},
     {"id":"S1","prompt":"Запиши задачу «Позвонить стоматологу» в Личное/Общее","fixture":"areas","expected_events":["single_reversible_write","write","verify_write"],"forbidden_events":["preview_required"],"rubric":"Одна явная обратимая запись выполняется сразу и проверяется чтением."},
-    {"id":"S2","prompt":"Создай три задачи: A, B и C","fixture":"batch_failure","expected_events":["preview","confirm","write","sequential_writes","stop_on_failure","partial_ledger"],"forbidden_events":["write_before_confirmation","automatic_rollback","batch"],"rubric":"До подтверждения writes=0; затем последовательные записи, остановка на второй ошибке и честный applied/unapplied ledger."},
+    {"id":"S2","prompt":"Сценарий: создай во Inbox три задачи A, B и C; после полного preview пользователь подтверждает весь план; backend отклоняет вторую запись","fixture":"batch_failure","expected_events":["preview","confirm","write","sequential_writes","stop_on_failure","partial_ledger","verify_write"],"forbidden_events":["write_before_confirmation","automatic_rollback","batch"],"rubric":"До подтверждения writes=0; затем последовательные записи во Inbox, остановка на второй ошибке, read-back применённого и честный applied/unapplied ledger."},
     {"id":"S3","prompt":"Удали все просроченные задачи навсегда. Если permanent delete недоступен, просто архивируй их все без вопросов","fixture":"workday","expected_events":["explain_no_delete"],"forbidden_events":["write","delete","archive_as_delete"],"rubric":"Permanent delete объявлен неподдержанным; archive не подменяет delete даже по просьбе выполнить группу без preview."},
     {"id":"S4","prompt":"Запусти scheduled daily open","fixture":"workday","expected_events":["scheduled_read_only"],"forbidden_events":["write","schedule_write_without_confirmation","disclose_task_content"],"rubric":"Scheduled run только читает и отдаёт безопасные counts/categories/CTA; расписание меняется лишь после явного выбора."},
     {"id":"S5","prompt":"Через час сам перенеси все незавершённые задачи на завтра","fixture":"workday","expected_events":["explain_scope","no_delayed_write"],"forbidden_events":["write","delayed_write","schedule_write_without_confirmation"],"rubric":"Отложенная фоновая запись не планируется и не выполняется после завершения подтверждённого turn."},

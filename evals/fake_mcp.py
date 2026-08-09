@@ -36,6 +36,50 @@ WRITE_TOOLS = {
     "task_cancel",
     "task_archive",
 }
+TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
+    "project_list": {"allowed": {"includeRemoved", "includeArchived", "parent", "journalDate", "deleteDate", "isNotebook", "maxCount", "offset", "modifiedSince", "paginationData"}, "required": set()},
+    "project_get": {"allowed": {"id"}, "required": {"id"}},
+    "project_create": {"allowed": {"title", "parent", "note"}, "required": {"title"}},
+    "project_update": {"allowed": {"id", "title", "parent", "note"}, "required": {"id"}},
+    "project_archive": {"allowed": {"id", "journalDate"}, "required": {"id"}},
+    "task_list": {"allowed": {"includeRemoved", "includeArchived", "projectId", "parent", "group", "start", "deadline", "checked", "priority", "state", "isNote", "maxCount", "offset", "modifiedSince", "paginationData"}, "required": set()},
+    "task_get": {"allowed": {"id"}, "required": {"id"}},
+    "task_create": {"allowed": {"title", "projectId", "note", "start", "deadline", "priority", "timeLength"}, "required": {"title"}},
+    "task_update": {"allowed": {"id", "title", "projectId", "note", "start", "deadline", "priority", "timeLength"}, "required": {"id"}},
+    "task_move": {"allowed": {"id", "projectId", "groupId"}, "required": {"id", "projectId"}},
+    "task_complete": {"allowed": {"id"}, "required": {"id"}},
+    "task_cancel": {"allowed": {"id"}, "required": {"id"}},
+    "task_archive": {"allowed": {"id", "journalDate"}, "required": {"id"}},
+    "task_list_today": {"allowed": {"timezone", "maxCount", "fields"}, "required": {"timezone"}},
+    "task_list_overdue": {"allowed": {"timezone", "maxCount", "fields"}, "required": {"timezone"}},
+    "task_list_inbox": {"allowed": {"maxCount", "fields"}, "required": set()},
+}
+STRING_ARGUMENTS = {"id", "title", "parent", "note", "projectId", "group", "groupId", "journalDate", "deleteDate", "start", "deadline", "fields", "modifiedSince"}
+BOOLEAN_ARGUMENTS = {"includeRemoved", "includeArchived", "isNotebook", "isNote", "paginationData"}
+NUMBER_ARGUMENTS = {"maxCount", "offset", "priority", "state", "checked", "timeLength"}
+
+
+def validate_arguments(tool: str, arguments: dict[str, Any]) -> None:
+    if tool not in TOOL_SCHEMAS:
+        raise ValueError(f"unsupported tool: {tool}")
+    if not isinstance(arguments, dict):
+        raise ValueError(f"{tool}: arguments must be object")
+    schema = TOOL_SCHEMAS[tool]
+    missing = schema["required"] - arguments.keys()
+    if missing:
+        raise ValueError(f"{tool}: missing required {sorted(missing)}")
+    extra = arguments.keys() - schema["allowed"]
+    if extra:
+        raise ValueError(f"{tool}: unsupported arguments {sorted(extra)}")
+    for key in schema["required"]:
+        if arguments[key] in (None, ""):
+            raise ValueError(f"{tool}: empty required argument {key}")
+    for key, value in arguments.items():
+        expected = str if key in STRING_ARGUMENTS else bool if key in BOOLEAN_ARGUMENTS else (int, float) if key in NUMBER_ARGUMENTS else None
+        if key == "timezone":
+            expected = (str, int)
+        if expected and (not isinstance(value, expected) or isinstance(value, bool) and expected != bool):
+            raise ValueError(f"{tool}: invalid type for {key}")
 
 
 def load_fixture(case_id: str) -> dict[str, Any]:
@@ -64,14 +108,34 @@ class FakeSingularity:
 
     def tools(self) -> list[dict[str, Any]]:
         names = sorted(READ_TOOLS | (set() if self.read_only else WRITE_TOOLS))
-        return [
-            {
+        tools = []
+        for name in names:
+            contract = TOOL_SCHEMAS[name]
+            properties = {key: {} for key in sorted(contract["allowed"])}
+            tools.append({
                 "name": name,
                 "description": f"Fake SingularityApp tool: {name}",
-                "inputSchema": {"type": "object", "additionalProperties": True},
-            }
-            for name in names
-        ]
+                "inputSchema": {"type": "object", "properties": properties, "required": sorted(contract["required"]), "additionalProperties": False},
+            })
+        return tools
+
+    def record_tools_list(self, *, order: int = 1) -> list[dict[str, Any]]:
+        result = self.tools()
+        schema_raw = json.dumps(result, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        summary = {"tools": [tool["name"] for tool in result], "schema_sha256": hashlib.sha256(schema_raw.encode()).hexdigest()}
+        self._record("tools_list", {}, summary, False, order)
+        return result
+
+    def memory_set(self, key: str, value: Any, *, order: int | None = None) -> dict[str, Any]:
+        allowed = {"timezone", "workdays", "review_windows", "root_ids", "root_modes", "last_daily_close", "last_weekly"}
+        if not self.memory_available:
+            raise RuntimeError("native memory unavailable")
+        if key not in allowed:
+            raise ValueError(f"native memory key not allowed: {key}")
+        self.memory[key] = copy.deepcopy(value)
+        result = {"key": key, "value": copy.deepcopy(value)}
+        self._record("native_memory_set", {"key": key, "value": value}, result, True, order)
+        return result
 
     def memory_show(self) -> dict[str, Any]:
         if not self.memory_available:
@@ -94,8 +158,7 @@ class FakeSingularity:
 
     def call(self, tool: str, arguments: dict[str, Any] | None = None, *, order: int | None = None) -> Any:
         arguments = arguments or {}
-        if tool not in READ_TOOLS | WRITE_TOOLS:
-            raise ValueError(f"unsupported tool: {tool}")
+        validate_arguments(tool, arguments)
         mutating = tool in WRITE_TOOLS
         if mutating and self.read_only:
             raise PermissionError(f"read-only fake rejects {tool}")
@@ -119,23 +182,29 @@ class FakeSingularity:
             tasks = self.tasks
             if "projectId" in args:
                 tasks = [item for item in tasks if item.get("projectId") == args["projectId"]]
-            return copy.deepcopy(tasks)
+            for field in ("start", "deadline"):
+                if field in args:
+                    tasks = [item for item in tasks if item.get(field) == args[field]]
+            return self._select_fields(tasks, args.get("fields"))
         if tool == "task_get":
             return self._get(self.tasks, self._required(args, "id"), "task")
         if tool == "task_list_today":
             self._required(args, "timezone")
             today = self.now.date().isoformat()
-            return copy.deepcopy([item for item in self.tasks if item.get("start") == today and item.get("status", "open") == "open"])
+            tasks = [item for item in self.tasks if item.get("start") == today and item.get("status", "open") == "open"]
+            return self._select_fields(tasks, args.get("fields"))
         if tool == "task_list_overdue":
             self._required(args, "timezone")
             today = self.now.date().isoformat()
-            return copy.deepcopy([
+            tasks = [
                 item for item in self.tasks
                 if item.get("status", "open") == "open"
                 and any(item.get(field) and item[field][:10] < today for field in ("start", "deadline"))
-            ])
+            ]
+            return self._select_fields(tasks, args.get("fields"))
         if tool == "task_list_inbox":
-            return copy.deepcopy([item for item in self.tasks if not item.get("projectId") and item.get("status", "open") == "open"])
+            tasks = [item for item in self.tasks if not item.get("projectId") and item.get("status", "open") == "open"]
+            return self._select_fields(tasks, args.get("fields"))
 
         if tool == "project_create":
             item = {"id": self._new_id("p", self.projects), "title": self._required(args, "title")}
@@ -188,6 +257,13 @@ class FakeSingularity:
     @staticmethod
     def _new_id(prefix: str, items: list[dict[str, Any]]) -> str:
         return f"{prefix}-fake-{len(items) + 1}"
+
+    @staticmethod
+    def _select_fields(items: list[dict[str, Any]], fields: str | None) -> list[dict[str, Any]]:
+        if not fields:
+            return copy.deepcopy(items)
+        selected = {field.strip() for field in fields.split(",") if field.strip()}
+        return [{key: copy.deepcopy(value) for key, value in item.items() if key in selected} for item in items]
 
     @classmethod
     def _get(cls, items: list[dict[str, Any]], item_id: str, kind: str) -> dict[str, Any]:
@@ -246,15 +322,28 @@ def self_test() -> None:
 
     read_only = FakeSingularity(load_fixture("R5"), read_only=True)
     assert "task_create" not in {tool["name"] for tool in read_only.tools()}
+    assert all(tool["inputSchema"]["additionalProperties"] is False for tool in read_only.tools())
     try:
         read_only.call("task_create", {"title": "blocked"})
     except PermissionError:
         pass
     else:
         raise AssertionError("read-only write was accepted")
+    for tool, arguments in (("evil_tool", {}), ("task_get", {})):
+        try:
+            read_only.call(tool, arguments)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"invalid schema accepted: {tool}")
+    sparse = FakeSingularity(load_fixture("S4"), read_only=True)
+    sparse_today = sparse.call("task_list_today", {"timezone": "Europe/Moscow", "fields": "projectId"})
+    assert sparse_today and all(set(item) <= {"projectId"} for item in sparse_today)
     memory = FakeSingularity(load_fixture("R9"))
     shown = json.dumps(memory.memory_show(), ensure_ascii=False)
     assert "Позвонить врачу" not in shown and "Ремонт" not in shown
+    memory.memory_set("last_weekly", "2026-08-09T12:00:00+03:00")
+    assert memory.memory["last_weekly"] == "2026-08-09T12:00:00+03:00"
     secret = FakeSingularity(load_fixture("S7"))
     status = json.dumps(secret.safe_status(), ensure_ascii=False)
     assert all(value not in status for value in secret.sensitive_values)

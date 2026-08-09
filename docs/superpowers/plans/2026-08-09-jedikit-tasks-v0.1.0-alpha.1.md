@@ -318,7 +318,7 @@ git commit -m "feat: scaffold jedikit tasks skill"
 
 Команда `project` читает результат, открытые задачи, блокеры и наличие стартуемого шага. Архив разрешён после preview и обработки открытых задач. Completion задачи не запускает push и не создаёт следующий шаг.
 
-- [ ] **Step 5: Прогнать M1–M8 с skill**
+- [x] **Step 5: Прогнать M1–M8 с skill**
 
 Для каждого case выполнить тот же prompt/fixture, что в RED baseline, с явным `$jedikit-tasks`. Сохранить raw response, events и tool intents в `evals/evidence/green.jsonl`.
 
@@ -381,7 +381,7 @@ Skill предлагает два независимых host-native распи�
 
 Автоматически хранить только timezone, рабочие дни, review windows, root area IDs/modes и timestamps завершённых reviews. Не хранить task/project content, raw text или review history. Поддержать `show`, `forget`, `reset`. `status` показывает MCP/capabilities, выбранные root areas, рабочие дни, scheduler и review timestamps без названий задач/проектов; `help` перечисляет intents и границы v1. При недоступной memory объяснить ограничение один раз за session и работать без fallback.
 
-- [ ] **Step 6: Прогнать R1–R9**
+- [x] **Step 6: Прогнать R1–R9**
 
 Run:
 
@@ -437,7 +437,7 @@ reversal -> new preview -> new confirmation
 
 Явно запретить permanent delete, true batch, hidden background writes, delayed writes after turn, server prompts, habits, kanban и time-stat tools. `task_cancel` использовать для решения не выполнять; archive не выдавать за delete.
 
-- [ ] **Step 4: Прогнать S1–S9**
+- [x] **Step 4: Прогнать S1–S9**
 
 Run:
 
@@ -447,7 +447,7 @@ python3 evals/run.py score evals/evidence/green.jsonl --phase green --cases S1,S
 
 Expected: `9/9 passed`; S2 имеет ноль writes до confirmation и честный partial ledger; S4/S5 не имеют mutation intents; S7 не содержит fixture token.
 
-- [ ] **Step 5: Повторить полный deterministic suite**
+- [x] **Step 5: Повторить полный deterministic suite**
 
 Run:
 
@@ -485,7 +485,7 @@ git commit -m "test: enforce JediKit safety boundaries"
 - Create: `LICENSE`
 - Create: `THIRD-PARTY-NOTICES.md`
 
-- [ ] **Step 1: Получить validation-ready Codex manifest scaffold во временной директории**
+- [x] **Step 1: Получить validation-ready Codex manifest scaffold во временной директории**
 
 Run:
 
@@ -496,7 +496,7 @@ python3 /Users/ibelyasov/.codex/skills/.system/plugin-creator/scripts/create_bas
 
 Использовать сгенерированный manifest как schema reference; не копировать временный skill placeholder в репозиторий.
 
-- [ ] **Step 2: Добавить Codex manifest в root plugin**
+- [x] **Step 2: Добавить Codex manifest в root plugin**
 
 `.codex-plugin/plugin.json`:
 
@@ -526,7 +526,7 @@ python3 /Users/ibelyasov/.codex/skills/.system/plugin-creator/scripts/create_bas
 }
 ```
 
-- [ ] **Step 3: Добавить Claude manifest**
+- [x] **Step 3: Добавить Claude manifest**
 
 `.claude-plugin/plugin.json`:
 
@@ -546,7 +546,7 @@ python3 /Users/ibelyasov/.codex/skills/.system/plugin-creator/scripts/create_bas
 }
 ```
 
-- [ ] **Step 4: Подключить официальный remote MCP**
+- [x] **Step 4: Подключить официальный remote MCP**
 
 `.mcp.json`:
 
@@ -563,7 +563,7 @@ python3 /Users/ibelyasov/.codex/skills/.system/plugin-creator/scripts/create_bas
 
 Credentials и токены не коммитить. OAuth выполняет host после доверия plugin/project config.
 
-- [ ] **Step 5: Написать публичный README**
+- [x] **Step 5: Написать публичный README**
 
 README должен содержать:
 
@@ -580,13 +580,13 @@ README должен содержать:
 
 Не добавлять Lucasfilm/Disney disclaimer, support SLA, roadmap dates, badges, screenshots, logos или marketplace claims.
 
-- [ ] **Step 6: Добавить MIT и notices**
+- [x] **Step 6: Добавить MIT и notices**
 
 `LICENSE` — стандартный MIT text, copyright `2026 Igor Belyasov`.
 
 `THIRD-PARTY-NOTICES.md` должен пояснять, что MIT покрывает только оригинальные материалы проекта; книги Максима Дорофеева, SingularityApp, MCP/API и сторонние бренды сохраняют права владельцев. Не копировать фрагменты книг.
 
-- [ ] **Step 7: Валидировать manifests**
+- [x] **Step 7: Валидировать manifests**
 
 Run:
 
@@ -686,7 +686,7 @@ codex plugin list
 
 Не использовать real Singularity OAuth и не читать account data. Версию Codex, model, команды и cleanup result сохранить в `host-smoke.jsonl`.
 
-- [ ] **Step 3: Выполнить Claude structural smoke**
+- [x] **Step 3: Выполнить Claude structural smoke**
 
 Если Claude Code установлен, запустить:
 
