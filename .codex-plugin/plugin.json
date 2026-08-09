@@ -1,0 +1,23 @@
+{
+  "name": "jedikit",
+  "version": "0.1.0-alpha.1",
+  "description": "Agent Skill для управления задачами SingularityApp по методике Максима Дорофеева.",
+  "author": {
+    "name": "Igor Belyasov",
+    "url": "https://github.com/ibelyasov"
+  },
+  "repository": "https://github.com/ibelyasov/singularity-jedi-skill",
+  "license": "MIT",
+  "keywords": ["singularityapp", "tasks", "productivity", "agent-skill"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "JediKit",
+    "shortDescription": "Разгрузи голову. Действуй ясно.",
+    "longDescription": "Русскоязычный Agent Skill для задач и регулярных обзоров SingularityApp по методике Максима Дорофеева.",
+    "developerName": "Igor Belyasov",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": "Помоги разобрать мои задачи в SingularityApp."
+  }
+}

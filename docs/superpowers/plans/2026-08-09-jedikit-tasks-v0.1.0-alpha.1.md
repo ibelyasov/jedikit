@@ -257,7 +257,7 @@ Expected:
 Skill is valid!
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add skills/jedikit-tasks
@@ -330,7 +330,7 @@ python3 evals/run.py score evals/evidence/green.jsonl --phase green --cases M1,M
 
 Expected: `8/8 passed`; запрещённых writes до нужного подтверждения нет.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add skills/jedikit-tasks evals/evidence/green.jsonl
@@ -391,7 +391,7 @@ python3 evals/run.py score evals/evidence/green.jsonl --phase green --cases R1,R
 
 Expected: `9/9 passed`; timestamps меняются только в R7, scheduled mutations отсутствуют.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add skills/jedikit-tasks evals/evidence/green.jsonl
@@ -465,7 +465,7 @@ cases: 26 valid
 green: 26/26 passed
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add skills/jedikit-tasks evals
@@ -618,7 +618,7 @@ git commit -m "feat: package JediKit for three hosts"
 - Create: `dist/jedikit-tasks-v0.1.0-alpha.1.zip.sha256`
 - Modify: `README.md`
 
-- [ ] **Step 1: Выполнить полный local gate**
+- [x] **Step 1: Выполнить полный local gate**
 
 Run:
 
