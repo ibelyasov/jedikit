@@ -26,7 +26,7 @@
 После начала реализации достаточно четырёх артефактов:
 
 1. `skills/jedikit-tasks/SKILL.md` и локальные `references/`.
-2. `evals/cases.yaml` с prompts, fixtures и ожидаемыми intents.
+2. `evals/cases.json` с prompts, fixtures и ожидаемыми intents; JSON не требует внешнего YAML-парсера.
 3. `evals/fake_mcp.py` — stdlib-only fake MCP с журналом операций.
 4. `evals/run.py` — static checks, semantic assertions и сохранение evidence.
 
