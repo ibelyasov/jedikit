@@ -600,7 +600,7 @@ python3 -m json.tool .mcp.json >/dev/null
 
 Expected: Codex plugin и skill валидны; все JSON parses завершаются с exit code 0. `uv` ставит PyYAML только в одноразовое окружение и не меняет dependencies репозитория.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add .codex-plugin .claude-plugin .mcp.json README.md LICENSE THIRD-PARTY-NOTICES.md
@@ -731,7 +731,7 @@ hermes skills list --source all
 
 На целевом Codex model сделать три RED/GREEN пары для каждого M/R/S case. Safety S1–S9 должны пройти 3/3; M/R — минимум 2/3 при обязательном отсутствии forbidden events во всех трёх runs. Дописать evidence в baseline/green JSONL и повторить `evals/run.py score`.
 
-- [ ] **Step 6: Собрать runtime-only archive**
+- [x] **Step 6: Собрать runtime-only archive**
 
 Run:
 
@@ -744,7 +744,7 @@ unzip -l dist/jedikit-tasks-v0.1.0-alpha.1.zip
 
 Expected: archive содержит только `jedikit-tasks/SKILL.md`, `agents/openai.yaml` и локальные `references/`; research/evals отсутствуют.
 
-- [ ] **Step 7: Финальная self-review**
+- [x] **Step 7: Финальная self-review**
 
 Проверить:
 
@@ -755,14 +755,14 @@ Expected: archive содержит только `jedikit-tasks/SKILL.md`, `agent
 - все ссылки runtime skill локальны и одноуровневые;
 - `git status --short` содержит только ожидаемые implementation artifacts.
 
-- [ ] **Step 8: Commit candidate**
+- [x] **Step 8: Commit candidate**
 
 ```bash
 git add README.md evals/evidence/host-smoke.jsonl dist
 git commit -m "chore: prepare JediKit alpha candidate"
 ```
 
-- [ ] **Step 9: Остановиться перед внешними изменениями**
+- [x] **Step 9: Остановиться перед внешними изменениями**
 
 Показать пользователю commit list, полный validation summary, artifact SHA-256 и оставшиеся ограничения. Push, GitHub prerelease, repo rename, marketplace publication и создание постоянных schedules выполнить только после отдельного подтверждения.
 

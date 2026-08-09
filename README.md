@@ -94,6 +94,8 @@ uv run --with pyyaml python ~/.codex/skills/.system/skill-creator/scripts/quick_
 uv run --with pyyaml python ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
 ```
 
+Runtime-only alpha artifact: `dist/jedikit-tasks-v0.1.0-alpha.1.zip`; контрольная сумма лежит рядом в `.zip.sha256`.
+
 Исследовательская база: [research/README.md](research/README.md). Отложенные направления: [BACKLOG.md](BACKLOG.md).
 
 ## Лицензия и независимость
