@@ -11,6 +11,20 @@
 
 Книга 2 прямо описывает метод не как универсальный рецепт, а как комбинацию самонаблюдения, разовых «вакцин», регулярных практик и индикаторов, которую нужно подбирать экспериментами над собой ([официальная аннотация и оглавление](https://www.mann-ivanov-ferber.ru/assets/media/files-3/put-dzedaia/Put_djedaya_read_stamped.pdf)). Поэтому «допустимые действия агента» ниже — операционализация для диалога, а не утверждение, что автор предписывал именно программного агента.
 
+### Продуктовый overlay v1
+
+Исследование ниже намеренно шире согласованного продукта. В `jedikit-tasks` применяются дополнительные границы:
+
+- исходная фраза хранится только как временный Inbox capture; после подтверждённого triage она заменяется финальной формулировкой без истории `raw_text`;
+- календарь не читается и не запрашивается; daily выдаёт focus list, weekly явно сообщает «календарь не проверен»;
+- идеи и справка распознаются, но место хранения выбирает пользователь; процесс разбора идей отложен;
+- встречи только распознаются с предложением prep/follow-up task; календарной интеграции нет;
+- waiting, reminders и habits отложены;
+- permanent delete и настоящий server batch не обещаются hosted MCP;
+- review после прерывания начинается с нуля; timestamp обновляется только после полного подтверждённого завершения.
+
+Это продуктовая адаптация (`O`), а не изменение авторского канона (`A`).
+
 ## Ядро метода
 
 ### Ограничение — не только время
@@ -638,7 +652,7 @@
 ### MUST (10)
 
 1. **MUST-01 — scoped capture:** если появилась потенциальная обязанность, обещание, напоминание, идея или task, который нельзя однозначно завершить прямо сейчас, сначала сохранить `raw_text` в видимом inbox; обычный одноразовый вопрос/ответ без follow-up не нужно превращать в запись; буквальный захват мыслей — `A-P1/H`, [`TPL`](https://mnogosdelal.ru/wp-content/uploads/2015/08/Jedi-Tech-Template.pdf), [`CQ`](https://mnogosdelal.ru/wp-content/uploads/2015/05/Kontrol-ny-e-voprosy-po-dzhedajskoj-tehnike.pdf), [`R26`](https://club.mnogosdelal.ru/post/3573/); граница «не каждый ответ агента» — `O-P1/H`.
-2. **MUST-02 — preserve raw:** хранить исходный текст, источник и время захвата; улучшенную формулировку добавлять отдельно; `O-P1/H`, выведено из доступного capture в [`TPL`](https://mnogosdelal.ru/wp-content/uploads/2015/08/Jedi-Tech-Template.pdf).
+2. **MUST-02 — temporary raw capture:** хранить исходный текст и время до разбора; после подтверждения пользователя заменить capture финальной формулировкой и не сохранять отдельную историю `raw_text`; `O-P1/H`, продуктовая реализация доступного capture из [`TPL`](https://mnogosdelal.ru/wp-content/uploads/2015/08/Jedi-Tech-Template.pdf).
 3. **MUST-03 — process state:** не считать item разобранным по признаку `read`; после решения у него должны быть тип и место хранения; `A-P1/H`, [`CQ`](https://mnogosdelal.ru/wp-content/uploads/2015/05/Kontrol-ny-e-voprosy-po-dzhedajskoj-tehnike.pdf).
 4. **MUST-04 — one entity:** выбирать ровно одну основную сущность `task/project/idea/reference/meeting`; при неуверенности оставлять `inbox`; `A-P1/H`, [`B2`](https://www.mann-ivanov-ferber.ru/assets/media/files-2/put-dzhedaya/put_djedaya-mail_stamped.pdf), `O-P1/H`.
 5. **MUST-05 — startable wording:** task обязан иметь конкретный глагол, объект и проверяемое `done_when`; `A-P1/H`, [`R26`](https://club.mnogosdelal.ru/post/3573/), [`CQ`](https://mnogosdelal.ru/wp-content/uploads/2015/05/Kontrol-ny-e-voprosy-po-dzhedajskoj-tehnike.pdf).

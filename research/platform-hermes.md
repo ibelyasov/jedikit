@@ -1,5 +1,7 @@
 # Hermes Agent для `singularity-jedi`
 
+> **Product overlay 2026-08-09:** заголовок сохраняет временное кодовое имя исследования. Релизный source — `jedikit`, рабочий skill — `jedikit-tasks`, без router; Hermes tap не обещается как atomic install-all. Cron предлагается только как подтверждённый host-native scheduler и всегда read-only; при недоступности skill лишь объясняет ограничение.
+
 Срез на **2026-08-08**. Под Hermes Agent здесь понимается open-source CLI/gateway из репозитория NousResearch, а не семейство моделей Nous Hermes. Context7 сначала разрешил библиотеку `/nousresearch/hermes-agent` (релевантность высокая, но каталог версий там отстаёт); источником истины для этого среза взят официальный релиз **Hermes Agent v0.20.0 / `v2026.8.3`**, опубликованный 2026-08-03: [release](https://github.com/NousResearch/hermes-agent/releases/tag/v2026.8.3). Документация ниже привязана к этому тегу, а не к плавающему `main`.
 
 ## Короткий вывод для v1

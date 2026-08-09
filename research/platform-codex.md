@@ -1,5 +1,7 @@
 # Codex platform fit for `singularity-jedi`
 
+> **Product overlay 2026-08-09:** заголовок сохраняет временное кодовое имя исследования. Релизный пакет — `jedikit` с одним skill `jedikit-tasks`, без router. Если официальный Scheduled Tasks недоступен, skill только объясняет ограничение и не предлагает OS cron/launchd wrapper.
+
 Дата проверки: **2026-08-08**. Источники ниже — только официальная документация OpenAI на `developers.openai.com`, `learn.chatgpt.com` и `platform.openai.com`. Установка, подключение и публикация в рамках этой проверки **не выполнялись**.
 
 ## Краткий вывод
