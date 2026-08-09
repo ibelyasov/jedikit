@@ -635,7 +635,7 @@ rg --pcre2 -n 'singularity-jedi(?!-skill)' skills .codex-plugin .claude-plugin .
 
 Expected: `26/26 passed`; validators и `git diff --check` зелёные; последний `rg` не находит placeholder или старое runtime-имя.
 
-- [ ] **Step 2: Выполнить Codex smoke через temporary local marketplace**
+- [x] **Step 2: Выполнить Codex smoke через temporary local marketplace**
 
 После отдельного разрешения на изменение локальной Codex plugin configuration:
 
@@ -677,6 +677,8 @@ codex plugin list
 ```
 
 Открыть новую session, проверить `/plugins`, `/skills` и явный `$jedikit-tasks` на read-only fixture R5. Затем выполнить cleanup:
+
+В headless `codex exec` сохранить эквивалентные evidence: `codex plugin list`, точный prompt с `$jedikit-tasks`, отдельный JSONL явной активации и JSONL поведения на R5.
 
 ```bash
 codex plugin remove jedikit@jedikit-smoke
