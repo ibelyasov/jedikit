@@ -11,8 +11,6 @@
 5. Project
 6. Внешние системы
 
-<!-- Maintainer sources: research/product-decisions.md; research/jedi-method-primary.md; research/singularity-mcp-tools.md. -->
-
 ## 1. Общий протокол записи
 
 Перед workflow проверь нужные tools по [MCP-контракту](mcp-contract.md).

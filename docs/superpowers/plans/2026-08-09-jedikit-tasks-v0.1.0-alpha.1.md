@@ -261,7 +261,7 @@ dependencies:
 
 - [x] **Step 4: Создать минимальные валидные reference entrypoints**
 
-Каждый reference начинает с назначения и списка разделов. На этом шаге уже добавить общие границы из Global Constraints, ссылки на соответствующие research-файлы в HTML comments для maintainers и правило «если нужного сценария нет — остановиться, не импровизировать». Tasks 3–5 добавят полные scenario decision tables; ни один committed reference не должен быть пустым или содержать заглушку.
+Каждый reference начинает с назначения и списка разделов. На этом шаге уже добавить общие границы из Global Constraints и правило «если нужного сценария нет — остановиться, не импровизировать». Источники и precedence остаются в research/plan: не помещать внутрь runtime references HTML-комментарии с путями к agent configuration, поскольку Hermes security scanner трактует их как injection/persistence. Tasks 3–5 добавят полные scenario decision tables; ни один committed reference не должен быть пустым или содержать заглушку.
 
 - [x] **Step 5: Проверить структуру skill**
 

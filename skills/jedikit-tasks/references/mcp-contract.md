@@ -9,8 +9,6 @@
 3. Scopes и OAuth
 4. Ошибки и безопасность
 
-<!-- Maintainer sources: research/singularity-mcp.md; research/singularity-mcp-live-probe.md; research/singularity-mcp-tools.md; research/singularity-mcp-prompts.md. -->
-
 ## 1. Endpoint и preflight
 
 Официальный Streamable HTTP endpoint:

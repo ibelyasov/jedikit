@@ -11,8 +11,6 @@
 5. Inbox debt
 6. Scheduler и status
 
-<!-- Maintainer sources: research/product-decisions.md; research/jedi-method-primary.md; research/jedi-community-practices.md; research/platform-codex.md; research/platform-claude.md; research/platform-hermes.md. -->
-
 ## 1. Native memory
 
 Автоматически храни только:
