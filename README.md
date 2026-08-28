@@ -23,6 +23,8 @@ JediKit не управляет календарём, привычками, ож
 
 Для минимального доступа нужны scopes `tasks:read/write/check`, `projects:read/write`, `tags:read/write`, `checklists:read/write` и `mcp:read/write`. Не выдавайте доступ к habits, kanban или time statistics для этого skill.
 
+Codex прошёл runtime smoke. Hermes прошёл runtime smoke с локально staged skill; GitHub install проверяется после появления skill в default branch. Claude artifact в alpha только experimental и структурно валидирован: реальный Claude Code runtime не проверен.
+
 ## Установка
 
 ### Codex
@@ -33,9 +35,11 @@ JediKit не управляет календарём, привычками, ож
 $skill-installer install https://github.com/ibelyasov/singularity-jedi-skill/tree/main/skills/jedikit-tasks
 ```
 
+`codex mcp add` может сразу открыть OAuth consent со всеми объявленными сервером scopes. Не подтверждайте это автоматическое окно: закройте его и выполните следующий `mcp login` с явным минимальным списком.
+
 ```bash
 codex mcp add singularity --url https://mcp.singularity-app.com/mcp
-codex mcp login singularity
+codex mcp login singularity --scopes tasks:read,tasks:write,tasks:check,projects:read,projects:write,tags:read,tags:write,checklists:read,checklists:write,mcp:read,mcp:write
 codex mcp list
 ```
 
@@ -90,8 +94,8 @@ python3 evals/run.py validate
 python3 evals/run.py self-test
 python3 evals/run.py score evals/evidence/baseline.jsonl --phase baseline
 python3 evals/run.py score evals/evidence/green.jsonl --phase green
-uv run --with pyyaml python ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/jedikit-tasks
-uv run --with pyyaml python ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+uv run --with pyyaml python "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" skills/jedikit-tasks
+uv run --with pyyaml python "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" .
 ```
 
 Runtime-only alpha artifact: `dist/jedikit-tasks-v0.1.0-alpha.1.zip`; контрольная сумма лежит рядом в `.zip.sha256`.

@@ -166,7 +166,7 @@
 
 - Все сценарии доступны естественным русским языком.
 - Portable intents: `setup`, `capture`, `triage`, `daily open`, `daily close`, `weekly`, `project`, `status`, `help`, `memory show|forget|reset`.
-- Хост использует нативный explicit invocation `jedikit-tasks`.
+- Хост поддерживает нативный explicit invocation `jedikit-tasks`; естественные запросы также могут активировать skill автоматически.
 - Отдельных intents `ideas`, `waiting`, `reminders`, `habits` в v1 нет.
 - Skill не создаёт команду для каждого MCP tool.
 

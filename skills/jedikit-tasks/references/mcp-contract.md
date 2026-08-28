@@ -27,31 +27,31 @@ https://mcp.singularity-app.com/mcp
 
 ### Reads
 
-| Tool | Критические arguments | Применение |
-| --- | --- | --- |
-| `project_list` | optional filters/pagination | setup и active hierarchy |
-| `project_get` | `id` | один проект |
-| `task_list` | optional `projectId`, `modifiedSince`, filters | проектные/обзорные выборки |
-| `task_get` | `id` | read-back одной задачи |
-| `task_list_today` | `timezone` | open дня |
-| `task_list_overdue` | `timezone` | несверенные прошлые планы |
-| `task_list_inbox` | optional `maxCount`, `fields` | triage |
+| Tool                | Критические arguments                          | Применение                 |
+| ------------------- | ---------------------------------------------- | -------------------------- |
+| `project_list`      | optional filters/pagination                    | setup и active hierarchy   |
+| `project_get`       | `id`                                           | один проект                |
+| `task_list`         | optional `projectId`, `modifiedSince`, filters | проектные/обзорные выборки |
+| `task_get`          | `id`                                           | read-back одной задачи     |
+| `task_list_today`   | `timezone`                                     | open дня                   |
+| `task_list_overdue` | `timezone`                                     | несверенные прошлые планы  |
+| `task_list_inbox`   | optional `maxCount`, `fields`                  | triage                     |
 
-`task_list` может вернуть много данных: используй узкие filters/fields и pagination, не загружай всё без причины.
+`task_list` может вернуть много данных: используй только объявленные обнаруженной схемой filters и pagination, не загружай всё без причины. Параметр `fields` применяй лишь к тем saved-view tools, где он присутствует в `tools/list`.
 
 ### Writes
 
-| Tool | Required | Разрешённое применение |
-| --- | --- | --- |
-| `project_create` | `title` | root/`Общее` или подтверждённый реальный проект; child через `parent` |
-| `project_update` | `id` | подтверждённые изменённые поля |
-| `project_archive` | `id` | после решения по открытым задачам |
-| `task_create` | `title` | capture или подтверждённая задача; optional `projectId/note/start/deadline/priority/timeLength` только по правилам |
-| `task_update` | `id` | triage и подтверждённые поля |
-| `task_move` | `id`, `projectId` | подтверждённое перемещение; optional `groupId` |
-| `task_complete` | `id` | явное завершение |
-| `task_cancel` | `id` | явное решение не выполнять |
-| `task_archive` | `id` | архивирование, не permanent delete |
+| Tool              | Required          | Разрешённое применение                                                                                             |
+| ----------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `project_create`  | `title`           | root/`Общее` или подтверждённый реальный проект; child через `parent`                                              |
+| `project_update`  | `id`              | подтверждённые изменённые поля                                                                                     |
+| `project_archive` | `id`              | после решения по открытым задачам                                                                                  |
+| `task_create`     | `title`           | capture или подтверждённая задача; optional `projectId/note/start/deadline/priority/timeLength` только по правилам |
+| `task_update`     | `id`              | triage и подтверждённые поля                                                                                       |
+| `task_move`       | `id`, `projectId` | подтверждённое перемещение; optional `groupId`                                                                     |
+| `task_complete`   | `id`              | явное завершение                                                                                                   |
+| `task_cancel`     | `id`              | явное решение не выполнять                                                                                         |
+| `task_archive`    | `id`              | архивирование, не permanent delete                                                                                 |
 
 Для lifecycle используй специальные `task_complete/task_cancel/task_archive`, а не имитируй их generic update.
 
