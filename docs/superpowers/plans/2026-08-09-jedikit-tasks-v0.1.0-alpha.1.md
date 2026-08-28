@@ -720,7 +720,7 @@ claude --plugin-dir .
 
 Проверить plugin errors и явный `/jedikit:jedikit-tasks` на fake MCP. Если Claude Code недоступен, записать `experimental / structurally validated`; не считать runtime подтверждённым.
 
-- [ ] **Step 4: Выполнить Hermes smoke — partial, registry install blocked**
+- [x] **Step 4: Выполнить Hermes GitHub install и runtime smoke**
 
 После отдельного разрешения на временную установку skill/MCP/cron:
 
@@ -751,7 +751,7 @@ hermes skills list --source all
 
 Сохранить Hermes version, model, tool intents и cleanup result. Никакой внешний канал и real OAuth не использовать.
 
-Фактический результат: registry install с feature branch заблокирован защитой Hermes URL source, потому что `raw.githubusercontent.com` в этом окружении резолвился в зарезервированный адрес `198.18.0.110`; GitHub source Hermes читает только default branch. Поэтому runtime smoke выполнен на точной локальной копии skill из pushed commit `bfa58eff49b9802502e08fde5123af62054ce0f3`. Read-only weekly и local-delivery cron прошли без MCP writes; временные skill, MCP и cron удалены, исходные `singularity` и `habitify` снова enabled. Подробности и ограничения записаны в `evals/evidence/host-smoke.jsonl`.
+Фактический результат: после публикации skill в default branch Hermes Agent `v0.20.6` установил точное runtime-дерево commit `715010c17d6af777cd735140a96bfb1274ae9b61`; `skills-guard-v2` вернул `SAFE`. Финальный daily-open smoke загрузил references, вызвал `task_list_today` и `task_list_overdue` с `Europe/Moscow`, выполнил широкий `task_list` без выдуманного enum-фильтра, сделал ноль writes и применил work/personal правило отдельно к каждой задаче. Ранее проверенный local-delivery cron также не делал MCP-вызовов. Временные skill и `jedikit-fake` удалены; исходные `singularity` и `habitify` остались enabled, существующий cron не менялся. Подробности и ограничения записаны в `evals/evidence/host-smoke.jsonl`.
 
 - [x] **Step 5: Выполнить независимый release-level forward-review**
 

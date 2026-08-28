@@ -23,7 +23,7 @@ JediKit не управляет календарём, привычками, ож
 
 Для минимального доступа нужны scopes `tasks:read/write/check`, `projects:read/write`, `tags:read/write`, `checklists:read/write` и `mcp:read/write`. Не выдавайте доступ к habits, kanban или time statistics для этого skill.
 
-Codex прошёл runtime smoke. Hermes прошёл runtime smoke с локально staged skill; GitHub install проверяется после появления skill в default branch. Claude artifact в alpha только experimental и структурно валидирован: реальный Claude Code runtime не проверен.
+Codex прошёл runtime smoke. Hermes прошёл GitHub install/security scan и read-only runtime smoke; временные skill и fake MCP после проверки удалены. Claude artifact в alpha только experimental и структурно валидирован: реальный Claude Code runtime не проверен.
 
 ## Установка
 
