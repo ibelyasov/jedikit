@@ -63,13 +63,13 @@ Root `.mcp.json` не является универсальной ChatGPT Connec
 До публикации в отдельных marketplace package можно загрузить напрямую. Для Claude Code:
 
 ```bash
-claude --plugin-dir /path/to/singularity-jedi-skill
+claude --plugin-dir /path/to/jedikit
 ```
 
 Hermes 0.20.6+ устанавливает весь package одной командой после проверки source:
 
 ```bash
-hermes plugins install ibelyasov/singularity-jedi-skill/packages/jedikit --enable
+hermes plugins install ibelyasov/jedikit/packages/jedikit --enable
 ```
 
 Для воспроизводимой установки релиза используйте указанный в GitHub release полный commit SHA через `--ref <full-commit-sha>`. Подкаталог отделяет публикуемый runtime от research/evidence репозитория, поэтому штатный Hermes security scan проверяет только устанавливаемые файлы. После появления записи с `subdir: packages/jedikit` в Hermes community plugin index идентификатор сократится до `jedikit`. Package регистрирует два namespaced child skills и два namespaced remote MCP, но не выдаёт OAuth-доступ без участия пользователя.

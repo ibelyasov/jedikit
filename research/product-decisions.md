@@ -212,7 +212,7 @@
 
 ## 17. Публичный репозиторий и governance
 
-- Текущий public repo — `ibelyasov/singularity-jedi-skill`; его переименование в `ibelyasov/jedikit` остаётся отдельным явно подтверждаемым действием.
+- Канонический public repo — `ibelyasov/jedikit`; прежний slug `ibelyasov/singularity-jedi-skill` сохранён только в исторических планах и evidence старых прогонов.
 - GitHub Issues остаются включёнными, но без шаблонов и SLA.
 - Runtime `SKILL.md` остаётся коротким; operational details раскладываются по компактным references.
 - Полный `research/` остаётся developer/reviewer evidence и не входит в runtime archive.
