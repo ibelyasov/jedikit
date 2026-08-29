@@ -11,7 +11,7 @@ JediKit — русскоязычный plugin/package с двумя самост
 
 ## Как это вызывается
 
-Обычно достаточно написать естественным языком: host выбирает skill по его описанию. Прямые `$jedikit-tasks` и `$jedikit-habits` нужны только как fallback.
+Обычно достаточно написать естественным языком: host выбирает skill по его описанию. Для standalone skill Codex использует `$jedikit-tasks` и `$jedikit-habits`; после plugin install их квалифицированные имена — `$jedikit:jedikit-tasks` и `$jedikit:jedikit-habits`.
 
 В OpenAI `@jedikit` означает mention/scoping всего plugin. Это не третий skill и не router. Корневого `$jedikit` нет. В Claude и Hermes синтаксис explicit invocation отличается, поэтому portable-контракт опирается на независимые child skills, а не на межskill API.
 
@@ -74,7 +74,9 @@ hermes plugins install ibelyasov/singularity-jedi-skill/packages/jedikit --enabl
 
 Для воспроизводимой установки релиза используйте указанный в GitHub release полный commit SHA через `--ref <full-commit-sha>`. Подкаталог отделяет публикуемый runtime от research/evidence репозитория, поэтому штатный Hermes security scan проверяет только устанавливаемые файлы. После появления записи с `subdir: packages/jedikit` в Hermes community plugin index идентификатор сократится до `jedikit`. Package регистрирует два namespaced child skills и два namespaced remote MCP, но не выдаёт OAuth-доступ без участия пользователя.
 
-Если `singularity` или `habitify` уже добавлены вручную через `hermes mcp add`, сначала проверьте текущую конфигурацию: после включения package старые и plugin-provided подключения могут существовать одновременно. Для Codex one-plugin install нужен опубликованный или локально зарегистрированный marketplace; его создание/установка не входит в этот candidate turn.
+Hermes 0.20.6 регистрирует remote MCP из Portable Agent Plugin v1 под namespaced именами, но его portable-переводчик не передаёт `auth: oauth`, а `hermes mcp login` видит только host-level `mcp_servers`. Поэтому рабочие OAuth-подключения `singularity` и `habitify`, добавленные через `hermes mcp add`, пока нельзя удалять: plugin устанавливает оба skills одной командой, а provider consent остаётся host-level. Не копируйте токены между namespace и не отключайте security scan.
+
+Для Codex one-plugin install нужен опубликованный или локально зарегистрированный marketplace. Smoke этого prerelease проверен через `codex plugin add`; публичная запись в universal Plugins Directory требует отдельной submission/review.
 
 ## Разработка и проверка
 
