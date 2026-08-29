@@ -1,6 +1,6 @@
 # Codex platform fit for `singularity-jedi`
 
-> **Product overlay 2026-08-29:** релизный пакет `jedikit` содержит два child skills и MCP manifest, без router. После plugin install Codex квалифицирует skills как `$jedikit:jedikit-tasks` и `$jedikit:jedikit-habits`; smoke через локальный marketplace подтвердил загрузку обоих из plugin cache.
+> **Product overlay 2026-08-29:** корневой Codex plugin `jedikit` содержит два child skills и `.mcp.json`, без router. Отдельный Hermes package skills-only и не меняет Codex contract. После plugin install Codex квалифицирует skills как `$jedikit:jedikit-tasks` и `$jedikit:jedikit-habits`; smoke через локальный marketplace подтвердил загрузку обоих из plugin cache.
 
 Дата проверки: **2026-08-08**. Источники ниже — только официальная документация OpenAI на `developers.openai.com`, `learn.chatgpt.com` и `platform.openai.com`. Установка, подключение и публикация в рамках этой проверки **не выполнялись**.
 

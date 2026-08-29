@@ -1,6 +1,6 @@
 # Hermes Agent для `singularity-jedi`
 
-> **Product overlay 2026-08-29:** Hermes 0.20.6 поддерживает atomic Portable Agent Plugin install из GitHub subdirectory и community plugin index. Реальный smoke подтвердил безопасную установку двух namespaced skills, но также подтвердил host limitation: portable remote MCP translation не переносит `auth: oauth`, поэтому существующие host-level OAuth connections пока сохраняются.
+> **Product overlay 2026-08-29:** Hermes 0.20.6 поддерживает atomic Portable Agent Plugin install из GitHub subdirectory и community plugin index. Live-проверка подтвердила, что skills-only package без `mcp.json` валиден и загружает оба namespaced skills. Provider tools приходят из существующих host-level OAuth connections; portable remote MCP не используются, потому что translation не переносит `auth: oauth`.
 
 Срез на **2026-08-08**. Под Hermes Agent здесь понимается open-source CLI/gateway из репозитория NousResearch, а не семейство моделей Nous Hermes. Context7 сначала разрешил библиотеку `/nousresearch/hermes-agent` (релевантность высокая, но каталог версий там отстаёт); источником истины для этого среза взят официальный релиз **Hermes Agent v0.20.0 / `v2026.8.3`**, опубликованный 2026-08-03: [release](https://github.com/NousResearch/hermes-agent/releases/tag/v2026.8.3). Документация ниже привязана к этому тегу, а не к плавающему `main`.
 

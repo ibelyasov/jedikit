@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "jedikit",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Русскоязычный набор навыков для задач SingularityApp и поведенческих экспериментов в Habitify.",
   "author": {
     "name": "Igor Belyasov",

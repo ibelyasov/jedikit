@@ -90,6 +90,7 @@ Platform-файлы сохраняют датированные срезы пе�
 Повторный grilling завершён. Полная трассировка habits-решений —
 [habits-grill-decisions.md](habits-grill-decisions.md), источник продуктовой
 истины — [product-decisions.md](product-decisions.md), отложенные направления —
-[BACKLOG.md](../BACKLOG.md). Упаковка — вариант A с `bundle-both`. Текущий tree
-остаётся `0.1.0-unreleased`; реальные Habitify-данные, OAuth-authorized smoke,
-Claude runtime и публикация не проверялись.
+[BACKLOG.md](../BACKLOG.md). Упаковка — вариант A с двумя child skills; Hermes
+package skills-only, а Codex/Claude root сохраняет `.mcp.json`. Текущий tree —
+candidate `0.1.0-alpha.2`; реальные Habitify writes, Claude runtime и новый
+GitHub release проверяются отдельными release-шагами.

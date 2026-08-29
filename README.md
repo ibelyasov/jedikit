@@ -1,6 +1,6 @@
 # JediKit — Разгрузи голову. Действуй ясно.
 
-**Версия:** `0.1.0-alpha.1`. Реализация задач и привычек находится в репозитории; это первый prerelease, а не заявление `production-ready`. Реальные пользовательские данные и Habitify writes не входят в release-проверку.
+**Версия:** `0.1.0-alpha.2`. Реализация задач и привычек находится в репозитории; это prerelease с исправленной Hermes-упаковкой, а не заявление `production-ready`. Реальные пользовательские данные и Habitify writes не входят в release-проверку.
 
 JediKit — русскоязычный plugin/package с двумя самостоятельными Agent Skills:
 
@@ -46,17 +46,30 @@ JediKit — русскоязычный plugin/package с двумя самост
 
 ## MCP и приватность
 
-Plugin использует утверждённый вариант A и упаковку `bundle-both`: два независимых
-child skills без root/router и два серверных подключения на plugin root:
+Plugin использует утверждённый вариант A: два независимых child skills без
+root/router. На Codex/Claude surfaces корневой `.mcp.json` объявляет два
+серверных подключения:
 
 - `singularity` — `https://mcp.singularity-app.com/mcp`;
 - `habitify` — `https://mcp.habitify.me/mcp`.
 
-На локальных plugin surfaces Codex/Claude используют root `.mcp.json`, а Hermes Portable Agent Plugin v1 — изолированный `packages/jedikit` с собственными `plugin.json`, `skills/` и `mcp.json`. Включённый package может сделать видимыми оба provider connection. Skills не вызывают чужой provider, но пользователь всё равно должен проверить OAuth consent и доступные tools. Habitify tool names и required fields не угадываются: после OAuth выполняются `initialize`/`tools/list`, а schema drift закрывает текущую операцию без REST или стороннего fallback.
+Hermes Portable Agent Plugin v1 использует изолированный skills-only package
+`packages/jedikit` с `plugin.json` и `skills/`, но без `mcp.json`. В Hermes 0.20.6
+plugin-level remote MCP получают отдельные namespaced имена, однако portable
+translation не переносит `auth: oauth`; такие объявления дублировали endpoint'ы
+без доступа к существующим OAuth-сессиям. Поэтому Hermes использует рабочие
+host-level `singularity` и `habitify`, настроенные через `hermes mcp add`.
+Skills не вызывают чужой provider, но пользователь всё равно должен проверить
+OAuth consent и доступные tools. Habitify tool names и required fields не
+угадываются: после OAuth выполняются `initialize`/`tools/list`, а schema drift
+закрывает текущую операцию без REST или стороннего fallback.
 
 Не сохраняются episodes, вес, sexual details, причины, заметки или токены. Допустимы только timezone, cadence, privacy preference, выбранные habit IDs и технические timestamps обзоров. Чувствительные названия не уходят во внешние уведомления без отдельного opt-in.
 
-Root `.mcp.json` не является универсальной ChatGPT Connected App. ChatGPT/Work требует отдельно зарегистрированного connection/app. Hermes 0.20.6+ читает `packages/jedikit/plugin.json`, оба вложенных `skills/` и `packages/jedikit/mcp.json` как один Portable Agent Plugin v1; OAuth всё равно подтверждается пользователем на стороне каждого provider.
+Root `.mcp.json` не является универсальной ChatGPT Connected App. ChatGPT/Work
+требует отдельно зарегистрированного connection/app. Hermes 0.20.6+ читает
+`packages/jedikit/plugin.json` и оба вложенных `skills/` как один Portable Agent
+Plugin v1; provider OAuth остаётся в host-level MCP-конфигурации Hermes.
 
 ## Локальная проверка candidate
 
@@ -72,9 +85,13 @@ Hermes 0.20.6+ устанавливает весь package одной коман
 hermes plugins install ibelyasov/jedikit/packages/jedikit --enable
 ```
 
-Для воспроизводимой установки релиза используйте указанный в GitHub release полный commit SHA через `--ref <full-commit-sha>`. Подкаталог отделяет публикуемый runtime от research/evidence репозитория, поэтому штатный Hermes security scan проверяет только устанавливаемые файлы. После появления записи с `subdir: packages/jedikit` в Hermes community plugin index идентификатор сократится до `jedikit`. Package регистрирует два namespaced child skills и два namespaced remote MCP, но не выдаёт OAuth-доступ без участия пользователя.
+Для воспроизводимой установки релиза используйте указанный в GitHub release полный commit SHA через `--ref <full-commit-sha>`. Подкаталог отделяет публикуемый runtime от research/evidence репозитория, поэтому штатный Hermes security scan проверяет только устанавливаемые файлы. После появления записи с `subdir: packages/jedikit` в Hermes community plugin index идентификатор сократится до `jedikit`. Package регистрирует только два namespaced child skills и не создаёт MCP-дубли.
 
-Hermes 0.20.6 регистрирует remote MCP из Portable Agent Plugin v1 под namespaced именами, но его portable-переводчик не передаёт `auth: oauth`, а `hermes mcp login` видит только host-level `mcp_servers`. Поэтому рабочие OAuth-подключения `singularity` и `habitify`, добавленные через `hermes mcp add`, пока нельзя удалять: plugin устанавливает оба skills одной командой, а provider consent остаётся host-level. Не копируйте токены между namespace и не отключайте security scan.
+Перед использованием в Hermes должны существовать рабочие OAuth-подключения
+`singularity` и `habitify`, добавленные через `hermes mcp add`. Проверяйте их
+командами `hermes mcp test singularity` и `hermes mcp test habitify`. Plugin
+устанавливает оба skills одной командой, но намеренно не управляет provider
+connections, не копирует токены и не требует отключать security scan.
 
 Для Codex one-plugin install нужен опубликованный или локально зарегистрированный marketplace. Smoke этого prerelease проверен через `codex plugin add`; публичная запись в universal Plugins Directory требует отдельной submission/review.
 

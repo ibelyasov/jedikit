@@ -1,6 +1,6 @@
 # What a human decided
 
-Written 2026-08-29 16:34 UTC. procoder reads this
+Written 2026-08-29 18:14 UTC. procoder reads this
 file to avoid asking a question twice; edit an answer here to change what
 it believes. Reword the question and it will be asked again.
 
@@ -33,6 +33,16 @@ Question: Что делает setup с существующими данными
 - migrate — мигрирует в том же потоке и сохраняет memo.
 
 Answer: audit-only — только читает кандидатов; migration имеет отдельные preview/confirmation, setup memo не создаётся.
+
+## [decision] decisions.md
+
+Key: 849e77392d38
+Question: Что делать с неавторизованными MCP-дублями Hermes plugin?
+
+- alpha2 — удалить `packages/jedikit/mcp.json`, сохранить host-level OAuth MCP, выпустить и установить `v0.1.0-alpha.2`.
+- keep — оставить namespaced plugin MCP рядом с host-level connections и не выпускать исправление.
+
+Answer: alpha2 — удалить `packages/jedikit/mcp.json`, сохранить host-level OAuth MCP, выпустить и установить `v0.1.0-alpha.2`.
 
 ## [decision] decisions.md
 

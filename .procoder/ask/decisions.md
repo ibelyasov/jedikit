@@ -47,3 +47,8 @@
 
 - alpha — завершить gate, опубликовать `v0.1.0-alpha.1` и установить единый Hermes plugin.
 - hold — оставить новый package локальным candidate без tag, публикации и установки.
+
+## Что делать с неавторизованными MCP-дублями Hermes plugin?
+
+- alpha2 — удалить `packages/jedikit/mcp.json`, сохранить host-level OAuth MCP, выпустить и установить `v0.1.0-alpha.2`.
+- keep — оставить namespaced plugin MCP рядом с host-level connections и не выпускать исправление.

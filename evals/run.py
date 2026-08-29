@@ -843,6 +843,12 @@ def runtime_tree_digest() -> str:
 
 def validate_portable_package() -> None:
     root = ROOT.parent
+    hermes_mcp = root / "packages" / "jedikit" / "mcp.json"
+    if hermes_mcp.exists():
+        raise ValueError(
+            "Hermes package must stay skills-only; host-level OAuth MCP "
+            "connections are the supported provider path"
+        )
     canonical = root / "skills"
     packaged = root / "packages" / "jedikit" / "skills"
     canonical_files = {
