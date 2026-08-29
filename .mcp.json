@@ -3,6 +3,10 @@
     "singularity": {
       "type": "http",
       "url": "https://mcp.singularity-app.com/mcp"
+    },
+    "habitify": {
+      "type": "http",
+      "url": "https://mcp.habitify.me/mcp"
     }
   }
 }

@@ -1,6 +1,6 @@
 # Backlog
 
-Отложенные области после повторного grilling 2026-08-29. Это не roadmap и не обещание релиза: пункт получает scope только после отдельного исследования, grilling и acceptance cases.
+Отложенные области после повторного grilling 2026-08-29. Это не roadmap и не обещание релиза: пункт получает scope только после отдельного исследования, grilling и acceptance cases. `jedikit-habits` уже получил scope и реализован отдельным skill; в backlog он не входит.
 
 ## Future skills
 
@@ -23,12 +23,6 @@
 - Исследовать host-native reminder/scheduler capabilities и privacy delivery.
 - Не имитировать reminder без подтверждённого канала и runtime.
 
-### Habits
-
-- Исследовать канон/другие методологии отдельно от task workflow.
-- Спроектировать отдельные OAuth scopes и MCP tools (`habit_*`, `habit_progress_*`).
-- Не включать habits scopes в task-skill.
-
 ### Projects
 
 - Расширенное планирование, roadmap, milestones, зависимости, multi-project review и project health.
@@ -38,7 +32,7 @@
 
 - Calendar integration для реальной проверки вместимости daily и ближайших ограничений weekly.
 - Event/webhook layer, только если vendor когда-либо предоставит подтверждённый контракт или появится обоснованный poller.
-- Router/bundle после появления второй зрелой области.
+- Root/router skill не планируется в варианте A; cross-domain запросы разделяются на два child-skill workflow. Повторное рассмотрение возможно только после отдельного подтверждённого контракта.
 - Marketplace submissions Codex/Claude и Hermes tap/Hub после стабильного GitHub release.
 
 ## Explicitly not planned without new evidence

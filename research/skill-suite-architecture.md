@@ -1,6 +1,6 @@
 # Архитектура коллекции Agent Skills
 
-**Проверено:** 2026-08-09 (Europe/Moscow).
+**Проверено:** 2026-08-29 (Europe/Moscow).
 
 **Статус:** platform research для набора JediKit. Context7 использован первым (`/openai/codex`, `/anthropics/claude-code`, `/nousresearch/hermes-agent`), затем выводы сверены с официальной документацией и публичными коллекциями.
 
@@ -8,12 +8,12 @@
 
 Нужно различать **umbrella package/source identity** и **router skill**.
 
-- Единый бренд/репозиторий/пакет полезен: пользователь понимает, что task, habits, reminders и будущие skills принадлежат одному набору.
-- Широкий implicit router в v1 не нужен: хосты уже маршрутизируют skills по `name` и `description`, а router добавит ложные срабатывания и дублирование инструкций.
-- Тонкий explicit router оправдан только после появления второй зрелой области и реального cross-domain workflow.
+- Единый бренд/репозиторий/plugin полезен: пользователь понимает, что task, habits и будущие skills принадлежат одному набору.
+- Широкий implicit router не нужен: хосты уже маршрутизируют skills по `name` и `description`, а router добавит ложные срабатывания и дублирование инструкций.
+- Даже после появления второй области выбран вариант A: два независимых implicit skills. Cross-domain workflow делится на отдельные вызовы; отдельный router можно пересмотреть только по новому подтверждённому контракту.
 - «Одна установка» не является переносимым обещанием: Codex и Claude умеют plugin с несколькими skills; Hermes tap регистрирует источник, но документация показывает установку отдельных skills.
 
-Решение v1: один umbrella source `jedikit`, один рабочий skill `jedikit-tasks`, без router. Будущие skills получают стабильные суффиксы и добавляются без переименования task-skill.
+Решение: umbrella source/package/plugin `jedikit`, независимые skills `jedikit-tasks` и `jedikit-habits`, без root/router skill. Естественный язык — основной UX, explicit child invocation — fallback. `@jedikit` означает только OpenAI plugin mention/scoping; `$jedikit` не существует как portable tag.
 
 ## Подтверждённые факты платформ
 
@@ -23,6 +23,7 @@
 - Distributable plugin содержит `.codex-plugin/plugin.json` и может включать несколько каталогов в `skills/` ([Package plugins](https://developers.openai.com/plugins/build/plugins)).
 - Один plugin install выставляет все bundled skills. Marketplace JSON — каталог plugins; добавление marketplace регистрирует источник, а не устанавливает весь каталог.
 - Документированные Codex dependencies относятся к tools, а не образуют переносимый skill-to-skill dependency graph.
+- Plugin mention `@jedikit` scopes plugin context, но не является отдельным router skill; implicit discovery по descriptions остаётся основным путём.
 
 ### Claude Code
 
@@ -44,13 +45,13 @@
 
 ## Наблюдаемые публичные коллекции
 
-| Коллекция | Наблюдаемый паттерн | Вывод |
-|---|---|---|
-| [openai/plugins](https://github.com/openai/plugins) | Один Codex marketplace catalog, plugins могут нести skills/MCP | package/catalog выше отдельного skill |
-| [anthropics/skills](https://github.com/anthropics/skills) | Один Claude marketplace source; plugins группируют document/example skills | один plugin install может открыть набор skills |
-| [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) | Большой каталог с pinned sources/refs | marketplace — индекс, не atomic install каталога |
-| [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | Multi-skill repo и внешняя grouping metadata без обязательного router | discovery может обходиться descriptions/grouping |
-| [obra/superpowers](https://github.com/obra/superpowers) | Большая библиотека с отдельными harness integration paths | одинаковый repo не означает одинаковый install/runtime |
+| Коллекция                                                                                   | Наблюдаемый паттерн                                                        | Вывод                                                  |
+| ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------ |
+| [openai/plugins](https://github.com/openai/plugins)                                         | Один Codex marketplace catalog, plugins могут нести skills/MCP             | package/catalog выше отдельного skill                  |
+| [anthropics/skills](https://github.com/anthropics/skills)                                   | Один Claude marketplace source; plugins группируют document/example skills | один plugin install может открыть набор skills         |
+| [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) | Большой каталог с pinned sources/refs                                      | marketplace — индекс, не atomic install каталога       |
+| [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills)                     | Multi-skill repo и внешняя grouping metadata без обязательного router      | discovery может обходиться descriptions/grouping       |
+| [obra/superpowers](https://github.com/obra/superpowers)                                     | Большая библиотека с отдельными harness integration paths                  | одинаковый repo не означает одинаковый install/runtime |
 
 Observed repo patterns не являются стандартом и не доказывают поддержку теми хостами, где соответствующая механика не документирована.
 
@@ -69,11 +70,11 @@ Router вреден, когда:
 - притворяется dependency manager;
 - появляется до второй реализованной области.
 
-Для v1 entity coaching остаётся внутри `jedikit-tasks`. Отдельный router откладывается.
+Entity coaching остаётся внутри `jedikit-tasks`, а habit coaching — внутри `jedikit-habits`. Отдельный router не добавляется: mixed request должен явно разделяться на два workflow с независимыми approval boundaries.
 
 ## Naming, references и versioning
 
-- Package/repo: `jedikit`; skills: `jedikit-tasks`, позднее `jedikit-habits`, `jedikit-reminders`, `jedikit-ideas`, `jedikit-projects`.
+- Package/repo/plugin: `jedikit`; skills: `jedikit-tasks`, `jedikit-habits`, позднее `jedikit-reminders`, `jedikit-ideas`, `jedikit-projects`.
 - Slugs — lowercase hyphenated, уникальные и короче лимита Agent Skills.
 - Каждый skill должен быть runtime-самодостаточным. Нельзя полагаться на `../shared`: хосты по-разному копируют/cache plugin directories, а Hermes URL install переносит только явно referenced support files.
 - Общий контракт можно поддерживать в canonical source и механически копировать при release, но в опубликованном skill каждая нужная reference лежит локально.
@@ -85,7 +86,10 @@ Router вреден, когда:
 ```text
 jedikit/
 ├── skills/
-│   └── jedikit-tasks/
+│   ├── jedikit-tasks/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   └── jedikit-habits/
 │       ├── SKILL.md
 │       └── references/
 ├── adapters/
@@ -111,8 +115,9 @@ jedikit/
 ## Подтверждённое решение продукта
 
 - Umbrella identity — да.
-- Router v1 — нет.
-- Один task-skill v1 — да.
-- Пустые future skills — нет.
+- Root/router skill — нет; это вариант A.
+- Два независимых skills (`jedikit-tasks`, `jedikit-habits`) — да.
+- Implicit natural-language routing и explicit child fallback — да.
+- `@jedikit` — только OpenAI plugin scope; `$jedikit` — отсутствующий tag.
 - Atomic one-install на всех трёх хостах — не обещать.
-- Ideas, waiting, reminders, habits и расширенные projects — backlog до самостоятельной спецификации.
+- Ideas, waiting, reminders и расширенные projects — backlog до самостоятельной спецификации. Habits вышли из backlog и имеют отдельный академический reference/eval контур.

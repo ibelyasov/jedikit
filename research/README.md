@@ -1,26 +1,29 @@
 # Исследовательская база JediKit
 
-Проверено: **2026-08-29**. Исследования собраны до проектирования и реализации; повторный audit/grilling 2026-08-29 зафиксирован в каноническом журнале решений. Финальный бренд — **JediKit**; канонический package/repo slug — `jedikit`, первый skill — `jedikit-tasks`. Текущий GitHub-репозиторий ещё не переименован.
+Проверено: **2026-08-29**. Исследования собраны до проектирования и реализации; повторный audit/grilling 2026-08-29 зафиксирован в каноническом журнале решений. Финальный бренд — **JediKit**; канонический package/repo slug — `jedikit`, а текущий runtime-набор — два независимых skills: `jedikit-tasks` и `jedikit-habits`. Текущий GitHub-репозиторий ещё не переименован.
 
 ## Навигация
 
-| Направление              | Файл                                                           | Что внутри                                                          |
-| ------------------------ | -------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Итоги grilling           | [product-decisions.md](product-decisions.md)                   | Согласованный продуктовый контракт v1 и закрытые границы            |
-| Архитектура набора       | [skill-suite-architecture.md](skill-suite-architecture.md)     | Один пакет, узкие skills, адаптеры Codex/Claude/Hermes              |
-| Нейминг                  | [naming-candidates.md](naming-candidates.md)                   | Финальное решение JediKit и история проверенных кандидатов          |
-| Отложенные направления   | [../BACKLOG.md](../BACKLOG.md)                                 | Идеи, ожидания, напоминания, привычки и другие расширения           |
-| SingularityApp и MCP     | [singularity-mcp.md](singularity-mcp.md)                       | REST API v2, hosted MCP, OAuth/scopes, сущности и ограничения       |
-| Live MCP probe           | [singularity-mcp-live-probe.md](singularity-mcp-live-probe.md) | OAuth least privilege, версия сервера и scope-filtered `tools/list` |
-| Полный каталог MCP tools | [singularity-mcp-tools.md](singularity-mcp-tools.md)           | Live `tools/list`: 48 точных контрактов и capability matrix         |
-| Встроенные MCP prompts   | [singularity-mcp-prompts.md](singularity-mcp-prompts.md)       | Четыре server-provided шаблона и расхождения с продуктом            |
-| Авторская методология    | [jedi-method-primary.md](jedi-method-primary.md)               | Decision trees, операционные карточки, правила и provenance         |
-| Практики сообщества      | [jedi-community-practices.md](jedi-community-practices.md)     | Сценарии, примеры, decision tables и recovery playbooks             |
-| Codex                    | [platform-codex.md](platform-codex.md)                         | Agent Skills, plugins, MCP и Scheduled Tasks                        |
-| Claude                   | [platform-claude.md](platform-claude.md)                       | Skills/plugins, marketplace, MCP и scheduling                       |
-| Hermes                   | [platform-hermes.md](platform-hermes.md)                       | Skills Hub/taps, MCP, cron, delivery и permissions                  |
-| Право и атрибуция        | [legal-and-attribution.md](legal-and-attribution.md)           | Copyright, бренды, MIT и дисклеймер                                 |
-| Тестирование             | [testing-strategy.md](testing-strategy.md)                     | Fake MCP, safety cases, smoke tests и acceptance matrix             |
+| Направление              | Файл                                                                    | Что внутри                                                          |
+| ------------------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Итоги grilling           | [product-decisions.md](product-decisions.md)                            | Согласованный продуктовый контракт v1 и закрытые границы            |
+| Архитектура набора       | [skill-suite-architecture.md](skill-suite-architecture.md)              | Один пакет, узкие skills, адаптеры Codex/Claude/Hermes              |
+| Нейминг                  | [naming-candidates.md](naming-candidates.md)                            | Финальное решение JediKit и история проверенных кандидатов          |
+| Исследования habits      | [skills/jedikit-habits/references](../skills/jedikit-habits/references) | Академические основания, safety и Habitify MCP-контракт             |
+| Отложенные направления   | [../BACKLOG.md](../BACKLOG.md)                                          | Идеи, ожидания, напоминания и другие расширения                     |
+| SingularityApp и MCP     | [singularity-mcp.md](singularity-mcp.md)                                | REST API v2, hosted MCP, OAuth/scopes, сущности и ограничения       |
+| Live MCP probe           | [singularity-mcp-live-probe.md](singularity-mcp-live-probe.md)          | OAuth least privilege, версия сервера и scope-filtered `tools/list` |
+| Полный каталог MCP tools | [singularity-mcp-tools.md](singularity-mcp-tools.md)                    | Live `tools/list`: 48 точных контрактов и capability matrix         |
+| Встроенные MCP prompts   | [singularity-mcp-prompts.md](singularity-mcp-prompts.md)                | Четыре server-provided шаблона и расхождения с продуктом            |
+| Авторская методология    | [jedi-method-primary.md](jedi-method-primary.md)                        | Decision trees, операционные карточки, правила и provenance         |
+| Практики сообщества      | [jedi-community-practices.md](jedi-community-practices.md)              | Сценарии, примеры, decision tables и recovery playbooks             |
+| Codex                    | [platform-codex.md](platform-codex.md)                                  | Agent Skills, plugins, MCP и Scheduled Tasks                        |
+| Claude                   | [platform-claude.md](platform-claude.md)                                | Skills/plugins, marketplace, MCP и scheduling                       |
+| Hermes                   | [platform-hermes.md](platform-hermes.md)                                | Skills Hub/taps, MCP, cron, delivery и permissions                  |
+| Право и атрибуция        | [legal-and-attribution.md](legal-and-attribution.md)                    | Copyright, бренды, MIT и дисклеймер                                 |
+| Тестирование             | [testing-strategy.md](testing-strategy.md)                              | Fake MCP, safety cases, smoke tests и acceptance matrix             |
+
+Platform-файлы сохраняют датированные срезы первоначального task-only исследования. Их старые product-overlay формулировки считаются историческими; текущая двухskill-архитектура зафиксирована здесь и в [product-decisions.md](product-decisions.md).
 
 ## Согласованный v1
 
@@ -28,8 +31,9 @@
 
 - Публичный неофициальный русскоязычный Agent Skill под MIT для оригинальных материалов проекта.
 - Официальный hosted MCP SingularityApp используется напрямую; собственный MCP и REST fallback не нужны.
-- Один зонтичный пакет `jedikit` с одним рабочим skill `jedikit-tasks`. Идеи, ожидания, напоминания, привычки и расширенное управление проектами остаются в backlog.
-- Каноническое portable-ядро и тонкие адаптеры Codex, Claude и Hermes. Широкого router skill в v1 нет.
+- Один зонтичный package/plugin `jedikit` с двумя независимыми рабочими skills: `jedikit-tasks` для SingularityApp и `jedikit-habits` для Habitify. Идеи, ожидания, напоминания и расширенное управление проектами остаются в backlog.
+- Естественный язык маршрутизируется самим host по описаниям skills; прямой вызов дочернего skill остаётся fallback. Корневого/router skill нет. `@jedikit` — только OpenAI plugin mention/scoping, а `$jedikit` не является skill-тегом и не поддерживается.
+- Канонические portable-ядра и тонкие адаптеры Codex, Claude и Hermes. Mixed task+habit запрос разбивается на отдельные подтверждённые workflows; общей псевдотранзакции нет.
 - Финальное имя — **JediKit**; tagline — «Разгрузи голову. Действуй ясно.» Наблюдаемая нишевая коллизия со старым Star Wars-модом принята пользователем осознанно.
 
 ### Модель данных и структура
@@ -46,6 +50,14 @@
 - Одиночная обратимая запись допустима сразу в явно понятном контексте. Групповые изменения и существенная перепланировка требуют preview и подтверждения.
 - Hosted MCP не предоставляет подтверждённого permanent delete или настоящего batch. Желаемый manual-transfer cleanup поэтому сейчас блокируется capability gap; archive не называется и не используется как delete. Согласованная группа выполняется последовательными наблюдаемыми операциями.
 - Завершение задачи не запускает unsolicited push и не предлагает следующую задачу. Следующий шаг проекта проверяется только по запросу пользователя, в daily close или weekly review.
+
+### Привычки
+
+- `jedikit-habits` использует только официальный Habitify MCP; привычка — наблюдаемое поведение, а не цель «сбросить вес». Вес остаётся внешним/необязательным outcome.
+- Пищевые эксперименты формулируются как конкретные поведения (например, поздняя еда, переедание, сладкое или планирование), а «порно» и «мастурбация» ведутся как два отдельных эксперимента с точными названиями пользователя.
+- План эксперимента остаётся человекочитаемым: цель, cue, минимальное действие/замена, if–then coping, дата review и stop-rule. Академические основания лежат в локальных references и загружаются по ситуации; runtime skill не является энциклопедией.
+- Чтение Habitify автономно. Один явно запрошенный одиночный обратимый log выполняется сразу только при обнаруженных provider-native undo и read-back; предложенные агентом или групповые изменения сначала показываются preview и требуют подтверждения. Необратимое удаление — отдельный барьер.
+- Нативный Habitify Off Mode используется только если он обнаружен среди MCP capabilities; иначе skill объясняет ручное включение в приложении и не имитирует отпуск пропусками, archive или delete.
 
 ### Регулярные практики
 
@@ -70,9 +82,14 @@
 
 - Hosted MCP: `singularity-mcp ^2.0.1`, protocol `2025-11-25`; full-scope Hermes probe вернул 48 tools. Явных permanent-delete и batch tools нет.
 - Четыре встроенных MCP prompts исследованы, но core v1 их не использует: они навязывают часы/квоты и расходятся с согласованными review/triage правилами.
-- Codex и Claude могут установить plugin с несколькими skills. Hermes tap регистрирует источник, но официальная документация показывает установку отдельных skills; bundle — runtime alias уже установленных skills.
+- Codex и Claude могут установить plugin с несколькими skills. Hermes tap регистрирует источник, но официальная документация показывает установку отдельных skills; bundle — runtime alias уже установленных skills. Это не превращает package в переносимый router/dependency manager.
 - Marketplace-релизы не симметричны и отложены до стабильного GitHub prerelease.
 
 ## Статус
 
-Повторный grilling завершён. Источник истины — [product-decisions.md](product-decisions.md); отложенные направления — [BACKLOG.md](../BACKLOG.md). Текущий tree прошёл fail-closed release gate и остаётся `unreleased candidate` до отдельного решения о version/tag и публикации.
+Повторный grilling завершён. Полная трассировка habits-решений —
+[habits-grill-decisions.md](habits-grill-decisions.md), источник продуктовой
+истины — [product-decisions.md](product-decisions.md), отложенные направления —
+[BACKLOG.md](../BACKLOG.md). Упаковка — вариант A с `bundle-both`. Текущий tree
+остаётся `0.1.0-unreleased`; реальные Habitify-данные, OAuth-authorized smoke,
+Claude runtime и публикация не проверялись.

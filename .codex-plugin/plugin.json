@@ -1,23 +1,34 @@
 {
   "name": "jedikit",
   "version": "0.1.0-unreleased",
-  "description": "Agent Skill для управления задачами SingularityApp по методике Максима Дорофеева.",
+  "description": "Русскоязычный набор навыков для задач SingularityApp и поведенческих экспериментов в Habitify.",
   "author": {
     "name": "Igor Belyasov",
     "url": "https://github.com/ibelyasov"
   },
   "repository": "https://github.com/ibelyasov/singularity-jedi-skill",
   "license": "MIT",
-  "keywords": ["singularityapp", "tasks", "productivity", "agent-skill"],
+  "keywords": [
+    "singularityapp",
+    "tasks",
+    "habitify",
+    "habits",
+    "behavior-change",
+    "productivity",
+    "agent-skill"
+  ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "JediKit",
-    "shortDescription": "Разгрузи голову. Действуй ясно.",
-    "longDescription": "Русскоязычный Agent Skill для задач и регулярных обзоров SingularityApp по методике Максима Дорофеева.",
+    "shortDescription": "Задачи Singularity и привычки Habitify.",
+    "longDescription": "Два самостоятельных навыка: задачи SingularityApp и поведенческие эксперименты в Habitify — с безопасными записями, обзорами и без скрытой синхронизации.",
     "developerName": "Igor Belyasov",
     "category": "Productivity",
     "capabilities": ["Interactive", "Write"],
-    "defaultPrompt": "Помоги разобрать мои задачи в SingularityApp."
+    "defaultPrompt": [
+      "Помоги разобрать мои задачи в SingularityApp.",
+      "Помоги настроить привычку в Habitify."
+    ]
   }
 }

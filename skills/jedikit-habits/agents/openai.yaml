@@ -1,0 +1,13 @@
+interface:
+  display_name: "JediKit Habits"
+  short_description: "Проектируй и веди привычки в Habitify."
+  default_prompt: "Помоги спроектировать или вести привычку в Habitify."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "habitify"
+      description: "Официальный Habitify MCP"
+      transport: "streamable_http"
+      url: "https://mcp.habitify.me/mcp"
+policy:
+  allow_implicit_invocation: true

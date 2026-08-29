@@ -1,7 +1,7 @@
 {
   "name": "jedikit",
   "version": "0.1.0-unreleased",
-  "description": "Agent Skill для управления задачами SingularityApp по методике Максима Дорофеева.",
+  "description": "Русскоязычный набор навыков для задач SingularityApp и поведенческих экспериментов в Habitify.",
   "author": {
     "name": "Igor Belyasov",
     "url": "https://github.com/ibelyasov"
@@ -9,5 +9,13 @@
   "homepage": "https://github.com/ibelyasov/singularity-jedi-skill",
   "repository": "https://github.com/ibelyasov/singularity-jedi-skill",
   "license": "MIT",
-  "keywords": ["singularityapp", "tasks", "productivity", "agent-skill"]
+  "keywords": [
+    "singularityapp",
+    "tasks",
+    "habitify",
+    "habits",
+    "behavior-change",
+    "productivity",
+    "agent-skill"
+  ]
 }

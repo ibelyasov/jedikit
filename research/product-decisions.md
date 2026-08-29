@@ -1,32 +1,34 @@
-# Product decisions: JediKit Tasks for SingularityApp
+# Product decisions: JediKit Tasks and Habits
 
 **Актуально на:** 2026-08-29 (Europe/Moscow)
 
 **Статус:** повторный audit/grilling завершён и подтверждён пользователем. Текущий tree — `unreleased candidate`: новые контракты и eval gate должны быть реализованы и проверены до любого стабильного tag или заявления `production-ready`.
 
-**Финальный бренд:** `JediKit`; package/repo slug `jedikit`; первый skill `jedikit-tasks`.
+**Финальный бренд:** `JediKit`; package/repo slug `jedikit`; runtime skills `jedikit-tasks` и `jedikit-habits`.
 
 Этот файл — источник финальных продуктовых решений. Исследовательские рекомендации в других файлах не являются требованиями, если противоречат этому журналу.
 
 ## 1. Назначение и границы v1
 
-- Публичный неофициальный Agent Skill управляет личным пространством SingularityApp через официальный hosted MCP.
+- Публичный неофициальный пакет/plugin `jedikit` содержит два независимых portable skills: `jedikit-tasks` управляет личным пространством SingularityApp через официальный hosted MCP, а `jedikit-habits` — привычками через официальный Habitify MCP.
 - Методическая основа — подтверждённые практики из «Джедайских техник» 1 и 2 Максима Дорофеева, изложенные собственными словами. Это не замена книгам и не официальный продукт автора или SingularityApp.
 - Язык v1 — русский.
 - Лицензия оригинальных материалов проекта — MIT; права на книги, API, бренды и другие сторонние материалы ею не передаются.
 - Skill — интерактивный оператор и советник. Он может оспорить перегрузку или слабую формулировку, но окончательное решение принимает пользователь.
 - При неоднозначности агент задаёт ровно один уточняющий вопрос и одновременно предлагает рекомендуемую трактовку.
-- Рабочая область — личные задачи пользователя. Jira/CRM/email остаются source of truth; в Singularity можно хранить только личный следующий шаг и разрешённую ссылку.
-- В v1 нет собственного MCP, REST fallback, телеметрии, habits, kanban, time statistics и календарной интеграции.
+- Рабочая область task-skill — личные задачи пользователя. Jira/CRM/email остаются source of truth; в Singularity можно хранить только личный следующий шаг и разрешённую ссылку. Habitify остаётся source of truth для habits.
+- Нет собственного MCP, REST/третьестороннего fallback, телеметрии, kanban, time statistics и календарной интеграции.
 
 ## 2. Имя и будущий набор skills
 
 - Финальный бренд — **JediKit**. Tagline: **«Разгрузи голову. Действуй ясно.»**
-- Репозиторий и package получают umbrella-slug `jedikit`; рабочий skill v1 — `jedikit-tasks`.
+- Репозиторий и package/plugin получают umbrella-slug `jedikit`; runtime skills — `jedikit-tasks` и `jedikit-habits`.
 - Кандидаты `LoopHarbor`, `JediLoop`, `JediTools`, `Pensoza/Cueriva/Pivilo` и другие варианты отклонены.
 - Exact-название `JediKit` встречается у старого Star Wars-мода; пользователь осознанно принял эту нишевую коллизию и связанные риски имени `Jedi`.
-- В v1 нет отдельного router-skill. Router появляется только вместе со второй зрелой предметной областью.
-- Новые skills (`jedikit-habits`, `jedikit-reminders`, `jedikit-ideas`, расширенный `jedikit-projects`) добавляются позже без переименования task-skill.
+- Выбран вариант A: отдельного корневого/router-skill нет. Каждый child-skill самодостаточен и активируется implicit по естественному языку; прямой вызов `jedikit-tasks` или `jedikit-habits` остаётся fallback.
+- `@jedikit` — только OpenAI plugin mention/scoping; переносимого тега `$jedikit` нет. Mention package не является маршрутизатором и не создаёт дополнительный skill.
+- Будущие skills (`jedikit-reminders`, `jedikit-ideas`, расширенный `jedikit-projects`) добавляются позже без переименования существующих skills.
+- Запрос, который смешивает task и habit, делится на два последовательных workflow с отдельными подтверждениями; общей псевдотранзакции нет.
 - Краткий публичный tagline используется в listings; README дополнительно описывает Agent Skill для SingularityApp по методологии Максима Дорофеева.
 - Дисклеймер: независимый проект, не связанный и не одобренный Максимом Дорофеевым или SingularityApp. Lucasfilm/Disney заранее в продуктовых текстах не упоминаются.
 - Имя считается финальным по решению пользователя; проект не утверждает, что оно прошло юридический trademark clearance.
@@ -130,7 +132,7 @@
 - Встроенные prompts `plan_my_day`, `triage_inbox`, `weekly_review`, `summarize_project` не используются в core.
 - OAuth default: core read/write scopes только для tasks, task checks, projects и MCP.
 - `tags:*` и `checklists:*` не запрашиваются заранее. При недоступной опциональной capability core-flow продолжается с явным capability gap; scopes никогда не расширяются автоматически.
-- Habits, kanban и time-stat scopes не запрашиваются.
+- `jedikit-tasks` не запрашивает habits, kanban и time-stat scopes; `jedikit-habits` использует только отдельный официальный Habitify MCP-контракт.
 - Permanent delete и настоящий server batch отсутствуют в текущем подтверждённом hosted contract. Поэтому выбранный cleanup после ручного переноса сейчас честно блокируется; archive/cancel не подменяют delete.
 - Если tool отсутствует или schema несовместима, конкретный сценарий останавливается с диагностикой; REST и prompt fallback запрещены.
 - Runtime проверяет только необходимые сценарию tools и критические schema-поля; дополнительные tools разрешены.
@@ -162,39 +164,52 @@
 - Если native memory недоступна, skill один раз объясняет, что автоматическое обнаружение пропусков недоступно; не спрашивает каждый день и не создаёт fallback-хранилище.
 - Без памяти рабочие и личные области показываются отдельными секциями без автоматического скрытия.
 
-## 13. Интерфейс v1
+## 13. Habits через Habitify
+
+- `jedikit-habits` — отдельный portable skill с единственным source of truth: Habitify, доступный только через официальный Habitify MCP. Он не создаёт копии habit data в SingularityApp и не использует REST или сторонние MCP fallback.
+- Habit — наблюдаемое поведение. Снижение веса не записывается как habit: вес остаётся внешним/необязательным outcome, а plan работает с пищевыми и средовыми поведениями (поздняя еда, переедание, сладкое, планирование и т. п.).
+- «Порно» и «мастурбация» — два отдельных эксперимента с точными названиями пользователя. Намеренное действие считается событием эксперимента; случайный контент, мысли, возбуждение и секс с партнёром не считаются срывом по умолчанию.
+- Onboarding сначала read-only читает существующие Habitify habits и предлагает `использовать / изменить план / оставить как есть`; миграции и cleanup не выполняются молча. Existing habit становится managed experiment только после явного adopt.
+- Человекочитаемый plan в description/note содержит goal, observable behavior, cue, minimum action/replacement, if–then coping, review date и stop-rule. Citation/JSON/скрытая служебная метаинформация туда не пишутся; академические основания загружаются из локальных references по ситуации.
+- Design и major adjustment работают с одной habit за раз. Weekly review может просмотреть все active experiments, но завершённый review фиксируется timestamp только после всех секций; прерванный review начинается заново.
+- Один явно запрошенный одиночный обратимый log выполняется сразу только при обнаруженных provider-native undo и read-back. Любая другая agent-proposed или групповая запись требует точного preview и одного явного подтверждения; partial failure останавливает группу и перечисляет applied/error/unapplied без автоматического rollback. Permanent delete всегда отдельный подтверждённый workflow.
+- Поддерживаются intents `setup`, `design`, `log`, `urge`, `review`, `adjust`, `pause`, `off`, `archive`, `status`, `help` и естественные эквиваленты. Safety gate направляет к врачу/психотерапевту при клиническом риске; coaching не диагностирует и не обещает лечение.
+- Cadence active experiment — weekly, maintenance — monthly; host review invite остаётся opt-in/read-only. В памяти допускаются только timezone, cadence, privacy preference, выбранные IDs и технические review timestamps; эпизоды, вес, причины и заметки не сохраняются.
+- Off Mode — account-wide нативный режим отпуска Habitify. Он применяется только если найден соответствующий MCP capability; если capability не обнаружена, skill даёт ручную инструкцию в приложении и не эмулирует отпуск пропусками, archive или delete.
+
+## 14. Интерфейс v1
 
 - Все сценарии доступны естественным русским языком.
-- Portable intents: `setup`, `capture`, `triage`, `daily open`, `daily close`, `weekly`, `project`, `status`, `help`, `memory show|forget|reset`.
-- Хост поддерживает нативный explicit invocation `jedikit-tasks`; естественные запросы также могут активировать skill автоматически.
-- Отдельных intents `ideas`, `waiting`, `reminders`, `habits` в v1 нет.
-- Skill не создаёт команду для каждого MCP tool.
+- Portable task intents: `setup`, `capture`, `triage`, `daily open`, `daily close`, `weekly`, `project`, `status`, `help`, `memory show|forget|reset`.
+- Portable habit intents: `setup`, `design`, `log`, `urge`, `review`, `adjust`, `pause`, `off`, `archive`, `status`, `help`.
+- Естественный язык — основной способ маршрутизации host; explicit invocation `jedikit-tasks` и `jedikit-habits` остаётся fallback. Skill не создаёт команду для каждого MCP tool.
 
-## 14. Платформы, пакетирование и релиз
+## 15. Платформы, пакетирование и релиз
 
-- Канонический источник — один portable skill tree; платформенные manifests/install/scheduling instructions остаются тонкими adapters.
+- Канонический источник каждого домена — свой portable skill tree; платформенные
+  manifests/install/scheduling instructions остаются тонкими adapters.
 - Codex и Claude могут установить один plugin с несколькими skills; Hermes tap регистрирует источник, но atomic install всей коллекции официально не подтверждён.
 - Межskill dependencies не являются переносимым стандартом. Runtime references каждого skill самодостаточны; нет `../shared` dependency.
 - Hermes v1 — ручная установка из GitHub; Skills Hub/tap publication не входит в scope.
 - Claude artifact — `experimental / structurally validated`; Claude Code не устанавливается и live smoke не заявляется.
-- Codex core проходит runtime smoke. Scheduled Tasks — `documented / not runtime-validated`.
-- Hermes cron проходит временный smoke `create → fake/no-delivery run → remove`.
+- `jedikit-tasks` проходит сохранённые Codex/Hermes runtime smoke. Scheduled Tasks — `documented / not runtime-validated`.
+- Для `jedikit-habits` независимые fake-provider прогоны выполняются только в изолированных временных каталогах. Без сохраняемого release evidence Codex/Hermes runtime и реальный Habitify account остаются `unverified`.
 - До прохождения нового release gate tree считается `unreleased candidate`; стабильный tag и заявление `production-ready` запрещены.
 - Следующий устанавливаемый релиз и его version/tag определяются только после нового release gate отдельным решением.
 - Сначала GitHub prerelease; каталоги Codex/Claude — отдельный последующий этап.
-- Release asset: один архив каталога `jedikit-tasks/` с компактными references и SHA-256.
+- Release asset: один архив plugin/package с независимыми каталогами `jedikit-tasks/` и `jedikit-habits/`, компактными references и SHA-256.
 - Собственного installer и self-update нет; обновление только по явной команде после preview версии.
 
-## 15. Тестирование и безопасность
+## 16. Тестирование и безопасность
 
-- Поведение тестируется на fake MCP; реальные задачи пользователя перед prerelease не читаются.
-- Официальный MCP проверяется metadata probes `initialize/tools/list/prompts`, без `tools/call` и account data.
-- Codex и Hermes получают runtime smoke с fake MCP; Claude — static/structural validation и fake contract tests.
-- Safety cases должны наблюдаемо покрывать ambiguity, переиспользование исходного Inbox item, ручной transfer/delete barrier, setup без миграции, project abandonment, memory show/forget/reset, capability degradation, grouped preview, partial failure, scheduled read-only, reviews, scope и prompt injection. Fixture/event declaration без tool/state evidence не считается покрытием.
+- Существующий fake MCP harness остаётся только у `jedikit-tasks`; второй параллельный Python-harness для habits не создаётся.
+- `jedikit-habits` проходит штатные skill/plugin validators, проверку локальных references и независимый forward-review во временном workspace. Сырые host-сессии и cleanup snapshots не коммитятся.
+- Реальные задачи и привычки пользователя не читаются. Habitify tools и Off Mode используются только после runtime discovery; REST и сторонний fallback запрещены.
+- Поведенческий сценарий нельзя называть release-verified без сохраняемого воспроизводимого evidence. Непроверенный host/function маркируется `unverified`.
 - README или release может называть сценарий supported только после детерминированного eval его ключевого поведения; каждая провайдерская интеграция требует отдельного runtime smoke. Непроверенный host/function маркируется `unverified`.
 - CI не содержит токенов, пользовательских данных, постоянных расписаний и внешней доставки.
 
-## 16. Публичный репозиторий и governance
+## 17. Публичный репозиторий и governance
 
 - Текущий public repo — `ibelyasov/singularity-jedi-skill`; его переименование в `ibelyasov/jedikit` остаётся отдельным явно подтверждаемым действием.
 - GitHub Issues остаются включёнными, но без шаблонов и SLA.
@@ -202,19 +217,18 @@
 - Полный `research/` остаётся developer/reviewer evidence и не входит в runtime archive.
 - Core methodology меняется только через обновлённый research + provenance + eval.
 
-## 17. Backlog / вне v1
+## 18. Backlog / вне v1
 
 - отдельный ideas review и `jedikit-ideas`;
 - waiting/delegation workflow;
 - reminders;
-- habits;
 - расширенное управление проектами;
 - calendar integration;
-- router/bundle после появления второго зрелого skill;
+- cross-domain router, только если появится подтверждённый workflow, который нельзя безопасно разделить на два child-skill вызова;
 - marketplace/catalog submissions;
 - расширенный trademark clearance, только если пользователь позднее решит его провести.
 
-## 18. Отменённые решения
+## 19. Отменённые решения
 
 - **Отменено:** бренды `LoopHarbor`, `JediLoop` и `JediTools`; финальное имя — `JediKit`.
 - **Отменено:** постоянное хранение `raw_text` и истории формулировок. Сырой текст живёт только между quick capture и triage.
@@ -223,10 +237,13 @@
 - **Отменено:** calendar-aware daily/weekly. В v1 календарь сознательно не проверяется, и это явно сообщается.
 - **Отменено:** продолжение daily/weekly с сохранённой позиции. Каждый новый обзор начинается заново.
 - **Отменено:** отдельные ideas/waiting/reminders workflows в v1.
+- **Устарело и заменено:** «в v1 habits отсутствуют» и «habits остаются backlog». Добавлен независимый `jedikit-habits` с Habitify-only MCP, академическими references и отдельным safety/eval gate.
+- **Устарело и заменено:** условие «router появляется вместе со второй зрелой областью». Выбран вариант A: две независимые implicit skills без корневого router; cross-domain запросы делятся на отдельные workflows.
+- **Уточнено:** `@jedikit` — OpenAI plugin mention/scoping, не переносимый skill tag; `$jedikit` отсутствует.
 - **Отменено:** искусственный paused status проекта.
 - **Уточнено:** permanent delete запрещён в общем workflow, но выбран как желаемый cleanup после ручного переноса idea/reference/meeting с двумя отдельными подтверждениями. Пока hosted MCP не подтверждает delete-tool, cleanup честно блокируется без archive/cancel fallback. Server batch остаётся отменён.
 - **Уточнено:** daily проверяет затронутые сегодня проекты; weekly — все активные реальные проекты.
 
-## 19. Результат повторного grilling
+## 20. Результат повторного grilling
 
 Frontier закрыт 2026-08-29. Пользователь выбрал применение решений к research, runtime skill, references, evals, README и release evidence с запуском нового gate. Tag, публикация, переименование GitHub-репозитория и локального каталога остаются отдельными явно подтверждаемыми действиями.
