@@ -188,9 +188,9 @@
 
 - Канонический источник каждого домена — свой portable skill tree; платформенные
   manifests/install/scheduling instructions остаются тонкими adapters.
-- Codex и Claude устанавливают один plugin с несколькими skills. Hermes 0.20.6+ устанавливает тот же GitHub repository одной командой как Portable Agent Plugin v1: root `plugin.json`, оба `skills/` и root `mcp.json`.
+- Codex и Claude устанавливают один plugin с несколькими skills. Hermes 0.20.6+ устанавливает тот же GitHub repository одной командой как Portable Agent Plugin v1 из чистого подкаталога `packages/jedikit`: его `plugin.json`, оба `skills/` и `mcp.json`.
 - Межskill dependencies не являются переносимым стандартом. Runtime references каждого skill самодостаточны; нет `../shared` dependency.
-- Hermes v1 — одна plugin-установка из GitHub через `hermes plugins install <owner/repo> --enable`; community plugin index может позднее дать короткий marketplace identifier. Skills Hub/tap publication не требуется.
+- Hermes v1 — одна plugin-установка из GitHub через `hermes plugins install <owner/repo/packages/jedikit> --enable`; community plugin index с `subdir: packages/jedikit` может позднее дать короткий marketplace identifier. Skills Hub/tap publication не требуется.
 - Claude artifact — `experimental / structurally validated`; Claude Code не устанавливается и live smoke не заявляется.
 - `jedikit-tasks` проходит сохранённые Codex/Hermes runtime smoke. Scheduled Tasks — `documented / not runtime-validated`.
 - Для `jedikit-habits` независимые fake-provider прогоны выполняются только в изолированных временных каталогах. Без сохраняемого release evidence Codex/Hermes runtime и реальный Habitify account остаются `unverified`.

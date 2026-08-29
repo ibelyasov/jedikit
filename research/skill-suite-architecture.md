@@ -35,7 +35,7 @@
 ### Hermes Agent
 
 - Одиночные skills по-прежнему индексируются из `~/.hermes/skills` и устанавливаются через Skills Hub/taps ([Skills](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/features/skills.md)).
-- Hermes 0.20.6+ отдельно поддерживает Portable Agent Plugins v1: `hermes plugins install <owner/repo> --enable` клонирует и сканирует один package, затем регистрирует все валидные `skills/*/SKILL.md` и remote MCP из root `mcp.json`.
+- Hermes 0.20.6+ отдельно поддерживает Portable Agent Plugins v1: `hermes plugins install <owner/repo/subdir> --enable` клонирует repository, но валидирует и сканирует только выбранный package subdirectory, затем регистрирует все валидные `skills/*/SKILL.md` и remote MCP из его `mcp.json`.
 - Plugin-provided skills read-only и namespaced; они входят в progressive `skills_list`, но не копируются в плоский `~/.hermes/skills`. Root plugin не становится router skill.
 - YAML skill bundle остаётся runtime alias уже доступных skills, а tap — источником одиночных skills; ни то ни другое не нужно для package install JediKit.
 
@@ -80,7 +80,7 @@ Entity coaching остаётся внутри `jedikit-tasks`, а habit coaching
 - Каждый skill должен быть runtime-самодостаточным. Нельзя полагаться на `../shared`: хосты по-разному копируют/cache plugin directories, а Hermes URL install переносит только явно referenced support files.
 - Общий контракт можно поддерживать в canonical source и механически копировать при release, но в опубликованном skill каждая нужная reference лежит локально.
 - Universal inter-skill dependencies отсутствуют; Claude dependencies не становятся общим форматом.
-- Release фиксируется immutable tag/SHA. Для Hermes exact install используется `hermes plugins install <owner/repo> --ref <full-commit-sha> --enable`; версии manifests повышаются при изменении общего контракта.
+- Release фиксируется immutable tag/SHA. Для Hermes exact install используется `hermes plugins install <owner/repo/packages/jedikit> --ref <full-commit-sha> --enable`; версии manifests повышаются при изменении общего контракта.
 
 ## Минимальная архитектура v1
 

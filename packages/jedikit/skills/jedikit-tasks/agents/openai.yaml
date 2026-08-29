@@ -1,0 +1,11 @@
+interface:
+  display_name: "JediKit Tasks"
+  short_description: "Разгрузи голову. Действуй ясно."
+  default_prompt: "Используй $jedikit-tasks, чтобы разобрать мои задачи в SingularityApp."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "singularity"
+      description: "Официальный MCP SingularityApp"
+      transport: "streamable_http"
+      url: "https://mcp.singularity-app.com/mcp"

@@ -52,11 +52,11 @@ child skills без root/router и два серверных подключен�
 - `singularity` — `https://mcp.singularity-app.com/mcp`;
 - `habitify` — `https://mcp.habitify.me/mcp`.
 
-На локальных plugin surfaces Codex/Claude используют root `.mcp.json`, а Hermes Portable Agent Plugin v1 — root `mcp.json`. Включённый package может сделать видимыми оба provider connection. Skills не вызывают чужой provider, но пользователь всё равно должен проверить OAuth consent и доступные tools. Habitify tool names и required fields не угадываются: после OAuth выполняются `initialize`/`tools/list`, а schema drift закрывает текущую операцию без REST или стороннего fallback.
+На локальных plugin surfaces Codex/Claude используют root `.mcp.json`, а Hermes Portable Agent Plugin v1 — изолированный `packages/jedikit` с собственными `plugin.json`, `skills/` и `mcp.json`. Включённый package может сделать видимыми оба provider connection. Skills не вызывают чужой provider, но пользователь всё равно должен проверить OAuth consent и доступные tools. Habitify tool names и required fields не угадываются: после OAuth выполняются `initialize`/`tools/list`, а schema drift закрывает текущую операцию без REST или стороннего fallback.
 
 Не сохраняются episodes, вес, sexual details, причины, заметки или токены. Допустимы только timezone, cadence, privacy preference, выбранные habit IDs и технические timestamps обзоров. Чувствительные названия не уходят во внешние уведомления без отдельного opt-in.
 
-Root `.mcp.json` не является универсальной ChatGPT Connected App. ChatGPT/Work требует отдельно зарегистрированного connection/app. Hermes 0.20.6+ читает `plugin.json`, оба `skills/` и `mcp.json` как один Portable Agent Plugin v1; OAuth всё равно подтверждается пользователем на стороне каждого provider.
+Root `.mcp.json` не является универсальной ChatGPT Connected App. ChatGPT/Work требует отдельно зарегистрированного connection/app. Hermes 0.20.6+ читает `packages/jedikit/plugin.json`, оба вложенных `skills/` и `packages/jedikit/mcp.json` как один Portable Agent Plugin v1; OAuth всё равно подтверждается пользователем на стороне каждого provider.
 
 ## Локальная проверка candidate
 
@@ -69,10 +69,10 @@ claude --plugin-dir /path/to/singularity-jedi-skill
 Hermes 0.20.6+ устанавливает весь package одной командой после проверки source:
 
 ```bash
-hermes plugins install ibelyasov/singularity-jedi-skill --enable
+hermes plugins install ibelyasov/singularity-jedi-skill/packages/jedikit --enable
 ```
 
-Для воспроизводимой установки релиза используйте указанный в GitHub release полный commit SHA через `--ref <full-commit-sha>`. После появления записи в Hermes community plugin index идентификатор сократится до `jedikit`. Установка проходит plugin security scan; package регистрирует два namespaced child skills и два namespaced remote MCP, но не выдаёт OAuth-доступ без участия пользователя.
+Для воспроизводимой установки релиза используйте указанный в GitHub release полный commit SHA через `--ref <full-commit-sha>`. Подкаталог отделяет публикуемый runtime от research/evidence репозитория, поэтому штатный Hermes security scan проверяет только устанавливаемые файлы. После появления записи с `subdir: packages/jedikit` в Hermes community plugin index идентификатор сократится до `jedikit`. Package регистрирует два namespaced child skills и два namespaced remote MCP, но не выдаёт OAuth-доступ без участия пользователя.
 
 Если `singularity` или `habitify` уже добавлены вручную через `hermes mcp add`, сначала проверьте текущую конфигурацию: после включения package старые и plugin-provided подключения могут существовать одновременно. Для Codex one-plugin install нужен опубликованный или локально зарегистрированный marketplace; его создание/установка не входит в этот candidate turn.
 
@@ -84,7 +84,7 @@ python3 evals/run.py release-gate
 uv run --with pyyaml python "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" skills/jedikit-tasks
 uv run --with pyyaml python "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" skills/jedikit-habits
 uv run --with pyyaml python "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" .
-hermes plugins doctor . --ci
+hermes plugins doctor packages/jedikit --ci
 ```
 
 Существующий task harness остаётся без второго параллельного Python-контура. `jedikit-habits` проверяется штатным skill-validator, plugin-validator и локальными ссылками; независимые forward-прогоны выполняются в изолированном временном workspace и не сохраняют сырые сессии в Git.

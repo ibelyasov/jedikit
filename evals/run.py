@@ -821,8 +821,7 @@ def runtime_tree_digest() -> str:
         root / ".codex-plugin" / "plugin.json",
         root / ".claude-plugin" / "plugin.json",
         root / ".mcp.json",
-        root / "plugin.json",
-        root / "mcp.json",
+        root / "packages" / "jedikit",
     ]
     hasher = hashlib.sha256()
     paths = []
@@ -840,6 +839,38 @@ def runtime_tree_digest() -> str:
         hasher.update(path.read_bytes())
         hasher.update(b"\0")
     return hasher.hexdigest()
+
+
+def validate_portable_package() -> None:
+    root = ROOT.parent
+    canonical = root / "skills"
+    packaged = root / "packages" / "jedikit" / "skills"
+    canonical_files = {
+        path.relative_to(canonical): path.read_bytes()
+        for path in canonical.rglob("*")
+        if path.is_file()
+    }
+    packaged_files = {
+        path.relative_to(packaged): path.read_bytes()
+        for path in packaged.rglob("*")
+        if path.is_file()
+    }
+    if canonical_files != packaged_files:
+        missing = sorted(
+            str(path) for path in canonical_files.keys() - packaged_files.keys()
+        )
+        extra = sorted(
+            str(path) for path in packaged_files.keys() - canonical_files.keys()
+        )
+        changed = sorted(
+            str(path)
+            for path in canonical_files.keys() & packaged_files.keys()
+            if canonical_files[path] != packaged_files[path]
+        )
+        raise ValueError(
+            "Hermes package drift — "
+            f"missing={missing}, extra={extra}, changed={changed}"
+        )
 
 
 def current_evidence_status(path: Path, phase: str) -> tuple[set[str], list[str]]:
@@ -881,6 +912,7 @@ def current_evidence_status(path: Path, phase: str) -> tuple[set[str], list[str]
 def release_gate() -> None:
     validate_cases()
     self_test()
+    validate_portable_package()
     expected = EXPECTED_IDS
     blockers: list[str] = []
     for phase in ("baseline", "green"):
