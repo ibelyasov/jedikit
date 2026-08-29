@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-08-29T13:26:47+03:00",
+  "status": "gate_passed",
+  "runtime_tree_sha256": "31f882c53052c897cde8aa29ab125c46f8c953d4d9e9ef54a4b16715e2479f62",
+  "artifact": "dist/jedikit-tasks-unreleased-candidate.zip",
+  "artifact_sha256": "3c05c405b502ef12d1506e8a3fcde3ac298e168c211ac7012098b25bd2843307",
+  "gate_report": "evals/evidence/candidate-gate-2026-08-29.md",
+  "deterministic_checks": {
+    "cases": "33 valid",
+    "fake_mcp": "passed",
+    "harness": "passed",
+    "current_behavior_evidence": "33/33",
+    "release_gate": "passed"
+  },
+  "behavior_evidence_blockers": [],
+  "provider_smoke": {
+    "required_current_tree": ["codex", "hermes"],
+    "verified_current_tree": ["codex", "hermes"],
+    "historical_rows_preserved": true,
+    "claude": "unverified",
+    "codex_evidence_root": "/tmp/jedikit-codex-current.uyU7el",
+    "hermes_evidence_root": "/tmp/jedikit-hermes-current.wCN0oM"
+  },
+  "final_validation": {
+    "duration_seconds": 8.19,
+    "output": "/tmp/jedikit-final-gate.qMIZUm/validation.log",
+    "output_sha256": "96e0aa1a73a9cacf9534051690a786e74597ca8d450b110b3f624e7b1bbe43d6"
+  },
+  "tag_created": false,
+  "published": false
+}

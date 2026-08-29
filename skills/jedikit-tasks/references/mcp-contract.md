@@ -59,17 +59,15 @@ Hosted MCP не публикует подтверждённые permanent-delete
 
 ## 3. Scopes и OAuth
 
-Запрашивай только подтверждённый минимум для task-skill:
+Для core-flow запрашивай только подтверждённый минимум:
 
 ```text
 tasks:read tasks:write tasks:check
 projects:read projects:write
-tags:read tags:write
-checklists:read checklists:write
 mcp:read mcp:write
 ```
 
-Не проси `habits:*`, `kanban:*` или `time_stat:*`. OAuth выполняет host; токен не запрашивай у пользователя в чате, не логируй и не сохраняй в skill/memory. Если host не умеет нужный OAuth/scopes, объясни ограничение.
+Теги и чек-листы не нужны core-flow v1, поэтому не запрашивай `tags:*` или `checklists:*` заранее. Если будущий явно выбранный сценарий требует опциональную capability, сначала покажи точные дополнительные scopes и запроси отдельное решение пользователя; при отказе или недоступности отключи только эту функцию. Не проси `habits:*`, `kanban:*` или `time_stat:*`. OAuth выполняет host; токен не запрашивай у пользователя в чате, не логируй и не сохраняй в skill/memory. Не расширяй scopes автоматически.
 
 ## 4. Ошибки и безопасность
 

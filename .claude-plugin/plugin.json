@@ -1,6 +1,6 @@
 {
   "name": "jedikit",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-unreleased",
   "description": "Agent Skill для управления задачами SingularityApp по методике Максима Дорофеева.",
   "author": {
     "name": "Igor Belyasov",
