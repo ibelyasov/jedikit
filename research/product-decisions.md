@@ -2,7 +2,7 @@
 
 **Актуально на:** 2026-08-29 (Europe/Moscow)
 
-**Статус:** повторный audit/grilling завершён и подтверждён пользователем. Текущий tree — `unreleased candidate`: новые контракты и eval gate должны быть реализованы и проверены до любого стабильного tag или заявления `production-ready`.
+**Статус:** повторный audit/grilling завершён и подтверждён пользователем. Первый устанавливаемый prerelease выбран как `v0.1.0-alpha.1`; stable tag и заявление `production-ready` по-прежнему запрещены без отдельного будущего решения.
 
 **Финальный бренд:** `JediKit`; package/repo slug `jedikit`; runtime skills `jedikit-tasks` и `jedikit-habits`.
 
@@ -188,17 +188,17 @@
 
 - Канонический источник каждого домена — свой portable skill tree; платформенные
   manifests/install/scheduling instructions остаются тонкими adapters.
-- Codex и Claude могут установить один plugin с несколькими skills; Hermes tap регистрирует источник, но atomic install всей коллекции официально не подтверждён.
+- Codex и Claude устанавливают один plugin с несколькими skills. Hermes 0.20.6+ устанавливает тот же GitHub repository одной командой как Portable Agent Plugin v1: root `plugin.json`, оба `skills/` и root `mcp.json`.
 - Межskill dependencies не являются переносимым стандартом. Runtime references каждого skill самодостаточны; нет `../shared` dependency.
-- Hermes v1 — ручная установка из GitHub; Skills Hub/tap publication не входит в scope.
+- Hermes v1 — одна plugin-установка из GitHub через `hermes plugins install <owner/repo> --enable`; community plugin index может позднее дать короткий marketplace identifier. Skills Hub/tap publication не требуется.
 - Claude artifact — `experimental / structurally validated`; Claude Code не устанавливается и live smoke не заявляется.
 - `jedikit-tasks` проходит сохранённые Codex/Hermes runtime smoke. Scheduled Tasks — `documented / not runtime-validated`.
 - Для `jedikit-habits` независимые fake-provider прогоны выполняются только в изолированных временных каталогах. Без сохраняемого release evidence Codex/Hermes runtime и реальный Habitify account остаются `unverified`.
-- До прохождения нового release gate tree считается `unreleased candidate`; стабильный tag и заявление `production-ready` запрещены.
-- Следующий устанавливаемый релиз и его version/tag определяются только после нового release gate отдельным решением.
+- До прохождения нового release gate tree считается candidate; стабильный tag и заявление `production-ready` запрещены.
+- Первый устанавливаемый prerelease — `v0.1.0-alpha.1`, выбранный отдельным решением после появления единого Hermes plugin package.
 - Сначала GitHub prerelease; каталоги Codex/Claude — отдельный последующий этап.
 - Release asset: один архив plugin/package с независимыми каталогами `jedikit-tasks/` и `jedikit-habits/`, компактными references и SHA-256.
-- Собственного installer и self-update нет; обновление только по явной команде после preview версии.
+- Собственного installer и self-update нет; Hermes использует штатные `plugins install/update`, а immutable release устанавливается с `--ref <full-commit-sha>`.
 
 ## 16. Тестирование и безопасность
 

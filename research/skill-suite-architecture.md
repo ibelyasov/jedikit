@@ -11,7 +11,7 @@
 - Единый бренд/репозиторий/plugin полезен: пользователь понимает, что task, habits и будущие skills принадлежат одному набору.
 - Широкий implicit router не нужен: хосты уже маршрутизируют skills по `name` и `description`, а router добавит ложные срабатывания и дублирование инструкций.
 - Даже после появления второй области выбран вариант A: два независимых implicit skills. Cross-domain workflow делится на отдельные вызовы; отдельный router можно пересмотреть только по новому подтверждённому контракту.
-- «Одна установка» не является переносимым обещанием: Codex и Claude умеют plugin с несколькими skills; Hermes tap регистрирует источник, но документация показывает установку отдельных skills.
+- «Одна установка» реализуется платформенными plugin manifests: Codex и Claude устанавливают plugin с несколькими skills, а Hermes 0.20.6+ принимает repository как Portable Agent Plugin v1 с root `plugin.json`, `skills/` и `mcp.json`.
 
 Решение: umbrella source/package/plugin `jedikit`, независимые skills `jedikit-tasks` и `jedikit-habits`, без root/router skill. Естественный язык — основной UX, explicit child invocation — fallback. `@jedikit` означает только OpenAI plugin mention/scoping; `$jedikit` не существует как portable tag.
 
@@ -34,9 +34,10 @@
 
 ### Hermes Agent
 
-- Skills индексируются из `~/.hermes/skills`; supported sources включают bundled catalog, URL/GitHub и taps ([Skills](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/features/skills.md)).
-- GitHub tap регистрирует коллекцию с `skills/<slug>/SKILL.md`, но официальные примеры показывают install отдельного skill; install-all для tap не подтверждён.
-- YAML bundle перечисляет уже установленные skills и даёт `/bundle`; отсутствующий skill пропускается. Bundle — runtime alias, не dependency manager и не install package.
+- Одиночные skills по-прежнему индексируются из `~/.hermes/skills` и устанавливаются через Skills Hub/taps ([Skills](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/features/skills.md)).
+- Hermes 0.20.6+ отдельно поддерживает Portable Agent Plugins v1: `hermes plugins install <owner/repo> --enable` клонирует и сканирует один package, затем регистрирует все валидные `skills/*/SKILL.md` и remote MCP из root `mcp.json`.
+- Plugin-provided skills read-only и namespaced; они входят в progressive `skills_list`, но не копируются в плоский `~/.hermes/skills`. Root plugin не становится router skill.
+- YAML skill bundle остаётся runtime alias уже доступных skills, а tap — источником одиночных skills; ни то ни другое не нужно для package install JediKit.
 
 ### Открытый формат Agent Skills
 
@@ -79,7 +80,7 @@ Entity coaching остаётся внутри `jedikit-tasks`, а habit coaching
 - Каждый skill должен быть runtime-самодостаточным. Нельзя полагаться на `../shared`: хосты по-разному копируют/cache plugin directories, а Hermes URL install переносит только явно referenced support files.
 - Общий контракт можно поддерживать в canonical source и механически копировать при release, но в опубликованном skill каждая нужная reference лежит локально.
 - Universal inter-skill dependencies отсутствуют; Claude dependencies не становятся общим форматом.
-- Release фиксируется immutable tag/SHA. Версии manifests повышаются при изменении общего контракта; нельзя предполагать одинаковую semver resolution на трёх хостах.
+- Release фиксируется immutable tag/SHA. Для Hermes exact install используется `hermes plugins install <owner/repo> --ref <full-commit-sha> --enable`; версии manifests повышаются при изменении общего контракта.
 
 ## Минимальная архитектура v1
 

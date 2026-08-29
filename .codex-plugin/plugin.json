@@ -1,6 +1,6 @@
 {
   "name": "jedikit",
-  "version": "0.1.0-unreleased",
+  "version": "0.1.0-alpha.1",
   "description": "Русскоязычный набор навыков для задач SingularityApp и поведенческих экспериментов в Habitify.",
   "author": {
     "name": "Igor Belyasov",

@@ -1,6 +1,6 @@
 # JediKit — Разгрузи голову. Действуй ясно.
 
-**Статус:** `0.1.0-unreleased`. Реализация задач и привычек находится в репозитории; tag, публикация, реальные пользовательские данные и авторизованный Habitify smoke остаются отдельными решениями.
+**Версия:** `0.1.0-alpha.1`. Реализация задач и привычек находится в репозитории; это первый prerelease, а не заявление `production-ready`. Реальные пользовательские данные и Habitify writes не входят в release-проверку.
 
 JediKit — русскоязычный plugin/package с двумя самостоятельными Agent Skills:
 
@@ -52,32 +52,29 @@ child skills без root/router и два серверных подключен�
 - `singularity` — `https://mcp.singularity-app.com/mcp`;
 - `habitify` — `https://mcp.habitify.me/mcp`.
 
-На локальных plugin surfaces Codex/Claude root `.mcp.json` находится на уровне всего plugin: включённый bundle может сделать видимыми оба provider connection. Skills не вызывают чужой provider, но пользователь всё равно должен проверить OAuth consent и доступные tools. Habitify tool names и required fields не угадываются: после OAuth выполняются `initialize`/`tools/list`, а schema drift закрывает текущую операцию без REST или стороннего fallback.
+На локальных plugin surfaces Codex/Claude используют root `.mcp.json`, а Hermes Portable Agent Plugin v1 — root `mcp.json`. Включённый package может сделать видимыми оба provider connection. Skills не вызывают чужой provider, но пользователь всё равно должен проверить OAuth consent и доступные tools. Habitify tool names и required fields не угадываются: после OAuth выполняются `initialize`/`tools/list`, а schema drift закрывает текущую операцию без REST или стороннего fallback.
 
 Не сохраняются episodes, вес, sexual details, причины, заметки или токены. Допустимы только timezone, cadence, privacy preference, выбранные habit IDs и технические timestamps обзоров. Чувствительные названия не уходят во внешние уведомления без отдельного opt-in.
 
-Root `.mcp.json` не является универсальной ChatGPT Connected App или Hermes-конфигурацией. ChatGPT/Work требует отдельно зарегистрированного connection/app, а Hermes — отдельного `hermes mcp add`; это не выполняется автоматически этим репозиторием.
+Root `.mcp.json` не является универсальной ChatGPT Connected App. ChatGPT/Work требует отдельно зарегистрированного connection/app. Hermes 0.20.6+ читает `plugin.json`, оба `skills/` и `mcp.json` как один Portable Agent Plugin v1; OAuth всё равно подтверждается пользователем на стороне каждого provider.
 
 ## Локальная проверка candidate
 
-Публичный marketplace ещё не заявлен. Для Claude Code plugin можно загрузить локально:
+До публикации в отдельных marketplace package можно загрузить напрямую. Для Claude Code:
 
 ```bash
 claude --plugin-dir /path/to/singularity-jedi-skill
 ```
 
-Hermes устанавливает skills отдельно; после проверки source:
+Hermes 0.20.6+ устанавливает весь package одной командой после проверки source:
 
 ```bash
-hermes skills inspect ibelyasov/singularity-jedi-skill/skills/jedikit-tasks
-hermes skills install ibelyasov/singularity-jedi-skill/skills/jedikit-tasks
-hermes skills inspect ibelyasov/singularity-jedi-skill/skills/jedikit-habits
-hermes skills install ibelyasov/singularity-jedi-skill/skills/jedikit-habits
-hermes mcp add singularity --url https://mcp.singularity-app.com/mcp --auth oauth
-hermes mcp add habitify --url https://mcp.habitify.me/mcp --auth oauth
+hermes plugins install ibelyasov/singularity-jedi-skill --enable
 ```
 
-Не запускайте эти команды поверх уже настроенных одноимённых MCP без проверки текущего config. Для Codex one-plugin install нужен опубликованный или локально зарегистрированный marketplace; его создание/установка не входит в этот candidate turn.
+Для воспроизводимой установки релиза используйте указанный в GitHub release полный commit SHA через `--ref <full-commit-sha>`. После появления записи в Hermes community plugin index идентификатор сократится до `jedikit`. Установка проходит plugin security scan; package регистрирует два namespaced child skills и два namespaced remote MCP, но не выдаёт OAuth-доступ без участия пользователя.
+
+Если `singularity` или `habitify` уже добавлены вручную через `hermes mcp add`, сначала проверьте текущую конфигурацию: после включения package старые и plugin-provided подключения могут существовать одновременно. Для Codex one-plugin install нужен опубликованный или локально зарегистрированный marketplace; его создание/установка не входит в этот candidate turn.
 
 ## Разработка и проверка
 
@@ -87,6 +84,7 @@ python3 evals/run.py release-gate
 uv run --with pyyaml python "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" skills/jedikit-tasks
 uv run --with pyyaml python "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" skills/jedikit-habits
 uv run --with pyyaml python "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" .
+hermes plugins doctor . --ci
 ```
 
 Существующий task harness остаётся без второго параллельного Python-контура. `jedikit-habits` проверяется штатным skill-validator, plugin-validator и локальными ссылками; независимые forward-прогоны выполняются в изолированном временном workspace и не сохраняют сырые сессии в Git.

@@ -815,13 +815,26 @@ def parse_selected(raw: str | None) -> set[str] | None:
 
 
 def runtime_tree_digest() -> str:
-    root = ROOT.parent / "skills" / "jedikit-tasks"
+    root = ROOT.parent
+    runtime_roots = [
+        root / "skills",
+        root / ".codex-plugin" / "plugin.json",
+        root / ".claude-plugin" / "plugin.json",
+        root / ".mcp.json",
+        root / "plugin.json",
+        root / "mcp.json",
+    ]
     hasher = hashlib.sha256()
-    for path in sorted(
-        item
-        for item in root.rglob("*")
-        if item.is_file() and "__pycache__" not in item.parts
-    ):
+    paths = []
+    for runtime_root in runtime_roots:
+        paths.extend(
+            item
+            for item in (
+                runtime_root.rglob("*") if runtime_root.is_dir() else [runtime_root]
+            )
+            if item.is_file() and "__pycache__" not in item.parts
+        )
+    for path in sorted(paths):
         hasher.update(path.relative_to(root).as_posix().encode())
         hasher.update(b"\0")
         hasher.update(path.read_bytes())

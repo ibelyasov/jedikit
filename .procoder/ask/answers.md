@@ -1,6 +1,6 @@
 # What a human decided
 
-Written 2026-08-29 10:34 UTC. procoder reads this
+Written 2026-08-29 16:34 UTC. procoder reads this
 file to avoid asking a question twice; edit an answer here to change what
 it believes. Reword the question and it will be asked again.
 
@@ -43,6 +43,16 @@ Question: Какой release-статус сохранять после зелё
 - release — автоматически поставить tag и опубликовать.
 
 Answer: unreleased — без stable tag, production-ready claim и публикации до отдельного решения.
+
+## [decision] decisions.md
+
+Key: aa5995e56f14
+Question: Публиковать ли первый устанавливаемый релиз сейчас?
+
+- alpha — завершить gate, опубликовать `v0.1.0-alpha.1` и установить единый Hermes plugin.
+- hold — оставить новый package локальным candidate без tag, публикации и установки.
+
+Answer: alpha — завершить gate, опубликовать `v0.1.0-alpha.1` и установить единый Hermes plugin.
 
 ## [decision] decisions.md
 

@@ -42,3 +42,8 @@
 
 - implement — обновить research/runtime/evals/README/evidence и пройти gate; не tag/publish.
 - plan-only — оставить только журнал решений и план.
+
+## Публиковать ли первый устанавливаемый релиз сейчас?
+
+- alpha — завершить gate, опубликовать `v0.1.0-alpha.1` и установить единый Hermes plugin.
+- hold — оставить новый package локальным candidate без tag, публикации и установки.
