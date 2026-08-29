@@ -1,6 +1,6 @@
 {
-  "recorded_at": "2026-08-29T21:18:00+03:00",
-  "status": "gate_passed_pending_git_install",
+  "recorded_at": "2026-08-29T21:22:40+03:00",
+  "status": "gate_passed_pending_tag",
   "version": "0.1.0-alpha.2",
   "runtime_source_commit": "b3688ff6e4aafa573a1bf65995cc9b0bae7c5ca2",
   "runtime_tree_sha256": "5a125a8a5ab811be848f8c3aeb68e5bef021545cafc4f75fafa2716808e55623",
@@ -25,10 +25,10 @@
     "hermes_evidence_root": "/tmp/jedikit-alpha2-hermes.PCUTWr"
   },
   "hermes_install": {
-    "installed": false,
-    "enabled": false,
-    "security_scan": "pending published candidate",
-    "pinned_revision": null,
+    "installed": true,
+    "enabled": true,
+    "security_scan": "safe; installed-tree doctor passed",
+    "pinned_revision": "c364f7f261e924a6380f5030d1b967b6db28cbef",
     "source": "https://github.com/ibelyasov/jedikit.git#packages/jedikit",
     "host_level_mcp_retained": ["singularity", "habitify"]
   }

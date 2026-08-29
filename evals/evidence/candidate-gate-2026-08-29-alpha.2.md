@@ -1,6 +1,6 @@
 # JediKit `v0.1.0-alpha.2` gate — 2026-08-29
 
-Status: **release gate passed; pinned GitHub install pending**.
+Status: **release gate and pinned GitHub install passed**.
 
 - Runtime source commit: `b3688ff6e4aafa573a1bf65995cc9b0bae7c5ca2`
 - Runtime tree SHA-256: `5a125a8a5ab811be848f8c3aeb68e5bef021545cafc4f75fafa2716808e55623`
@@ -25,6 +25,7 @@ The release gate now fails if `packages/jedikit/mcp.json` returns. Root
 | Baseline / green behavior evidence | 33/33 / 33/33                                                      |
 | Codex 0.151.0 local plugin smoke   | both qualified skills loaded; 0 tool calls                         |
 | Hermes 0.20.6 project-plugin smoke | two skills; zero portable MCP; no diagnostics                      |
+| Hermes pinned GitHub install       | enabled `alpha.2`; two skills; zero portable MCP                   |
 | Host-level Singularity MCP         | OAuth connected; 48 tools discovered                               |
 | Host-level Habitify MCP            | OAuth connected; 12 tools discovered                               |
 | Hermes doctor                      | passed on source and extracted ZIP                                 |
@@ -49,6 +50,7 @@ current provider smoke: 2/2
 release gate: passed
 ```
 
-The installed `alpha.1` plugin has not been changed by these pre-publication
-checks. The report will be finalized after a pinned GitHub installation of the
-published candidate.
+Hermes installed the published candidate pinned to
+`c364f7f261e924a6380f5030d1b967b6db28cbef`, then restarted the supervised
+gateway. Fresh discovery found no `agent-plugin-jedikit*__*` MCP names and both
+host-level OAuth connections remained healthy.
