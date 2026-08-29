@@ -108,9 +108,11 @@ hermes plugins doctor packages/jedikit --ci
 
 Существующий task harness остаётся без второго параллельного Python-контура. `jedikit-habits` проверяется штатным skill-validator, plugin-validator и локальными ссылками; независимые forward-прогоны выполняются в изолированном временном workspace и не сохраняют сырые сессии в Git.
 
-Старый task-only результат сохранён как исторический в
+Текущий результат `alpha.2` записан в
+[`evals/evidence/candidate-gate-2026-08-29-alpha.2.md`](evals/evidence/candidate-gate-2026-08-29-alpha.2.md).
+Предыдущий `alpha.1` gate сохранён отдельно в
 [`evals/evidence/candidate-gate-2026-08-29.md`](evals/evidence/candidate-gate-2026-08-29.md).
-Claude runtime и реальный Habitify OAuth/account остаются `unverified`.
+Claude runtime и реальные Habitify writes остаются `unverified`.
 
 Исследовательская база и журнал решений: [`research/README.md`](research/README.md)
 и [`research/habits-grill-decisions.md`](research/habits-grill-decisions.md).

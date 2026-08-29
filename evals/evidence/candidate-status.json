@@ -1,12 +1,12 @@
 {
-  "recorded_at": "2026-08-29T19:55:00+03:00",
-  "status": "gate_passed_pending_tag",
-  "version": "0.1.0-alpha.1",
-  "runtime_source_commit": "290141c753196ad563356e14785663ecc6dd38a7",
-  "runtime_tree_sha256": "9ec62367ddf0d33f1d368c1528e1cec937193e969e2626646d4711cd3b202340",
-  "artifact": "dist/jedikit-v0.1.0-alpha.1.zip",
-  "artifact_sha256": "0048af50baf7d1d8d90a5640814f881a85ec527f4f7377088e099824173ee260",
-  "gate_report": "evals/evidence/candidate-gate-2026-08-29.md",
+  "recorded_at": "2026-08-29T21:18:00+03:00",
+  "status": "gate_passed_pending_git_install",
+  "version": "0.1.0-alpha.2",
+  "runtime_source_commit": "b3688ff6e4aafa573a1bf65995cc9b0bae7c5ca2",
+  "runtime_tree_sha256": "5a125a8a5ab811be848f8c3aeb68e5bef021545cafc4f75fafa2716808e55623",
+  "artifact": "dist/jedikit-v0.1.0-alpha.2.zip",
+  "artifact_sha256": "9d636fa8c5938ce273e7aa51cca0993c2d63444377242af4ff540a222bbf2d12",
+  "gate_report": "evals/evidence/candidate-gate-2026-08-29-alpha.2.md",
   "deterministic_checks": {
     "cases": "33 valid",
     "baseline": "33/33",
@@ -19,22 +19,17 @@
     "required_current_tree": ["codex", "hermes"],
     "verified_current_tree": ["codex", "hermes"],
     "codex": "passed_skill_runtime_with_mcp_auth_required",
-    "hermes": "passed_skill_runtime_with_host_level_mcp_oauth_limitation",
+    "hermes": "passed_skills_only_with_host_level_mcp",
     "claude": "unverified",
-    "codex_evidence_root": "/tmp/jedikit-codex-alpha.ZhgOnN",
-    "hermes_evidence_root": "/tmp/jedikit-hermes-alpha.3dgyI2"
+    "codex_evidence_root": "/tmp/jedikit-alpha2-codex.X9JNyp",
+    "hermes_evidence_root": "/tmp/jedikit-alpha2-hermes.PCUTWr"
   },
   "hermes_install": {
-    "installed": true,
-    "enabled": true,
-    "security_scan": "safe",
-    "pinned_revision": "290141c753196ad563356e14785663ecc6dd38a7",
-    "source": "https://github.com/ibelyasov/singularity-jedi-skill.git#packages/jedikit",
+    "installed": false,
+    "enabled": false,
+    "security_scan": "pending published candidate",
+    "pinned_revision": null,
+    "source": "https://github.com/ibelyasov/jedikit.git#packages/jedikit",
     "host_level_mcp_retained": ["singularity", "habitify"]
-  },
-  "final_validation": {
-    "duration_seconds": 7.122,
-    "output": "/tmp/jedikit-alpha-final-gate.h6NBNe/validation-2.log",
-    "output_sha256": "6be0620c87c16720d2c576e7877aa28c8f7d8381a1647b3f135876d9ac7911af"
   }
 }
