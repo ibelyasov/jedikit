@@ -22,6 +22,7 @@
 | Hermes                   | [platform-hermes.md](platform-hermes.md)                                | Skills Hub/taps, MCP, cron, delivery и permissions                  |
 | Право и атрибуция        | [legal-and-attribution.md](legal-and-attribution.md)                    | Copyright, бренды, MIT и дисклеймер                                 |
 | Тестирование             | [testing-strategy.md](testing-strategy.md)                              | Fake MCP, safety cases, smoke tests и acceptance matrix             |
+| Архив Procoder           | [archive/procoder](archive/procoder)                                    | Исторические ответы и решения retired local workflow                |
 
 Platform-файлы сохраняют датированные срезы первоначального task-only исследования. Их старые product-overlay формулировки считаются историческими; текущая двухskill-архитектура зафиксирована здесь и в [product-decisions.md](product-decisions.md).
 
