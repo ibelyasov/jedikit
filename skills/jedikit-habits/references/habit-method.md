@@ -63,6 +63,7 @@
 
 ## Канонические связи
 
-- Обязательный safety/privacy gate: [evidence-and-safety.md](evidence-and-safety.md).
-- Коучинг, подтверждения и обработка частичных writes: [coaching.md](coaching.md).
+- Обязательный safety/privacy gate: [safety.md](safety.md).
+- Коучинг: [coaching.md](coaching.md).
+- Подтверждения и partial writes: [operation-policy.md](operation-policy.md).
 - Нативные сущности и возможности Habitify: [habitify-mcp.md](habitify-mcp.md).

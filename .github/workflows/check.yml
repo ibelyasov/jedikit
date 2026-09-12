@@ -1,0 +1,27 @@
+name: Offline checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Validate checked-in packages
+        run: python3 scripts/build.py --check
+      - name: Check contracts and regression tests
+        run: python3 evals/run.py check
+      - name: Test deterministic packaging
+        run: python3 -m unittest discover -s tests/build -v
+      - name: Build candidate archive
+        run: python3 scripts/build.py
+      - name: Reject generated drift
+        run: git diff --exit-code

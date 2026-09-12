@@ -1,6 +1,8 @@
-# Стратегия тестирования `jedikit-tasks`
+# Стратегия проверки JediKit
 
-Дата актуализации: **2026-08-29**. Проверяется одно portable-ядро `jedikit-tasks` и тонкие адаптеры Codex, Claude Code и Hermes Agent.
+Дата актуализации: **2026-09-12**. Проверяются package, task fake/evidence
+контур и независимые habits forward-review. Локальная корректность инструментов
+и актуальная release acceptance — отдельные результаты.
 
 ## 1. Контракт v1
 
@@ -24,16 +26,36 @@
 - недоступные tags/checklists отключаются как optional capabilities без автоматического расширения scopes;
 - окончательное решение всегда остаётся за пользователем.
 
-## 2. Минимальные тестовые артефакты
+## 2. Offline developer check
 
-После начала реализации достаточно четырёх артефактов:
+```bash
+python3 scripts/build.py
+python3 evals/run.py check
+python3 -m unittest discover -s tests/build -v
+```
 
-1. `skills/jedikit-tasks/SKILL.md` и локальные `references/`.
-2. `evals/cases.json` с prompts, fixtures и ожидаемыми intents; JSON не требует внешнего YAML-парсера.
-3. `evals/fake_mcp.py` — stdlib-only fake MCP с журналом операций.
-4. `evals/run.py` — static checks и проверка согласованности maintainer-reviewed evidence.
+Python 3.11+, стандартная библиотека. Сборка генерирует platform manifests и
+Hermes skill tree из `skills/` и `package-metadata.json`; `--check` обнаруживает
+расхождения без записи. Candidate ZIP воспроизводим и отделён от `dist/`.
+Локальная структурная проверка не выдаётся за официальный platform validator.
 
-Maintainer вручную размечает смысл ответа и tool intents; harness проверяет согласованность этой разметки с rubric и детерминированным ledger, но не выводит events из transcript автоматически. Fake MCP не должен копировать все vendor schemas: достаточно минимальных контрактов чтения, создания и изменения сущностей, используемых cases.
+Task eval-контур разделён по ответственности: `contracts.py` определяет tool
+schemas и argument validation; `fake_mcp.py` исполняет эти операции на fixture;
+`ledger.py` проверяет переходы состояния; `behavior.py` оценивает события и
+правила сценария. CLI `run.py` оставляет одну точку входа для разработчика.
+
+Regression tests проверяют отказ при подменённом result/read-back, несовместимой
+схеме, устаревшем source digest и повреждённом smoke artifact. Это тесты
+инструментов проверки, а не новые ответы модели на продуктовые сценарии.
+CI запускает offline проверки без provider credentials или пользовательских
+данных; чтение сохранённого исторического evidence не делает его актуальным.
+
+`jedikit-habits` использует тот же package check и отдельный независимый
+forward-review в изолированном временном workspace. Второй параллельный Python
+harness для привычек не создаётся. Проверяются safety dispatch, write policy,
+MCP-only capability gaps, mixed requests и сохранность продуктовых инвариантов.
+Сырые сессии и личные данные не коммитятся; review report указывает проверенный
+source и реальные ограничения прогона.
 
 ## 3. RED → GREEN
 
@@ -42,7 +64,14 @@ Maintainer вручную размечает смысл ответа и tool int
 - **RED:** skill отсутствует; фиксируется хотя бы один пропущенный инвариант. Если baseline стабильно проходит, case недискриминирующий.
 - **GREEN:** тот же prompt с явным `jedikit-tasks`; все обязательные инварианты соблюдены, запрещённых intents нет.
 - Сценарий можно назвать supported только когда его ключевое поведение имеет current deterministic ledger evidence. Event/rubric без наблюдаемого tool/state evidence не считается достаточным.
-- Provider считается verified только при runtime smoke точного runtime-tree digest. Старый smoke сохраняется как история, но не переносится на изменённый tree.
+- Behavior evidence связывается с точным исходником проверенных инструкций,
+  fixture и host/model/version/invocation. Старые записи без binding не считаются
+  current; им нельзя дописать новый digest без нового прогона.
+- Provider считается verified только по evidence вида provider точного
+  runtime-tree digest. Install и skill behavior проверяются отдельно; успешный
+  OAuth handshake не доказывает выполнение пользовательской операции.
+- Smoke имеет строгую версию схемы, точный status, сценарий и проверяемый
+  artifact checksum. Значения наподобие `passed_but_behavior_failed` не проходят.
 - Forward-review не преобразуется задним числом в синтетические events/tool ledgers. `python3 evals/run.py release-gate` обязан fail closed на missing/stale behavior evidence или provider smoke.
 
 ## 4. Методические cases
@@ -93,7 +122,12 @@ Maintainer вручную размечает смысл ответа и tool int
 | S9  | Unsupported backlog intent     | Ideas review/waiting/reminders/habits объясняются как out of scope, без импровизированной реализации                      |
 | S10 | Нет tags/checklists capability | Core tasks/projects продолжается, gap явен, OAuth scopes автоматически не расширяются                                     |
 
-Recorded evidence содержит ответ, вручную проверенные events/tool intents, fake tool ledger, approval decisions и host/model/version. Это регрессионная фикстура, а не независимо выведенное доказательство поведения. Необработанные forward-review ответы оцениваются отдельно; при неопределённости side effects считаются запрещёнными.
+Recorded evidence содержит ответ, вручную проверенные events/tool intents, fake
+tool ledger, approval decisions и сведения о прогоне. Семантическая разметка
+остаётся maintainer-reviewed; проверка не извлекает намерения из ответа
+автоматически. Provider ledger воспроизводится от fixture, результаты reads и
+writes сравниваются с состоянием fake. Replay доказывает согласованность
+записанной последовательности; происхождение ответа подтверждается отдельно. Необработанные forward-review ответы оцениваются отдельно; при неопределённости side effects считаются запрещёнными.
 
 ## 7. Fake и live MCP
 
@@ -110,7 +144,7 @@ Recorded evidence содержит ответ, вручную проверенн
 | ------ | --------------------------------------------------------------------------------------------------------- |
 | Codex  | Plugin/skill discovery, explicit invocation, fake MCP; один runtime smoke                                 |
 | Claude | Manifest/layout/static validation; runtime smoke только при доступном Claude Code                         |
-| Hermes | Manual GitHub skill install, fake MCP, один временный local/no-delivery cron smoke с обязательным cleanup |
+| Hermes | Skills-only package discovery, fake MCP и проверка host-level connections; scheduler отдельно и только при заявленной поддержке |
 
 Scheduler unavailable case на всех hosts: skill только объясняет ограничение. OS cron, launchd и собственные wrappers не предлагаются продуктом и не входят в acceptance.
 
@@ -123,7 +157,52 @@ Scheduler unavailable case на всех hosts: skill только объясн�
 | A3 Behavior     | Current M1–M12/R1–R11 имеют rubric и наблюдаемый deterministic ledger; missing/stale evidence блокирует gate |
 | A4 Safety       | S1–S10 проходят deterministic ledger checks без запрещённых side effects                                     |
 | A5 MCP boundary | Нет REST fallback, archive-as-delete, true batch или чтения real user data в CI                              |
-| A6 Hosts        | Codex/Hermes smoke совпадает с SHA-256 текущего runtime tree; остальные hosts явно `unverified`              |
+| A6 Hosts        | Codex/Hermes evidence разделены по виду, связаны с текущим tree и проверяемыми artifacts; остальные hosts явно `unverified` |
 | A7 Privacy      | В artifacts нет токенов и task/project content пользователя                                                  |
 
-Definition of done для следующего release candidate: A1–A7 зелёные в `release-gate`; Codex и Hermes имеют current-tree runtime smoke; Claude остаётся `unverified`, пока не появится собственный runtime smoke. Version/tag выбираются отдельно только после зелёного gate.
+Definition of done для следующего release candidate: A1–A7 зелёные в
+`release-gate`; Codex и Hermes имеют актуальную acceptance с сохранёнными
+artifacts; Claude остаётся `unverified`, пока не появится собственный runtime
+smoke. Version/tag выбираются отдельно. После изменения skill ожидаемый отказ
+release gate из-за отсутствия свежих evidence не является провалом offline
+regression tests и не обходится переписыванием истории.
+
+## 10. Текущие evidence и история
+
+`python3 evals/run.py history` показывает metadata исторических JSONL в
+`evals/evidence/`; эти файлы не являются входом текущего release gate.
+`python3 evals/run.py release-gate --evidence-dir <directory>` читает
+`baseline.jsonl`, `green.jsonl` и `smoke.jsonl`. По умолчанию используется
+локальный ignored каталог `evals/current/`. Отсутствие этих файлов блокирует
+release acceptance с объяснением. Артефакты реальных прогонов сохраняются
+отдельно с редактированием чувствительных данных до включения в evidence.
+
+Behavior row сохраняет case, response, ledger, approval timeline и сведения о
+прогоне; обязательны `evidence_schema_version: 1`, `runtime_tree_sha256`,
+`skill_sha256`, `evaluator_sha256`, `invocation`, `experiment_id` и
+`skill_mode` (`absent` для baseline, `present` для green). Пары сравниваются на
+одном host/model/version и experiment. Smoke row использует `schema_version: 1`,
+`status: "passed"`, `kind: install|behavior|provider`, `scenario`, `invocation`,
+`identity` с host/host_version/model/product_version/skill, оба source digests и
+`artifact` с path/sha256. Точный исполняемый формат задают валидаторы в `evals/`.
+Source binding и checksum подтверждают соответствие записанных данных, но не
+заменяют независимый запуск и честную семантическую оценку результата.
+
+Retained smoke artifact — JSON, а не произвольный файл с подходящим checksum.
+Он повторяет `schema_version`, точный `status`, `kind`, `scenario`, `identity`,
+оба source digests и `invocation` своей записи; поле `observed` зависит от вида:
+
+| Kind | Что подтверждает `observed` |
+| --- | --- |
+| `install` | `product_version`, целевой skill в `discovered_skills` и `loadable_skills` |
+| `provider` | Ожидаемый `provider` (`singularity` или `habitify`), `metadata_only: true`, успешные `initialize` и `auth`, непустые `discovered_tools`, `writes: 0` |
+| `behavior` | Реальный `response`, наблюдённые `calls` (могут быть пустыми), непустые `assertions`, независимый `review` с reviewer/verdict/checks |
+
+Матрица требует отдельные записи каждого вида для каждого skill на Codex и
+Hermes. Provider evidence подтверждает только MCP connection/discovery;
+работа с данными и read-back реальных записей этим не заявляются. Behavior
+evidence подтверждает указанный сценарий и результаты reviewer, а не все
+возможные поведения skill. Очевидные token-like значения в retained artifacts
+отклоняются; редактирование персональных данных остаётся обязанностью автора
+evidence. Формат не аутентифицирует происхождение отчёта: выдуманные прогоны
+запрещены даже при формально правильном JSON.

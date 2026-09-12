@@ -25,7 +25,10 @@
     "longDescription": "Два самостоятельных навыка: задачи SingularityApp и поведенческие эксперименты в Habitify — с безопасными записями, обзорами и без скрытой синхронизации.",
     "developerName": "Igor Belyasov",
     "category": "Productivity",
-    "capabilities": ["Interactive", "Write"],
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
     "defaultPrompt": [
       "Помоги разобрать мои задачи в SingularityApp.",
       "Помоги настроить привычку в Habitify."

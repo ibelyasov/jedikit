@@ -43,11 +43,10 @@
 
 При записи сохраняй пользовательский title/note буквально (Q10), без
 перефразирования. Конкретную write-матрицу применяй из
-[coaching.md](coaching.md), а реальные поля и операции — только из
+[operation-policy.md](operation-policy.md), а реальные поля и операции — только из
 [habitify-mcp.md](habitify-mcp.md). Не выноси title/note во внешние уведомления,
 расписания или другие каналы без opt-in. После lapse не включай автоматический
-поток напоминаний; полный privacy gate находится в
-[evidence-and-safety.md](evidence-and-safety.md).
+поток напоминаний; обязательный privacy gate находится в [safety.md](safety.md).
 
 ## 5. Что агент должен исправлять
 

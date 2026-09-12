@@ -1,6 +1,7 @@
 # Архитектура коллекции Agent Skills
 
-**Проверено:** 2026-08-29 (Europe/Moscow).
+**Архитектура обновлена:** 2026-09-12 (Europe/Moscow).
+**Платформенный срез:** 2026-08-29; его совместимость не перепроверялась этим рефакторингом.
 
 **Статус:** platform research для набора JediKit. Context7 использован первым (`/openai/codex`, `/anthropics/claude-code`, `/nousresearch/hermes-agent`), затем выводы сверены с официальной документацией и публичными коллекциями.
 
@@ -83,26 +84,42 @@ Entity coaching остаётся внутри `jedikit-tasks`, а habit coaching
 - Universal inter-skill dependencies отсутствуют; Claude dependencies не становятся общим форматом.
 - Release фиксируется immutable tag/SHA. Для Hermes exact install используется `hermes plugins install <owner/repo/packages/jedikit> --ref <full-commit-sha> --enable`; версии manifests повышаются при изменении общего контракта.
 
-## Минимальная архитектура v1
+## Текущая архитектура
 
-```text
-jedikit/
-├── skills/
-│   ├── jedikit-tasks/
-│   │   ├── SKILL.md
-│   │   └── references/
-│   └── jedikit-habits/
-│       ├── SKILL.md
-│       └── references/
-├── adapters/
-│   ├── codex/
-│   ├── claude/
-│   └── hermes/
-├── evals/
-└── research/
-```
+| Module | Interface | Implementation |
+| --- | --- | --- |
+| Каждый domain skill | `SKILL.md`: intents, порядок работы, обязательные context pointers | Локальные references: метод, операции, provider-specific ограничения |
+| Package builder | `python3 scripts/build.py` и `--check` | Общее metadata, platform manifests, Hermes-копии, детерминированный candidate archive |
+| Offline checks | `python3 evals/run.py check` | Типизированные fake contracts, replay, проверка evidence и негативные regression tests |
+| Release acceptance | `python3 evals/run.py release-gate` | Актуальность behavior evidence и раздельные smoke для hosts/providers |
 
-Точное release layout будет определено implementation plan и официальными validators. Это схема ответственности, не готовый scaffold.
+`skills/` — редактируемый runtime-источник. `package-metadata.json` задаёт общие
+метаданные и platform-specific дополнения. `.codex-plugin/plugin.json`,
+`.claude-plugin/plugin.json` и `packages/jedikit/` генерируются и проверяются на
+совпадение с исходником. `build/` содержит локальный candidate; `dist/` сохраняет
+исторические release artifacts. Сборка не устанавливает и не публикует plugin.
+
+Seam между workflow и провайдером находится в локальном provider reference:
+workflow выбирает намерение, provider contract сопоставляет его с обнаруженными
+MCP capabilities. Это текстовый interface для агента, а не собственный MCP
+сервер или программный SDK. Различия tasks/habits не скрываются общим CRUD.
+
+В habits обязательная safety-справка загружается до coaching и provider actions.
+Матрица подтверждений имеет одно нормативное место; coaching и provider
+references направляют к ней. Датированные REST facts не входят в runtime.
+Mixed-request protocol доступен из каждого child skill, без дополнительного
+router и зависимости на вызов другого skill.
+
+Eval-модули разделяют tool contract, воспроизведение состояния, оценку
+поведения и release policy. Проверка ledger использует тот же типизированный
+контракт, что fake MCP. Установка пакета, выполнение skill и подключение
+провайдера — разные утверждения: каждое требует evidence своего вида.
+Offline gate проверяет implementation, но не превращает старые ответы в
+новое доказательство поведения изменённых инструкций.
+
+Research хранит основания решений и датированные наблюдения. Текущий продуктовый
+scope определяется `product-decisions.md`; команды разработчика — корневым
+README. Отдельный постоянный слой спецификаций не создаётся.
 
 ## Риски трёх хостов
 

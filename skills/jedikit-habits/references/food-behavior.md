@@ -86,8 +86,9 @@
 
 Outcome (вес, талия, лабораторные показатели) остаётся внешним или опциональным
 измерением и **не превращается в habit**. Нативные поля и capabilities проверяй
-по [habitify-mcp.md](habitify-mcp.md), общий read/write workflow — по
-[coaching.md](coaching.md), а обязательный safety/privacy gate — по
-[evidence-and-safety.md](evidence-and-safety.md). Не создавай calorie quotas,
+по [habitify-mcp.md](habitify-mcp.md), coaching — по
+[coaching.md](coaching.md), подтверждения — по
+[operation-policy.md](operation-policy.md), а обязательный safety/privacy gate —
+по [safety.md](safety.md). Не создавай calorie quotas,
 weight-loss deadlines, «идеальные» streaks или медицинские alerts; напоминание
 должно поддерживать выбранное действие, а не стыдить за outcome.

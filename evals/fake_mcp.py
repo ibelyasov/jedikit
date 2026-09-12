@@ -12,182 +12,18 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from contracts import (
+    MEMORY_KEYS,
+    READ_TOOLS,
+    TOOL_CONTRACTS,
+    WRITE_TOOLS,
+    validate_arguments,
+    validate_memory_value,
+)
+
 ROOT = Path(__file__).resolve().parent
 CASES_PATH = ROOT / "cases.json"
-
-READ_TOOLS = {
-    "project_list",
-    "project_get",
-    "task_list",
-    "task_get",
-    "task_list_today",
-    "task_list_overdue",
-    "task_list_inbox",
-}
-WRITE_TOOLS = {
-    "project_create",
-    "project_update",
-    "project_archive",
-    "task_create",
-    "task_update",
-    "task_move",
-    "task_complete",
-    "task_cancel",
-    "task_archive",
-}
-TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
-    "project_list": {
-        "allowed": {
-            "includeRemoved",
-            "includeArchived",
-            "parent",
-            "journalDate",
-            "deleteDate",
-            "isNotebook",
-            "maxCount",
-            "offset",
-            "modifiedSince",
-            "paginationData",
-        },
-        "required": set(),
-    },
-    "project_get": {"allowed": {"id"}, "required": {"id"}},
-    "project_create": {"allowed": {"title", "parent", "note"}, "required": {"title"}},
-    "project_update": {
-        "allowed": {"id", "title", "parent", "note"},
-        "required": {"id"},
-    },
-    "project_archive": {"allowed": {"id", "journalDate"}, "required": {"id"}},
-    "task_list": {
-        "allowed": {
-            "includeRemoved",
-            "includeArchived",
-            "projectId",
-            "parent",
-            "group",
-            "start",
-            "deadline",
-            "checked",
-            "priority",
-            "state",
-            "isNote",
-            "maxCount",
-            "offset",
-            "modifiedSince",
-            "paginationData",
-        },
-        "required": set(),
-    },
-    "task_get": {"allowed": {"id"}, "required": {"id"}},
-    "task_create": {
-        "allowed": {
-            "title",
-            "projectId",
-            "note",
-            "start",
-            "deadline",
-            "priority",
-            "timeLength",
-        },
-        "required": {"title"},
-    },
-    "task_update": {
-        "allowed": {
-            "id",
-            "title",
-            "projectId",
-            "note",
-            "start",
-            "deadline",
-            "priority",
-            "timeLength",
-        },
-        "required": {"id"},
-    },
-    "task_move": {
-        "allowed": {"id", "projectId", "groupId"},
-        "required": {"id", "projectId"},
-    },
-    "task_complete": {"allowed": {"id"}, "required": {"id"}},
-    "task_cancel": {"allowed": {"id"}, "required": {"id"}},
-    "task_archive": {"allowed": {"id", "journalDate"}, "required": {"id"}},
-    "task_list_today": {
-        "allowed": {"timezone", "maxCount", "fields"},
-        "required": {"timezone"},
-    },
-    "task_list_overdue": {
-        "allowed": {"timezone", "maxCount", "fields"},
-        "required": {"timezone"},
-    },
-    "task_list_inbox": {"allowed": {"maxCount", "fields"}, "required": set()},
-}
-STRING_ARGUMENTS = {
-    "id",
-    "title",
-    "parent",
-    "note",
-    "projectId",
-    "group",
-    "groupId",
-    "journalDate",
-    "deleteDate",
-    "start",
-    "deadline",
-    "fields",
-    "modifiedSince",
-}
-BOOLEAN_ARGUMENTS = {
-    "includeRemoved",
-    "includeArchived",
-    "isNotebook",
-    "isNote",
-    "paginationData",
-}
-NUMBER_ARGUMENTS = {"maxCount", "offset", "priority", "state", "checked", "timeLength"}
-MEMORY_KEYS = {
-    "timezone",
-    "workdays",
-    "review_windows",
-    "root_ids",
-    "root_modes",
-    "last_daily_close",
-    "last_weekly",
-}
-
-
-def validate_arguments(tool: str, arguments: dict[str, Any]) -> None:
-    if tool not in TOOL_SCHEMAS:
-        raise ValueError(f"unsupported tool: {tool}")
-    if not isinstance(arguments, dict):
-        raise TypeError(f"{tool}: arguments must be object")
-    schema = TOOL_SCHEMAS[tool]
-    missing = schema["required"] - arguments.keys()
-    if missing:
-        raise ValueError(f"{tool}: missing required {sorted(missing)}")
-    extra = arguments.keys() - schema["allowed"]
-    if extra:
-        raise ValueError(f"{tool}: unsupported arguments {sorted(extra)}")
-    for key in schema["required"]:
-        if arguments[key] in (None, ""):
-            raise ValueError(f"{tool}: empty required argument {key}")
-    for key, value in arguments.items():
-        expected = (
-            str
-            if key in STRING_ARGUMENTS
-            else bool
-            if key in BOOLEAN_ARGUMENTS
-            else (int, float)
-            if key in NUMBER_ARGUMENTS
-            else None
-        )
-        if key == "timezone":
-            expected = (str, int)
-        if expected and (
-            not isinstance(value, expected)
-            or isinstance(value, bool)
-            and expected != bool
-        ):
-            raise ValueError(f"{tool}: invalid type for {key}")
+_MISSING = object()
 
 
 def load_fixture(case_id: str) -> dict[str, Any]:
@@ -228,18 +64,12 @@ class FakeSingularity:
         names = sorted(READ_TOOLS | (set() if self.read_only else WRITE_TOOLS))
         tools = []
         for name in names:
-            contract = TOOL_SCHEMAS[name]
-            properties = {key: {} for key in sorted(contract["allowed"])}
+            contract = TOOL_CONTRACTS[name]
             tools.append(
                 {
                     "name": name,
                     "description": f"Fake SingularityApp tool: {name}",
-                    "inputSchema": {
-                        "type": "object",
-                        "properties": properties,
-                        "required": sorted(contract["required"]),
-                        "additionalProperties": False,
-                    },
+                    "inputSchema": contract.input_schema(),
                 }
             )
         return tools
@@ -265,6 +95,7 @@ class FakeSingularity:
             raise PermissionError("read-only fake rejects native memory write")
         if key not in MEMORY_KEYS:
             raise ValueError(f"native memory key not allowed: {key}")
+        validate_memory_value(key, value)
         self.memory[key] = copy.deepcopy(value)
         result = {"key": key, "value": copy.deepcopy(value)}
         self._record(
@@ -292,6 +123,15 @@ class FakeSingularity:
             {key: value for key, value in self.memory.items() if key in MEMORY_KEYS}
         )
 
+    def memory_read(self, *, order: int | None = None) -> dict[str, Any]:
+        try:
+            result = self.memory_show()
+        except RuntimeError as exc:
+            self._record("native_memory_read", {}, {"error": str(exc)}, False, order)
+            raise
+        self._record("native_memory_read", {}, result, False, order)
+        return result
+
     def safe_status(self) -> dict[str, Any]:
         return {
             "mcp_available": True,
@@ -314,11 +154,11 @@ class FakeSingularity:
     def call(
         self,
         tool: str,
-        arguments: dict[str, Any] | None = None,
+        arguments: dict[str, Any] | object = _MISSING,
         *,
         order: int | None = None,
     ) -> Any:
-        arguments = arguments or {}
+        arguments = {} if arguments is _MISSING else arguments
         validate_arguments(tool, arguments)
         mutating = tool in WRITE_TOOLS
         if mutating and self.read_only:

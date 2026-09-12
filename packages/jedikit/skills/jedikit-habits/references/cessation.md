@@ -73,6 +73,7 @@
 
 ## Канонические связи
 
-- Операции и подтверждения: [coaching.md](coaching.md).
-- Safety/privacy stop: [evidence-and-safety.md](evidence-and-safety.md).
+- Коучинг: [coaching.md](coaching.md).
+- Операции и подтверждения: [operation-policy.md](operation-policy.md).
+- Safety/privacy stop: [safety.md](safety.md).
 - Реальные Habitify capabilities: [habitify-mcp.md](habitify-mcp.md).

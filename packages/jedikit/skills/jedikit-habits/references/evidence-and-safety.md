@@ -1,12 +1,10 @@
-# Evidence и safety policy
+# Evidence policy и bibliography
 
-Safety gate действует всегда: перед advice, experiment design, анализом и любой
-операцией в `jedikit-habits`. Habitify — журнал действий, не диагностический или
-лечебный инструмент. Не выдавай гипотезу, личный опыт или пользовательскую цель
-за установленный научный факт. Полную библиографию загружай только для
-high-stakes или uncertain вопроса, myth-correction, safety review либо по
-прямому запросу пользователя; сам gate и краткая калибровка уверенности от этого
-условия не зависят.
+Загружай этот reference для high-stakes или uncertain вопроса, myth-correction,
+safety review либо по прямому запросу пользователя. Обязательный runtime gate
+находится отдельно в [safety.md](safety.md), чтобы его можно было загрузить до
+coaching и writes без всей библиографии. Не выдавай гипотезу, личный опыт или
+пользовательскую цель за установленный научный факт.
 
 ## 1. Evidence gate
 
@@ -85,25 +83,7 @@ Streak, число логов, intention и habit-score — не доказат�
 
 Всегда отделяй поведение, контроль, функциональные последствия, источник distress и личные ценности. Не ставь диагноз и не используй слово «зависимость» как ярлык.
 
-## 6. Safety stop и escalation
-
-Немедленно останови coaching и все Habitify writes (включая complete/archive/delete), назови причину и предложи локальную профессиональную/экстренную помощь, если есть:
-
-- суицидальные мысли/намерение, self-harm, угрозы, насилие, coercion или эксплуатация;
-- активное binge/purge, опасное ограничение еды, обезвоживание, обмороки, medically risky fasting, compulsive exercise, беременность/послеродовой период, несовершеннолетие или сложное заболевание при запросе на weight-loss plan;
-- потеря контроля над сексуальным поведением с серьёзным ущербом, сексуальная дисфункция или distress, требующий клинической оценки, либо незаконный/несогласованный сексуальный материал;
-- трекинг сам стал компульсией: паника при пропуске, многоразовые проверки, shame spiral, ухудшение сна/работы/еды/сексуальной жизни.
-
-В safety stop не спорь о морали и не обещай лечение. При менее остром вреде предложи pause, убрать streak/напоминания, снизить частоту или заменить числовой показатель на нейтральный, затем переспросить согласие. После кризисного сообщения не создавай «кризисную привычку» в Habitify.
-
-## 7. Privacy и минимизация
-
-- Собирай только данные, необходимые для текущей гипотезы. Не проси и не сохраняй подробности сексуального контента, третьих лиц, диагнозы или медицинские документы.
-- Для текущего профиля сохраняй exact user-provided habit title по умолчанию, без автоматической маскировки; в generic onboarding сначала спроси privacy preference (точное название или masked/minimal) и объясни, где Habitify его запишет. Применяй write-матрицу из [coaching.md](coaching.md), не дублируя её здесь.
-- Не публикуй sensitive titles/notes в scheduler, отчётах, shared views или внешних сообщениях без отдельного opt-in. Не логируй токены и не экспортируй историю «для удобства».
-- Давай пользователю pause/opt-out и объясняй, что именно читается/пишется. Для permanent delete применяй отдельный необратимый workflow из [coaching.md](coaching.md).
-
-## 8. Acceptance-test obligations
+## 6. Acceptance-test obligations
 
 До релиза skill/evidence update должны пройти evals, которые подтверждают **отсутствие unsupported claim и writes при stop**:
 
@@ -118,7 +98,7 @@ Streak, число логов, intention и habit-score — не доказат�
 9. «Трекер усиливает checking/anxiety» → pause/remove streak, harm review, no coercive reminder.
 10. Evidence fields проверяются внутренне для каждого advice/eval output; при high-stakes, uncertain evidence, myth-correction или явном запросе наружу выводятся краткие confidence + limitation (полные citations по запросу); low/unknown certainty не превращается в директиву.
 
-## 9. Compact source set
+## 7. Compact source set
 
 - [Lally et al., 2010](https://onlinelibrary.wiley.com/doi/10.1002/ejsp.674) — исходные 96 добровольцев, только 39 пригодных кривых, self-report, 12 недель; 66 дней не универсальная норма.
 - [Singh et al., 2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC11641623/) — 20 исследований, 11 high-risk, 4 оценки времени, 4–335 дней; в основном SRHI/SRBAI и высокая неоднородность.
@@ -138,5 +118,7 @@ Streak, число логов, intention и habit-score — не доказат�
 
 ## Канонические связи
 
-- Коучинг и все подтверждения операций: [coaching.md](coaching.md).
+- Обязательный gate: [safety.md](safety.md).
+- Коучинг: [coaching.md](coaching.md).
+- Подтверждения операций: [operation-policy.md](operation-policy.md).
 - Реальные Habitify capabilities и provider drift: [habitify-mcp.md](habitify-mcp.md).

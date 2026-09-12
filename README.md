@@ -1,125 +1,110 @@
 # JediKit — Разгрузи голову. Действуй ясно.
 
-**Версия:** `0.1.0-alpha.2`. Реализация задач и привычек находится в репозитории; это prerelease с исправленной Hermes-упаковкой, а не заявление `production-ready`. Реальные пользовательские данные и Habitify writes не входят в release-проверку.
+Русскоязычный plugin с двумя самостоятельными Agent Skills:
 
-JediKit — русскоязычный plugin/package с двумя самостоятельными Agent Skills:
+- `jedikit-tasks` — задачи и минимальный проектный контур в SingularityApp;
+- `jedikit-habits` — поведенческие эксперименты и обзоры привычек в Habitify.
 
-- `jedikit-tasks` управляет задачами и минимальным проектным контуром в SingularityApp;
-- `jedikit-habits` проектирует и ведёт поведенческие эксперименты в Habitify на основе академических данных.
+SingularityApp и Habitify остаются источниками своих данных. Skills работают
+через официальные hosted MCP. Собственного сервера, REST fallback и скрытой
+синхронизации между провайдерами нет.
 
-Оба skill используют только официальные hosted MCP. SingularityApp остаётся источником истины для задач, Habitify — для привычек.
+**Состояние:** локальный candidate после архитектурного ревью 2026-09-12.
+Базовая версия manifests — `0.1.0-alpha.2`; она не означает, что изменённый tree
+прошёл новую release acceptance. Исторические отчёты находятся в
+[`evals/evidence/`](evals/evidence/). Готовность текущего tree определяет
+`release-gate`, отдельно от offline проверки кода.
 
-## Как это вызывается
+## Использование
 
-Обычно достаточно написать естественным языком: host выбирает skill по его описанию. Для standalone skill Codex использует `$jedikit-tasks` и `$jedikit-habits`; после plugin install их квалифицированные имена — `$jedikit:jedikit-tasks` и `$jedikit:jedikit-habits`.
+Опишите задачу естественным языком: host выбирает skill по описанию.
+Для прямого вызова в Codex standalone-имена — `$jedikit-tasks` и
+`$jedikit-habits`; после plugin install — `$jedikit:jedikit-tasks` и
+`$jedikit:jedikit-habits`. `@jedikit` обозначает plugin scope. Корневого
+router-skill нет.
 
-В OpenAI `@jedikit` означает mention/scoping всего plugin. Это не третий skill и не router. Корневого `$jedikit` нет. В Claude и Hermes синтаксис explicit invocation отличается, поэтому portable-контракт опирается на независимые child skills, а не на межskill API.
+Tasks помогает записать мысль, разобрать Inbox, сформулировать следующий шаг,
+проверить проект и провести daily/weekly review. Habits помогает спроектировать,
+вести и пересматривать одну поведенческую гипотезу. Смешанный запрос разделяется
+на два последовательных workflow с независимыми подтверждениями и отчётами.
 
-Смешанный запрос про задачи и привычки делится на два последовательных workflow с отдельными подтверждениями. Общей транзакции или cross-provider rollback нет.
+Перед изменениями skill применяет свою матрицу подтверждений и проверяет
+результат чтением обратно. Привычки не заменяют диагностику или лечение;
+clinical/safety stop прекращает coaching и записи. Возможности провайдера,
+включая undo и Habitify Off Mode, определяются runtime discovery.
 
-## Задачи
+## Установка и подключения
 
-`jedikit-tasks` помогает:
+Проверенный платформенный срез — 2026-08-29. Подробности и ограничения:
+[`research/skill-suite-architecture.md`](research/skill-suite-architecture.md).
 
-- записать мысль во Inbox и разобрать её поштучно;
-- сформулировать наблюдаемое следующее действие;
-- минимально создать/проверить проект;
-- провести daily open/close и weekly review;
-- безопасно выполнить подтверждённые изменения с read-back.
-
-Он не использует Singularity habits scopes и не подменяет привычку задачей. Календарь, ожидания, напоминания и отдельный процесс идей остаются вне текущего scope.
-
-## Привычки
-
-`jedikit-habits` — evidence-aware coach/operator для `setup`, `design`, `log`, `urge`, `review`, `adjust`, `pause`, `off`, `archive`, `status` и `help`.
-
-Ключевые границы:
-
-- снижение веса — outcome, а не привычка; skill работает с поздней едой, перееданием, сладким, покупками/планированием, движением и другими наблюдаемыми процессами;
-- порно и мастурбация — два отдельных эксперимента; точные названия пользователя допустимы, abstinence не объявляется медицински полезной;
-- существующая Habitify habit становится managed experiment только после явного adopt и согласованного человекочитаемого плана;
-- один прямо запрошенный одиночный обратимый log может выполниться сразу только при обнаруженных native undo и read-back; остальные записи требуют preview, а permanent delete — отдельного подтверждения;
-- clinical/safety risk останавливает coaching и записи; skill не диагностирует и не назначает лечение;
-- Off Mode используется только как обнаруженная нативная account-wide capability Habitify. Если MCP её не показывает, skill даёт ручную UI-инструкцию и ничего не эмулирует.
-
-Академические обзоры и provider-контракт находятся в [`skills/jedikit-habits/references`](skills/jedikit-habits/references). Runtime загружает только релевантный reference, поэтому `SKILL.md` остаётся рабочей инструкцией, а не энциклопедией.
-
-## MCP и приватность
-
-Plugin использует утверждённый вариант A: два независимых child skills без
-root/router. На Codex/Claude surfaces корневой `.mcp.json` объявляет два
-серверных подключения:
-
-- `singularity` — `https://mcp.singularity-app.com/mcp`;
-- `habitify` — `https://mcp.habitify.me/mcp`.
-
-Hermes Portable Agent Plugin v1 использует изолированный skills-only package
-`packages/jedikit` с `plugin.json` и `skills/`, но без `mcp.json`. В Hermes 0.20.6
-plugin-level remote MCP получают отдельные namespaced имена, однако portable
-translation не переносит `auth: oauth`; такие объявления дублировали endpoint'ы
-без доступа к существующим OAuth-сессиям. Поэтому Hermes использует рабочие
-host-level `singularity` и `habitify`, настроенные через `hermes mcp add`.
-Skills не вызывают чужой provider, но пользователь всё равно должен проверить
-OAuth consent и доступные tools. Habitify tool names и required fields не
-угадываются: после OAuth выполняются `initialize`/`tools/list`, а schema drift
-закрывает текущую операцию без REST или стороннего fallback.
-
-Не сохраняются episodes, вес, sexual details, причины, заметки или токены. Допустимы только timezone, cadence, privacy preference, выбранные habit IDs и технические timestamps обзоров. Чувствительные названия не уходят во внешние уведомления без отдельного opt-in.
-
-Root `.mcp.json` не является универсальной ChatGPT Connected App. ChatGPT/Work
-требует отдельно зарегистрированного connection/app. Hermes 0.20.6+ читает
-`packages/jedikit/plugin.json` и оба вложенных `skills/` как один Portable Agent
-Plugin v1; provider OAuth остаётся в host-level MCP-конфигурации Hermes.
-
-## Локальная проверка candidate
-
-До публикации в отдельных marketplace package можно загрузить напрямую. Для Claude Code:
+Для локального candidate в Claude Code:
 
 ```bash
 claude --plugin-dir /path/to/jedikit
 ```
 
-Hermes 0.20.6+ устанавливает весь package одной командой после проверки source:
+Для Hermes 0.20.6+ — один skills-only package:
 
 ```bash
-hermes plugins install ibelyasov/jedikit/packages/jedikit --enable
+hermes plugins install ibelyasov/jedikit/packages/jedikit --ref <full-commit-sha> --enable
 ```
 
-Для воспроизводимой установки релиза используйте указанный в GitHub release полный commit SHA через `--ref <full-commit-sha>`. Подкаталог отделяет публикуемый runtime от research/evidence репозитория, поэтому штатный Hermes security scan проверяет только устанавливаемые файлы. После появления записи с `subdir: packages/jedikit` в Hermes community plugin index идентификатор сократится до `jedikit`. Package регистрирует только два namespaced child skills и не создаёт MCP-дубли.
+Выберите SHA проверенного релиза. Команда без `--ref` устанавливает состояние
+удалённой ветки и не фиксирует воспроизводимую версию.
 
-Перед использованием в Hermes должны существовать рабочие OAuth-подключения
-`singularity` и `habitify`, добавленные через `hermes mcp add`. Проверяйте их
-командами `hermes mcp test singularity` и `hermes mcp test habitify`. Plugin
-устанавливает оба skills одной командой, но намеренно не управляет provider
-connections, не копирует токены и не требует отключать security scan.
+Hermes package использует host-level OAuth connections `singularity` и
+`habitify`, предварительно настроенные через `hermes mcp add`. Проверка
+подключений — `hermes mcp test singularity` и `hermes mcp test habitify`.
+Package не переносит токены и не создаёт plugin-level MCP-дубли.
 
-Для Codex one-plugin install нужен опубликованный или локально зарегистрированный marketplace. Smoke этого prerelease проверен через `codex plugin add`; публичная запись в universal Plugins Directory требует отдельной submission/review.
+Root `.mcp.json` объявляет подключения для Codex/Claude. Для установки всего
+plugin в Codex нужен локальный или опубликованный marketplace. Root manifest
+не регистрирует ChatGPT Connected App; это отдельная platform integration.
+Claude runtime, реальные Habitify writes и текущая provider acceptance не
+подтверждаются локальной сборкой.
 
 ## Разработка и проверка
 
+Требуется Python 3.11+; локальные инструменты используют стандартную библиотеку.
+
 ```bash
-python3 evals/fake_mcp.py --self-test
-python3 evals/run.py release-gate
-uv run --with pyyaml python "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" skills/jedikit-tasks
-uv run --with pyyaml python "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" skills/jedikit-habits
-uv run --with pyyaml python "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" .
-hermes plugins doctor packages/jedikit --ci
+python3 scripts/build.py
+python3 evals/run.py check
 ```
 
-Существующий task harness остаётся без второго параллельного Python-контура. `jedikit-habits` проверяется штатным skill-validator, plugin-validator и локальными ссылками; независимые forward-прогоны выполняются в изолированном временном workspace и не сохраняют сырые сессии в Git.
+Сборка обновляет platform manifests и `packages/jedikit/skills/` из канонических
+исходников, создаёт candidate ZIP и SHA-256 в `build/`. Исторические `dist/`
+archives не меняются. Для проверки без генерации: `python3 scripts/build.py --check`.
+Тесты сборки: `python3 -m unittest discover -s tests/build -v`.
 
-Текущий результат `alpha.2` записан в
-[`evals/evidence/candidate-gate-2026-08-29-alpha.2.md`](evals/evidence/candidate-gate-2026-08-29-alpha.2.md).
-Предыдущий `alpha.1` gate сохранён отдельно в
-[`evals/evidence/candidate-gate-2026-08-29.md`](evals/evidence/candidate-gate-2026-08-29.md).
-Claude runtime и реальные Habitify writes остаются `unverified`.
+Править нужно `skills/` и `package-metadata.json`. Сгенерированные manifests и
+Hermes-копии коммитятся вместе с исходниками. CI проверяет совпадение, контракты,
+негативные regression tests и воспроизводимость сборки. Он не обращается к
+провайдерам и не требует домашнего каталога с Codex validator-скриптами.
 
-Исследовательская база и журнал решений: [`research/README.md`](research/README.md)
-и [`research/habits-grill-decisions.md`](research/habits-grill-decisions.md).
-Отложенные направления: [`BACKLOG.md`](BACKLOG.md).
+Release acceptance запускается отдельно:
+
+```bash
+python3 evals/run.py release-gate
+```
+
+Зелёный offline check не заменяет свежие behavior/host/provider evidence.
+Старые ответы и smoke не получают новый source digest задним числом.
+Формат evidence и порядок acceptance описаны в
+[`research/testing-strategy.md`](research/testing-strategy.md).
+Официальные host validators и реальные runtime smoke относятся к отдельной
+проверке платформ, а не к воспроизводимой локальной сборке.
+
+## Документация
+
+- [Продуктовые решения](research/product-decisions.md) — согласованный scope и ограничения.
+- [Архитектура](research/skill-suite-architecture.md) — ответственность модулей и платформ.
+- [Исследования](research/README.md) — источники и датированные основания решений.
+- [Backlog](BACKLOG.md) — отложенные направления.
 
 ## Лицензия и независимость
 
-Оригинальные материалы проекта распространяются по MIT; ограничения по сторонним материалам перечислены в [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
-
-JediKit — независимый проект, не связанный и не одобренный Максимом Дорофеевым, SingularityApp или Habitify.
+Оригинальные материалы распространяются по MIT; ограничения сторонних
+материалов — в [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+JediKit не связан и не одобрен Максимом Дорофеевым, SingularityApp или Habitify.

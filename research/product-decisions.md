@@ -1,8 +1,8 @@
 # Product decisions: JediKit Tasks and Habits
 
-**Актуально на:** 2026-08-29 (Europe/Moscow)
+**Актуально на:** 2026-09-12 (Europe/Moscow)
 
-**Статус:** повторный audit/grilling завершён и подтверждён пользователем. После live-проверки Hermes пользователь выбрал `v0.1.0-alpha.2` с skills-only Hermes package; stable tag и заявление `production-ready` по-прежнему запрещены без отдельного будущего решения.
+**Статус:** продуктовые решения grilling 2026-08-29 сохранены; архитектурные исправления поручены пользователем 2026-09-12. Текущий tree — локальный candidate на базовой версии `0.1.0-alpha.2`; исторический gate не подтверждает его runtime acceptance. Stable tag и `production-ready` требуют отдельного решения после актуального release gate.
 
 **Финальный бренд:** `JediKit`; package/repo slug `jedikit`; runtime skills `jedikit-tasks` и `jedikit-habits`.
 
@@ -187,7 +187,11 @@
 ## 15. Платформы, пакетирование и релиз
 
 - Канонический источник каждого домена — свой portable skill tree; платформенные
-  manifests/install/scheduling instructions остаются тонкими adapters.
+  manifests/install/scheduling instructions остаются тонкими adapters. Общие
+  package metadata задаются в одном исходнике; platform manifests и Hermes skill
+  tree генерируются `scripts/build.py`. Генерируемые копии не редактируются вручную.
+- Сборка candidate воспроизводима и отделена от исторических release archives.
+  Локальная сборка не публикует релиз и не меняет установленные plugins.
 - Codex и Claude устанавливают один plugin с несколькими skills и root `.mcp.json`. Hermes 0.20.6+ устанавливает тот же GitHub repository одной командой как Portable Agent Plugin v1 из чистого skills-only подкаталога `packages/jedikit`: его `plugin.json` и оба `skills/`, без `mcp.json`.
 - Межskill dependencies не являются переносимым стандартом. Runtime references каждого skill самодостаточны; нет `../shared` dependency.
 - Hermes v1 — одна plugin-установка из GitHub через `hermes plugins install <owner/repo/packages/jedikit> --enable`; community plugin index с `subdir: packages/jedikit` может позднее дать короткий marketplace identifier. Skills Hub/tap publication не требуется.
@@ -205,9 +209,22 @@
 ## 16. Тестирование и безопасность
 
 - Существующий fake MCP harness остаётся только у `jedikit-tasks`; второй параллельный Python-harness для habits не создаётся.
-- `jedikit-habits` проходит штатные skill/plugin validators, проверку локальных references и независимый forward-review во временном workspace. Сырые host-сессии и cleanup snapshots не коммитятся.
+- `jedikit-habits` проходит локальную структурную проверку package/skills/references
+  и независимый forward-review во временном workspace. Штатные host validators
+  применяются отдельно при platform acceptance. Сырые host-сессии и cleanup
+  snapshots не коммитятся.
 - Реальные задачи и привычки пользователя не читаются. Habitify tools и Off Mode используются только после runtime discovery; REST и сторонний fallback запрещены.
-- Поведенческий сценарий нельзя называть release-verified без сохраняемого воспроизводимого evidence. Непроверенный host/function маркируется `unverified`.
+- Поведенческий сценарий нельзя называть release-verified без сохраняемого
+  воспроизводимого evidence, связанного с проверенными инструкциями, fixture и
+  host/model/version. Старые записи остаются историей; новый digest им задним
+  числом не присваивается. Непроверенный host/function маркируется `unverified`.
+- Offline developer check проверяет контракты, replay, regression tests и package
+  drift. Release gate отдельно требует актуальные behavior и smoke evidence.
+  Установка, поведение skill и provider connection — разные виды проверки;
+  успешная установка или AuthRequired не подтверждают работу провайдера.
+- Fake MCP публикует и валидирует один типизированный tool contract. Ledger
+  проверяется воспроизведением состояния от fixture, включая результаты reads
+  и writes; произвольный read-back не считается проверкой выполненной записи.
 - README или release может называть сценарий supported только после детерминированного eval его ключевого поведения; каждая провайдерская интеграция требует отдельного runtime smoke. Непроверенный host/function маркируется `unverified`.
 - CI не содержит токенов, пользовательских данных, постоянных расписаний и внешней доставки.
 
@@ -249,3 +266,13 @@
 ## 20. Результат повторного grilling
 
 Frontier закрыт 2026-08-29. Пользователь выбрал применение решений к research, runtime skill, references, evals, README и release evidence с запуском нового gate. Tag, публикация, переименование GitHub-репозитория и локального каталога остаются отдельными явно подтверждаемыми действиями.
+
+## 21. Архитектурное ревью 2026-09-12
+
+Пользователь поручил исправить все выявленные проблемы, включая переписывание
+при необходимости. В рамках прежнего продукта централизованы runtime write
+policy, MCP-only contract и загрузка safety; mixed requests обрабатываются
+симметрично обоими skills. Упаковка и проверки получили воспроизводимые
+локальные команды. Прежние правила доказательности усилены проверкой текущего
+исходника и replay; исторические evidence и опубликованные archives сохранены.
+Это не разрешение на provider/account mutations, установку или публикацию.
