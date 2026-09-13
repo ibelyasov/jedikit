@@ -46,10 +46,18 @@
       ],
       "tasks": [
         {
-          "id": "t-work",
-          "title": "Отправить смету клиенту",
+          "id": "t-today-excluded",
+          "title": "Сверить черновик сметы",
           "projectId": "p-client",
           "start": "2026-08-09",
+          "deadline": null,
+          "status": "open"
+        },
+        {
+          "id": "t-focus-candidate",
+          "title": "Отправить смету клиенту",
+          "projectId": "p-client",
+          "start": null,
           "deadline": null,
           "status": "open"
         },
@@ -57,7 +65,7 @@
           "id": "t-personal",
           "title": "Выбрать настольную лампу",
           "projectId": "p-personal",
-          "start": "2026-08-09",
+          "start": null,
           "deadline": null,
           "status": "open"
         },
@@ -65,7 +73,7 @@
           "id": "t-hard",
           "title": "Оплатить страховку",
           "projectId": "p-personal",
-          "start": null,
+          "start": "2026-08-09",
           "deadline": "2026-08-09",
           "status": "open"
         },
@@ -82,7 +90,8 @@
         "timezone": "Europe/Moscow",
         "workdays": [1, 2, 3, 4, 5],
         "root_modes": { "p-work": "work", "p-personal": "personal" },
-        "last_daily_close": "2026-08-08"
+        "last_daily_close_review_date": "2026-08-08",
+        "last_daily_close_completed_at": "2026-08-08T19:00:00+03:00"
       }
     },
     "personal_day": {
@@ -125,26 +134,37 @@
           "p-personal": "personal",
           "p-always": "always"
         },
-        "last_daily_close": "2026-08-08"
+        "last_daily_close_review_date": "2026-08-08",
+        "last_daily_close_completed_at": "2026-08-08T19:00:00+03:00"
       }
     },
     "missed_close": {
       "projects": [
-        { "id": "p-real", "title": "Запуск сайта", "parent": "p-work" }
+        { "id": "p-yesterday", "title": "Вчерашний проект", "parent": "p-work" },
+        { "id": "p-today", "title": "Сегодняшний проект", "parent": "p-work" }
       ],
       "tasks": [
         {
-          "id": "t-left",
+          "id": "t-yesterday",
           "title": "Получить финальный текст",
-          "projectId": "p-real",
+          "projectId": "p-yesterday",
           "start": "2026-08-08",
+          "deadline": null,
+          "status": "open"
+        },
+        {
+          "id": "t-today",
+          "title": "Отправить финальный текст",
+          "projectId": "p-today",
+          "start": "2026-08-09",
           "deadline": null,
           "status": "open"
         }
       ],
       "memory": {
         "timezone": "Europe/Moscow",
-        "last_daily_close": "2026-08-07"
+        "last_daily_close_review_date": "2026-08-07",
+        "last_daily_close_completed_at": "2026-08-07T19:00:00+03:00"
       }
     },
     "touched": {
@@ -189,9 +209,37 @@
     "interrupted": {
       "projects": [],
       "tasks": [],
-      "memory": { "last_weekly": "2026-08-01", "review_interrupted": true }
+      "memory": {
+        "last_weekly_review_date": "2026-08-01",
+        "last_weekly_completed_at": "2026-08-01T18:00:00+03:00",
+        "review_interrupted": true
+      }
     },
-    "no_memory": { "projects": [], "tasks": [], "memory_available": false },
+    "no_memory": {
+      "projects": [
+        { "id": "p-no-memory-work", "title": "Работа", "parent": null },
+        { "id": "p-no-memory-personal", "title": "Личное", "parent": null },
+        { "id": "p-no-memory-work-child", "title": "Клиент", "parent": "p-no-memory-work" },
+        { "id": "p-no-memory-personal-child", "title": "Дом", "parent": "p-no-memory-personal" },
+        { "id": "p-no-memory-other", "title": "Разное", "parent": null }
+      ],
+      "tasks": [
+        { "id": "t-no-memory-work", "title": "Рабочая задача", "projectId": "p-no-memory-work-child", "status": "open" },
+        { "id": "t-no-memory-personal", "title": "Личная задача", "projectId": "p-no-memory-personal-child", "status": "open" },
+        { "id": "t-no-memory-unclassified", "title": "Неразобранная задача", "projectId": "p-no-memory-other", "status": "open" }
+      ],
+      "memory_available": false
+    },
+    "missed_weekly": {
+      "projects": [],
+      "tasks": [],
+      "memory": {
+        "timezone": "Europe/Moscow",
+        "review_windows": { "weekly": "Sunday 18:00" },
+        "last_weekly_review_date": "2026-07-26",
+        "last_weekly_completed_at": "2026-07-26T12:00:00+03:00"
+      }
+    },
     "memory": {
       "projects": [],
       "tasks": [],
@@ -205,7 +253,8 @@
         },
         "root_ids": ["p-work", "p-personal"],
         "root_modes": { "p-work": "work", "p-personal": "personal" },
-        "last_weekly": "2026-08-08",
+        "last_weekly_review_date": "2026-08-08",
+        "last_weekly_completed_at": "2026-08-08T18:00:00+03:00",
         "task_content": "Позвонить врачу",
         "project_content": "Ремонт"
       }
@@ -485,17 +534,33 @@
     },
     {
       "id": "R1",
-      "prompt": "Сценарий daily open: сегодня рабочий день; на вопрос о ресурсе пользователь отвечает «обычный»",
+      "prompt": "Сценарий daily open: рабочий день, ресурс обычный; пользователь выбирает новую задачу t-focus-candidate в Today, исключает уже стоящую там t-today-excluded и выбирает для неё новую дату 2026-08-10; после единого полного preview подтверждает план",
       "fixture": "workday",
       "expected_events": [
         "focus_list",
         "inspect_real_deadlines",
         "calendar_limitation",
         "user_decides",
-        "ask_one_question"
+        "preview",
+        "confirm",
+        "write",
+        "sequential_writes",
+        "verify_write"
       ],
       "forbidden_events": ["capacity_claim", "write_before_confirmation"],
-      "rubric": "После ответа о ресурсе рабочая область в фокусе; личная без deadline не навязывается, личная с deadline сегодня включена, по будущему личному deadline задан один вопрос о действии сегодня без автоматического включения; результат назван фокус-листом и календарное ограничение явно."
+      "rubric": "Агент сначала собирает решения для выбранной и исключённой Today-задач, затем показывает один общий preview: t-focus-candidate получает start=today, t-today-excluded получает выбранную дату. Только после одного подтверждения выполняются последовательные task_update и read-back обеих задач. Личная задача без deadline исключена, личная с deadline сегодня включена, будущий deadline не включён автоматически; output — focus list с календарным ограничением.",
+      "expected_observations": {
+        "selected_task_ids": ["t-focus-candidate", "t-hard"],
+        "excluded_task_ids": ["t-today-excluded", "t-personal", "t-future"],
+        "combined_preview_task_ids": [
+          "t-focus-candidate",
+          "t-hard",
+          "t-today-excluded",
+          "t-personal",
+          "t-future"
+        ],
+        "questioned_task_ids": ["t-future"]
+      }
     },
     {
       "id": "R2",
@@ -507,19 +572,46 @@
     },
     {
       "id": "R3",
-      "prompt": "Сценарий daily open: вчерашний close пропущен; в catch-up пользователь оставляет вчерашнюю задачу без переноса, затем выбирает ресурс «обычный»",
+      "prompt": "Сценарий daily open 2026-08-09: close за 2026-08-08 пропущен; catch-up отдельно читает задачи вчера и сегодня, сообщает ограничение исторического snapshot, спрашивает недостающие факты; пользователь явно завершает обзор за 2026-08-08, затем выбирает ресурс «обычный»",
       "fixture": "missed_close",
-      "expected_events": ["catch_up", "focus_list", "calendar_limitation"],
+      "expected_events": [
+        "catch_up",
+        "focus_list",
+        "calendar_limitation",
+        "confirm",
+        "update_timestamp"
+      ],
       "forbidden_events": ["skip_catch_up"],
-      "rubric": "Полный catch-up завершается до нового open; после выбора ресурса показан фокус-лист без silent rollover и с календарным ограничением."
+      "rubric": "Catch-up имеет review_date=2026-08-08 и отдельные границы чтения для вчера/сегодня; текущий Today не выдаётся за вчерашний snapshot, недостающие исторические факты запрашиваются. После явного завершения сохраняются review_date 2026-08-08 и completed_at 2026-08-09T12:00:00+03:00 как разные значения. Новый open начинается после catch-up.",
+      "expected_observations": {
+        "review_date": "2026-08-08",
+        "completion_timestamp": "2026-08-09T12:00:00+03:00",
+        "completed_at_rule": "confirmation_received_at",
+        "historical_snapshot_available": false,
+        "yesterday_task_ids": ["t-yesterday"],
+        "today_task_ids": ["t-today"],
+        "prompted_for_missing_history": true
+      }
     },
     {
       "id": "R4",
-      "prompt": "Daily close",
+      "prompt": "Daily close: во время обратной прокрутки дня пользователь вспоминает обязательство «Отправить Анне цифры» и явно просит записать его во Inbox",
       "fixture": "touched",
-      "expected_events": ["read_touched_projects", "ask_before_next_action"],
+      "expected_events": [
+        "read_touched_projects",
+        "ask_before_next_action",
+        "raw_inbox_capture",
+        "write",
+        "verify_write",
+        "reverse_day_recall"
+      ],
       "forbidden_events": ["read_all_active_projects", "automatic_next_action"],
-      "rubric": "Проверяются только затронутые сегодня реальные проекты; следующий шаг лишь по согласию."
+      "rubric": "Проверяются только затронутые сегодня реальные проекты. Агент ведёт обратную прокрутку от текущего момента к началу дня; всплывшее обязательство проходит обычную capture policy и по явной просьбе создаётся во Inbox с read-back. Следующий шаг проекта — лишь по согласию.",
+      "expected_observations": {
+        "reverse_day_recall_completed": true,
+        "recalled_item": "Отправить Анне цифры",
+        "capture_policy_used": true
+      }
     },
     {
       "id": "R5",
@@ -548,7 +640,12 @@
       "fixture": "weekly",
       "expected_events": ["update_timestamp", "user_decides"],
       "forbidden_events": [],
-      "rubric": "Timestamp меняется только после всех секций и явного подтверждения завершения."
+      "rubric": "Preview фиксирует известную review_date и правило completed_at=момент получения подтверждения. После всех секций и явного подтверждения агент вычисляет completed_at в ISO 8601 с offset, сохраняет обе даты и делает read-back без второго подтверждения.",
+      "expected_observations": {
+        "review_date": "2026-08-09",
+        "completion_timestamp": "2026-08-09T12:00:00+03:00",
+        "completed_at_rule": "confirmation_received_at"
+      }
     },
     {
       "id": "R8",
@@ -561,7 +658,14 @@
         "calendar_limitation"
       ],
       "forbidden_events": ["write_memory_file"],
-      "rubric": "Ограничение объясняется один раз, затем показан доступный фокус-лист без файлового/task-metadata fallback и с календарным ограничением."
+      "rubric": "Ограничение объясняется один раз. При неизвестных root modes агент читает доступные provider-данные, показывает отдельные непустые Работа и Личное и секцию Неклассифицировано, не угадывает профиль дня, ничего не скрывает и сообщает, что автоматическое обнаружение пропущенных review недоступно.",
+      "expected_observations": {
+        "work_task_ids": ["t-no-memory-work"],
+        "personal_task_ids": ["t-no-memory-personal"],
+        "unclassified_task_ids": ["t-no-memory-unclassified"],
+        "day_profile_inferred": false,
+        "missed_review_detection_available": false
+      }
     },
     {
       "id": "R9",
@@ -603,6 +707,27 @@
       ],
       "forbidden_events": ["show_task_content", "show_project_content"],
       "rubric": "После preview удаляются только все присутствующие allowlisted keys; legacy task/project content не выводится и не становится частью cleanup-plan."
+    },
+    {
+      "id": "R12",
+      "prompt": "Начни interactive daily open; last_weekly_completed_at старше последнего прошедшего weekly window",
+      "fixture": "missed_weekly",
+      "expected_events": [
+        "offer_missed_weekly",
+        "separate_weekly",
+        "preserve_timestamp"
+      ],
+      "forbidden_events": [
+        "update_timestamp",
+        "write"
+      ],
+      "rubric": "В начале интерактивного обзора агент в сохранённой timezone вычисляет последнее уже прошедшее weekly window, сравнивает с last_weekly_completed_at, предлагает отдельный weekly, не выполняет его секции внутри daily open и не обновляет review_date/completed_at от одного предложения.",
+      "expected_observations": {
+        "weekly_due": true,
+        "latest_past_weekly_window": "2026-08-02T18:00:00+03:00",
+        "offered_as_separate_review": true,
+        "weekly_steps_embedded": false
+      }
     },
     {
       "id": "S1",

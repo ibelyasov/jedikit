@@ -1,92 +1,203 @@
-# Hermes Agent для `singularity-jedi`
+# Hermes Agent для JediKit
 
-> **Product overlay 2026-08-29:** Hermes 0.20.6 поддерживает atomic Portable Agent Plugin install из GitHub subdirectory и community plugin index. Live-проверка подтвердила, что skills-only package без `mcp.json` валиден и загружает оба namespaced skills. Provider tools приходят из существующих host-level OAuth connections; portable remote MCP не используются, потому что translation не переносит `auth: oauth`.
+Проверено **2026-09-13** по установленному публичному checkout и текущей
+официальной документации. Локально установлен Hermes Agent **0.20.6
+(2026.8.27)**, upstream commit
+[`b4b7727e`](https://github.com/NousResearch/hermes-agent/commit/b4b7727ea07681b40402de411ddd000bb3c439fc).
+На дату проверки последний официальный релиз —
+[`v2026.9.11` / 0.21.2](https://github.com/NousResearch/hermes-agent/releases/tag/v2026.9.11).
+Поэтому факты из `main` и 0.21.2 ниже не выдаются за проверку локального
+runtime 0.20.6.
 
-Срез на **2026-08-08**. Под Hermes Agent здесь понимается open-source CLI/gateway из репозитория NousResearch, а не семейство моделей Nous Hermes. Context7 сначала разрешил библиотеку `/nousresearch/hermes-agent` (релевантность высокая, но каталог версий там отстаёт); источником истины для этого среза взят официальный релиз **Hermes Agent v0.20.0 / `v2026.8.3`**, опубликованный 2026-08-03: [release](https://github.com/NousResearch/hermes-agent/releases/tag/v2026.8.3). Документация ниже привязана к этому тегу, а не к плавающему `main`.
+## Вывод для JediKit
 
-## Короткий вывод для v1
+Hermes поддерживает JediKit как portable **Agent Plugins v1** package. Текущий
+`packages/jedikit/plugin.json` проходит parser и `hermes plugins doctor`; оба
+каталога `skills/jedikit-tasks` и `skills/jedikit-habits` обнаруживаются. В
+установленном 0.20.6 habit skill зарегистрирован как
+`agent-plugin-jedikit-805a716c:jedikit-habits`; запросы `jedikit-habits` и
+`jedikit:jedikit-habits` через `skill_view` не разрешаются. Суффикс namespace
+нельзя считать стабильным API: идентификатор надо каждый раз получать из
+`skills_list`. Эти проверки доказывают layout, manifest parsing, регистрацию и
+разрешение полного имени, но не provider, OAuth, MCP backend, расписание или
+доставку.
 
-Hermes закрывает слой «секретарь/шлюз/расписание»: gateway, каналы, cron, skills и MCP. Для `singularity-jedi` разумно оставить его **опциональной внешней зависимостью**: обнаружить бинарник и конфиг, показать безопасные команды, но не устанавливать провайдеры, каналы, skills или MCP автоматически. Первый v1-профиль: один явно выбранный канал (Telegram, если он подтверждён пользователем), allowlist/DM-pairing, `approvals.mode: manual` и `cron_mode: deny`, MCP только с include-списком инструментов, cron-модель закреплена явно.
+JediKit не должен переносить host-level OAuth в portable `mcp.json`. Схема Agent
+Plugins v1 допускает у remote MCP `type`, `url` и `headers`, но не поле
+`auth: oauth`. Поэтому Hermes package остаётся skills-only, а SingularityApp и
+Habitify подключаются и авторизуются средствами host. Это перевод
+Claude-specific `.mcp.json`, а не утверждение, что OAuth исчезает.
 
-## Возможности, доказательства и решение
+## Проверенная матрица
 
-| Возможность                       | Доказательство (релизная документация)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Ограничение / риск                                                                                                                                                                                                                                                                                                                                    | Решение v1 для `singularity-jedi`                                                                                                                                                                                                                               |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Skills как on-demand `SKILL.md`   | Skills живут в `~/.hermes/skills/`, bundled/Hub/agent-created используют один каталог; каждый skill становится slash-командой: [Skills System](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/features/skills.md).                                                                                                                                                                                                                                                                           | Skill может быть изменён/удалён агентом; индекс всё равно добавляет prompt/tool overhead.                                                                                                                                                                                                                                                             | Поддержать локальный skill и явный путь; не считать наличие файла доказательством активной загрузки — проверять `hermes skills list` и `/skills`.                                                                                                               |
-| Установка и discovery skills      | `hermes skills browse/search/inspect/install/list/check/update/audit/uninstall/reset`; пример `hermes skills install openai/skills/k8s`; прямой URL: `hermes skills install https://…/SKILL.md --name …` ([CLI](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/reference/cli-commands.md), [Skills Hub](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/features/skills.md)).                                                                                       | Все Hub-установки проходят сканер. `--force` обходит только caution/warn, но не `dangerous`; community-источники не равны official.                                                                                                                                                                                                                   | В v1 только `inspect → install → audit`; `--force` не использовать по умолчанию.                                                                                                                                                                                |
-| Публичный каталог / marketplace   | Источники: `official` (`optional-skills/` в самом репо), `skills-sh`, `well-known`, GitHub/taps, ClawHub, LobeHub, browse.sh, URL ([список источников](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/features/skills.md)). `hermes skills tap add owner/repo` добавляет GitHub-каталог; layout — `skills/<slug>/SKILL.md`.                                                                                                                                                                  | Нет доказательства единого first-party Hermes Marketplace с публикацией, модерацией и SLA. ClawHub прямо назван third-party; новый tap получает `community` trust. `hermes skills publish … --to github --repo owner/repo` означает публикацию в GitHub, а не выпуск в централизованный магазин.                                                      | Не зависеть от индекса Hub в v1: поставлять skill локально или через проверенный private/public GitHub tap; публикацию не выполнять без отдельного решения.                                                                                                     |
-| MCP: local stdio и remote HTTP    | `mcp_servers` в `~/.hermes/config.yaml`; stdio через `command/args/env`, HTTP через `url/headers`; стандартная установка уже содержит MCP ([MCP](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/features/mcp.md)).                                                                                                                                                                                                                                                                           | MCP запускает внешний код/процессы и не является sandbox. Каталожный manifest может делать `git clone`, `pip install`/`npm install`, затем запускать код; review Nous — не изоляция.                                                                                                                                                                  | По умолчанию MCP выключен; подключать только после чтения manifest/source и отдельного allowlist.                                                                                                                                                               |
-| Каталог Nous-approved MCP         | `hermes mcp`, `hermes mcp catalog`, `hermes mcp install <name>`; entries в `optional-mcps/`, disabled by default, community submission tier нет ([MCP catalog](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/features/mcp.md)).                                                                                                                                                                                                                                                             | OAuth/API key могут записываться в `~/.hermes/.env`; probe сервера может не сработать, тогда install всё равно завершится с default tools. OAuth dynamic registration не подходит некоторым серверам (например, Google Drive/Atlassian — нужен pre-registered client).                                                                                | Для v1 предпочесть ручной `mcp_servers` + `tools.include`; `hermes mcp test <name>` после настройки.                                                                                                                                                            |
-| MCP tool permissions              | `enabled: false`, `tools.include`, `tools.exclude`, fnmatch-globs; при обоих `include` имеет приоритет; зарегистрированные имена получают префикс `mcp_<server>_<tool>` ([filtering](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/features/mcp.md)).                                                                                                                                                                                                                                       | `exclude` — denylist, поэтому новый инструмент может появиться после обновления сервера; include безопаснее. MCP получает только safe env (`PATH`, `HOME`, …) плюс явный `env`; обычный `terminal.env_passthrough` на MCP не действует ([security](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/security.md)). | Только `include`, минимальные `env`, отдельные credentials; после каждого обновления — `hermes mcp list/test` и повторный review.                                                                                                                               |
-| Cron / scheduled tasks            | In-chat `/cron add …`, CLI `hermes cron create …`, unified tool `cronjob(action="create                                                                                                                                                                                                                                                                                                                                                                                                                                           | list                                                                                                                                                                                                                                                                                                                                                  | update                                                                                                                                                                                                                                                          | pause                                                                                                                                       | resume | run | remove", …)`; gateway ticks every 60 s, jobs хранятся в `~/.hermes/cron/jobs.json`, попытки — в `executions.db` ([Scheduled Tasks](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/features/cron.md)). | Повторяющиеся jobs исполняются только пока живёт gateway/его trigger. Cron-run не может создавать новые cron jobs; по умолчанию новая изолированная agent session и не получает repo `AGENTS.md` без `workdir`. | Сначала проверить обычный chat/gateway, затем один тестовый job; `workdir` задавать абсолютным путём только явно. |
-| Форматы расписания                | One-shot: `30m`, `2h`, `1d`; interval: `every 30m`, `every 2h`, `every 1d`; cron: `0 9 * * *`; ISO timestamp: `2026-03-15T09:00:00`; `repeat=N` ограничивает повторы ([schedule formats](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/features/cron.md)).                                                                                                                                                                                                                                  | В релизной документации не зафиксированы все timezone/DST правила для наивного ISO/cron выражения; это надо подтвердить в установленном runtime.                                                                                                                                                                                                      | Для v1 использовать явно наблюдаемый `every …` или cron и проверять `next_run_at`/`hermes cron list`; не обещать timezone semantics без runtime-проверки.                                                                                                       |
-| Cron model / spend guard          | При fire-time порядок: per-job pin → `cron.model`/`cron.model_provider` → global default. Без pin Hermes snapshots provider/model при создании и при смене global default fail-closed; `cron.model_drift_guard: false` отключает защиту ([cron model](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/features/cron.md)).                                                                                                                                                                     | Непривязанный job может неожиданно остановиться (защита) или начать тратить деньги на новый provider (если guard отключён).                                                                                                                                                                                                                           | Всегда задавать cron-fleet модель: `hermes config set cron.model <model>` и при необходимости `cron.model_provider`; per-job pin — для критичных задач. Guard не отключать.                                                                                     |
-| Что делает scheduled job          | При tick: fresh `AIAgent`, optional attached skills, prompt до конца, auto-delivery final response, metadata/next run. Skills можно прикрепить повторяемым `--skill`; `workdir` включает context-файлы и serializes workdir jobs.                                                                                                                                                                                                                                                                                                 | Session не видит delivered сообщение (fire-and-forget по умолчанию); `workdir`-jobs идут последовательно на tick. Ошибки preflight блокируют запуск без LLM-вызова.                                                                                                                                                                                   | Prompt должен быть самодостаточным; после создания выполнить `hermes cron run <id_or_name>` и проверить `hermes cron list`/`hermes cron status` (для истории использовать `hermes cron runs <id> --limit 20`, если подкоманда доступна в установленной версии). |
-| No-agent cron                     | `hermes cron create "every 5m" --no-agent --script memory-watchdog.sh --deliver telegram`; stdout доставляется verbatim, пустой stdout — silent, non-zero/timeout — alert; script только внутри `$HERMES_HOME/scripts/`, env credentials санитизируется ([no-agent](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/features/cron.md)).                                                                                                                                                       | Это уже локальное выполнение скрипта с правами Hermes; нет модели/LLM/fallback.                                                                                                                                                                                                                                                                       | Использовать для детерминированных watchdog/health-check; для содержательного решения — обычный agent cron с pin модели.                                                                                                                                        |
-| Каналы уведомлений                | Gateway поддерживает Telegram, Discord, Slack, Google Chat, WhatsApp/Cloud API, Signal, SMS, Email, Home Assistant, Mattermost, Matrix, DingTalk, Feishu/Lark, WeCom, Weixin, BlueBubbles/Photon, QQ, Yuanbao, Teams, LINE, ntfy, Webhooks и др. ([Messaging Gateway](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/messaging/index.md)).                                                                                                                                                   | Возможности различаются по каналу (threads/media/streaming/scopes); credentials/scopes и home channel настраиваются отдельно.                                                                                                                                                                                                                         | В v1 выбрать один подтверждённый канал. `hermes gateway setup`, затем `hermes gateway install/start/status`; не включать остальные платформы.                                                                                                                   |
-| Cron delivery targets             | `origin`, `local`, `telegram`, `telegram:<chat_id>`, `telegram:<chat_id>:<thread_id>`, `discord:#channel`, `slack`, `whatsapp`, `signal`, `matrix`, `email`, `sms`, `all`, `telegram,discord`, `origin,all`; final response доставляется автоматически ([delivery table](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/features/cron.md)).                                                                                                                                                  | `all` разрешается в момент fire-time и при отсутствии home channels фиксируется как delivery failure; Telegram root DM в topic mode — system lobby, для reply нужен `TELEGRAM_CRON_THREAD_ID`.                                                                                                                                                        | Для первой проверки — `deliver: local` или один exact Telegram target; `all` не использовать до проверки каждого home channel.                                                                                                                                  |
-| Сценарий «только отправить текст» | `hermes send --to <target> "message"`, `--file`, `--list`; для bot-token платформ gateway не нужен, credentials берутся из `~/.hermes/.env` и `config.yaml` ([CLI](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/reference/cli-commands.md)).                                                                                                                                                                                                                                                          | `hermes send` не запускает LLM и не решает, что сказать; plugin-платформам всё ещё нужен живой gateway.                                                                                                                                                                                                                                               | Для детерминированных уведомлений `hermes send`; не имитировать их через agent prompt.                                                                                                                                                                          |
-| Onboarding / provider             | Install: `curl -fsSL https://hermes-agent.nousresearch.com/install.sh                                                                                                                                                                                                                                                                                                                                                                                                                                                             | bash`; `hermes setup --portal`— OAuth Nous + Tool Gateway;`hermes setup`— Full/Blank Slate;`hermes model`— provider/model; затем`hermes gateway setup` ([Quickstart](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/getting-started/quickstart.md)).                                                                        | Provider, модель, credentials и канал — пользовательский выбор; Blank Slate отключает skills/MCP/cron по умолчанию.                                                                                                                                             | Skill не должен сам запускать onboarding или выбирать provider/channel; только показать следующий безопасный шаг и попросить подтверждение. |
-| First-touch profile onboarding    | `onboarding.profile_build: "ask"` (default) или `"off"`; offer consent-gated, at most once, connected accounts не читаются молча ([configuration](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/configuration.md)).                                                                                                                                                                                                                                                                         | Это поведение первого gateway message, не полноценная identity/access policy; состояние `onboarding.seen` внутреннее.                                                                                                                                                                                                                                 | В v1 рекомендовать `profile_build: off`, пока пользователь явно не выбрал profile-building.                                                                                                                                                                     |
-| Permissions и dangerous commands  | Gateway по умолчанию deny для незнакомых пользователей; allowlists в `.env` (`TELEGRAM_ALLOWED_USERS=…`, `GATEWAY_ALLOWED_USERS=…`) или DM pairing (`hermes pairing approve …`). Slash admin/user split — `allow_admin_from`, `user_allowed_commands` в `~/.hermes/gateway-config.yaml` ([Security](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/user-guide/security.md), [Slash permissions](https://github.com/NousResearch/hermes-agent/blob/v2026.8.3/website/docs/reference/slash-commands.md)). | `approvals.mode: off`/`--yolo` отключает approval; `local` backend работает прямо на host, guards — defense-in-depth, не sandbox. Контейнерные backends дают изоляцию; hardline blocklist нельзя обойти.                                                                                                                                              | В v1 `approvals.mode: manual`, `approvals.cron_mode: deny`, explicit allowlist/pairing, Docker/SSH для недоверенных runs; `--yolo` не использовать.                                                                                                             |
+| Область | Текущий контракт | Проверено здесь | Граница |
+| --- | --- | --- | --- |
+| Package | `plugin.json` в корне, schema `https://agent-plugins.org/schemas/1.0.0/plugin.schema.json`; skills в `skills/<name>/SKILL.md`; optional `mcp.json` | Локальный parser: `name=jedikit`, два skills, `mcp=`, diagnostics `0`; doctor exit 0 | Не проверялись install/update из сети и интерактивный вызов |
+| Skill loading | Portable skills регистрируются plugin manager и получают внутренний namespace; доступные имена раскрываются через `skills_list`, content — через `skill_view` ([skills](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/features/skills.md)) | В 0.20.6 полный habit identifier — `agent-plugin-jedikit-805a716c:jedikit-habits`; только он прошёл `skill_view` | Hash namespace не является обещанным стабильным именем; всегда использовать identifier из текущего `skills_list` |
+| MCP translation | Agent Plugins v1 описывает optional `mcp.json`; установленный валидатор допускает remote HTTP и local stdio shape ([spec](https://agent-plugins.org/)) | В package намеренно нет `mcp.json`; provider accounts/config не читались | Host-level OAuth connection необходимо проверить отдельно на пользовательском Hermes |
+| Scheduling | Cron хранит jobs в `~/.hermes/cron/jobs.json`, attempts в `executions.db`, запускает fresh agent session; attached skills задаются `--skill`, а абсолютный `workdir` добавляет repository instructions ([cron](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/features/cron.md)) | Installed source подтверждает: missing skill логируется и пропускается, после чего job продолжает работу без его инструкций | До создания job нужно разрешить полный identifier через `skills_list` и подтвердить его content через `skill_view`; job/provider/channel здесь не создавались |
+| Delivery | Cron поддерживает local, origin и конкретные configured channels; gateway проверяет due jobs примерно раз в минуту ([cron](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/features/cron.md), [gateway](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/messaging/index.md)) | Только чтение source/docs | Нужны реальные credentials, gateway и channel target; это пользовательская acceptance |
+| Plugin CLI | Текущие команды включают `plugins install`, `list`, `doctor`, `update`, `uninstall`; каталог в актуальном `main` описан как curated in-repo catalog ([CLI](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/reference/cli-commands.md)) | `plugins doctor packages/jedikit --ci` на 0.20.6 прошёл | Current `main` CLI может отличаться от установленной версии; перед onboarding сверять `hermes plugins --help` |
 
-## Точные команды и минимальный probe-порядок
+## Runtime-порядок проверки
 
-Команды ниже только для будущей проверки (в этом исследовании ничего не устанавливалось и не запускалось):
+Это read-only acceptance checklist. В исследовании выполнены `--version`,
+`plugins doctor` и skill discovery/view; provider/account, install, cron и
+delivery не трогались.
 
 ```bash
-# 0. Базовый факт: это Hermes Agent и какой release установлен
-command -v hermes
-hermes version
-hermes doctor
-hermes status --deep
-
-# 1. Реальный provider/chat перед gateway/cron
-hermes model
-hermes chat -q "Ответь ровно: HERMES_PROBE_OK"
-hermes --continue
-
-# 2. Skills: каталог -> просмотр -> установка -> аудит
-hermes skills browse --source official
-hermes skills search <query>
-hermes skills inspect <source>/<path>
-hermes skills install <source>/<path>
-hermes skills list --source all
-hermes skills audit
-
-# 3. MCP: список -> test -> inspect, а не blind install
-hermes mcp catalog
-hermes mcp list
-hermes mcp test <name>
-# custom stdio/HTTP: edit ~/.hermes/config.yaml, then:
-hermes mcp add <name> --command <cmd> --args ...
-hermes mcp configure <name>
-
-# 4. Канал/gateway
-hermes gateway setup
-hermes gateway install
-hermes gateway start
-hermes gateway status
-
-# 5. Cron: сначала local, затем exact channel
-hermes config set cron.model <model>
-hermes cron create "every 30m" "Return one-line health status" --deliver local --name health
+hermes --version
+hermes plugins doctor packages/jedikit --ci
+hermes plugins list
 hermes cron list
-hermes cron run health
-hermes cron runs health --limit 20
-hermes cron status
 ```
 
-Для краткого одноразового уведомления без LLM:
+В интерактивной Hermes session сначала вызвать `skills_list`, скопировать
+возвращённый полный identifier и проверить его через `skill_view`. Bare aliases
+не использовать. Только после этой проверки и отдельного разрешения на мутацию
+можно создать local-delivery smoke job, передав exact identifier в `--skill`.
+Его prompt должен быть явно read-only, например: «Прочитай доступное состояние
+выбранной привычки и сообщи краткий статус. Ничего не создавай, не изменяй, не
+удаляй и не отправляй». После создания нужно проверить job record и результат:
+skill действительно загружен, а не попал в список skipped.
 
-```bash
-hermes send --to telegram:<chat_id> "probe"
-```
+Installed source подтверждает, что `hermes cron run` разрешает ссылку сначала
+как exact job ID, затем как case-insensitive name; неоднозначное имя отклоняется
+с требованием использовать ID. В этой работе `cron run` не вызывался.
 
-## Явные неизвестные / что не следует обещать
+## Исторический срез
 
-1. Context7 каталог `/nousresearch/hermes-agent` на момент запроса перечислял версии лишь до `v2026.6.5`; это не доказательство версии установленного runtime. Проверять нужно `hermes version` и свежий release.
-2. Без выбранного provider/model нельзя подтвердить, что cron реально вызовет inference; без credentials/scopes нельзя подтвердить конкретный канал. Документация не задаёт универсальное timezone/DST-правило для cron/наивного ISO timestamp — проверять `next_run_at` в runtime.
-3. Skills Hub — агрегатор источников, а не доказанный единый marketplace с гарантированной публикацией/модерацией/индексацией. `hermes skills publish --to github` публикует в GitHub; ClawHub/LobeHub/skills.sh/well-known остаются внешними или community-источниками.
-4. MCP catalog review не означает безопасность bootstrap-кода или server-side permissions. Нужно ограничивать `tools.include`, credentials и backend отдельно; `terminal` на local host не изолирован.
-5. В рамках задачи установка, публикация, подключение канала и live probe намеренно не выполнялись; приведённые команды — проверочный runbook, а не отчёт о текущем локальном состоянии.
+Предыдущее исследование от **2026-08-08** было привязано к Hermes
+[`v2026.8.3` / 0.20.0](https://github.com/NousResearch/hermes-agent/releases/tag/v2026.8.3)
+и временному имени `singularity-jedi`. Оно подтвердило общую модель skills,
+MCP, gateway и cron, но его команды каталога и список каналов не являются
+текущим контрактом. Product overlay от 2026-08-29 наблюдал 0.20.6 и portable
+package. Настоящая перепроверка сохраняет эти версии как историю, заменяет
+кодовое имя на JediKit и отделяет package validation от live runtime acceptance.
+
+## Что остаётся неизвестным
+
+- Полный habit identifier разрешён через `skill_view`, но выполнение инструкций
+  skill в agent response пользователь ещё не проверил.
+- Совместимость host-level OAuth connections с обоими provider tools не
+  подтверждена в этой работе.
+- Cron inference, timezone/DST, model drift guard и local/channel delivery не
+  проверялись на локальном 0.20.6.
+- Обновление с локального 0.20.6 до 0.21.2 не выполнялось. После обновления
+  следует повторить doctor, `skills_list`/`skill_view`, skill invocation и
+  отдельно разрешённый cron smoke test.
+- Hermes выбран владельцем единственным обязательным хостом приёмки v1;
+  Codex/Claude остаются без подтверждённой runtime-совместимости. Это решение
+  уже перенесено в release gate; свежая Hermes acceptance всё ещё требуется,
+  см. [решения](product-decisions.md).
+
+## Фильтрация MCP и границы локального исполнения
+
+Дополнительная проверка выполнена по установленному публичному checkout
+`b4b7727e`, без чтения конфигурации аккаунтов. Это статические факты указанной
+версии, а не тест защищённости реального окружения.
+
+`tools.include` задаёт разрешающий список имён или glob-шаблонов,
+`tools.exclude` — исключения. При наличии обоих приоритет у `include`;
+пустой `include: []` не регистрирует ни одного инструмента, отсутствие обоих
+регистрирует все. Поэтому denylist допускает новые инструменты сервера,
+которые не совпали с исключением. Include также требует аккуратности: широкий
+glob может охватить будущие имена. Это фильтр инструментов хоста, а не отзыв
+OAuth-прав у сервера.
+[Реализация фильтра](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/tools/mcp_tool.py#L7180),
+[документация MCP](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/website/docs/user-guide/features/mcp.md#L111).
+
+Локальный terminal исполняется от пользователя ОС и не образует изолированную
+песочницу. Ограничения write_file/patch не следует переносить на произвольный
+terminal process. Фильтрация environment у terminal, execute_code и MCP
+различается; passthrough может возвращать переменные процессу. В частности,
+реализация намеренно сохраняет общую AWS credential chain, поэтому утверждение
+«все секреты хоста скрыты» неверно. Это свойство общего хоста, а не требование
+давать JediKit доступ к terminal или credentials.
+[Security boundary](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/website/docs/user-guide/security.md#L505),
+[local environment](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/tools/environments/local.py#L301).
+
+Иллюстрация риска: сервер добавляет write-tool, а конфигурация запрещала только
+одно прежнее имя удаления. Новый tool может стать доступным при следующем
+discovery. Это вывод из правил фильтрации, не воспроизведённая атака на аккаунт.
+
+## Cron: preflight, дрейф модели и стоимость
+
+Установленная реализация поддерживает per-job привязку provider/model и
+снимки неприкреплённых параметров при создании. Перед inference проверяются
+provider auth, явно требуемая настройка skill и delivery. Обнаруженная проблема
+может блокировать запуск до создания агента, с записью результата и уведомлением.
+Смена неприкреплённого provider/model относительно снимка также может остановить
+inference. Это снижает риск неожиданного запуска на другой модели.
+[Модель запуска](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/website/docs/user-guide/features/cron.md#L24).
+
+Ограничения существенны: внутренние ошибки некоторых preflight проверок
+обрабатываются с продолжением; отсутствующий или нечитаемый skill остаётся
+в ветке skip-and-continue. При неудаче разрешения конфигурации снимок может
+отсутствовать. Старые jobs без снимка и явно заданные cron defaults имеют
+отдельные исключения из drift guard. Наличие fallback chain меняет проверку
+primary-provider auth. Поэтому «preflight всегда гарантирует готовность» —
+слишком сильный вывод.
+[Preflight implementation](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/cron/scheduler.py#L5101),
+[drift guard](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/cron/scheduler.py#L6216),
+[снимки job](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/cron/jobs.py#L1899).
+
+В проверенном коде не найден общий потолок расходов в деньгах или токенах.
+Preflight/drift guard не следует описывать как бюджетный лимит.
+`approvals.cron_mode: deny` относится к опасным командам в headless-запуске,
+а не к стоимости inference.
+[Cron approval mode](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/website/docs/user-guide/security.md#L30).
+
+## Cron: время, результаты и восстановление
+
+IANA timezone влияет на cron; ISO timestamp без offset интерпретируется в
+настроенной зоне Hermes. Реализация сохраняет намерение расписания по местному
+времени и пересчитывает его при изменении offset. При определённом переходе
+DST возможен пропуск ожидающего срабатывания — это явно отражено в коде.
+Текстовое «каждое утро» требует согласованной зоны и расписания; один успешный
+запуск не проверяет поведение на переходе часов.
+[Разбор времени](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/cron/jobs.py#L849),
+[DST migration](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/cron/jobs.py#L3652).
+
+Попытка сохраняется в `executions.db` до dispatch. У неё отдельный жизненный
+цикл claimed → running → completed/failed/unknown; потерянное исполнение
+может стать unknown без автоматического retry. Документирован `hermes cron runs`
+для истории. Наличие job, факт попытки, результат модели и доставка — четыре
+разных наблюдения. Их полезно записывать отдельно при будущей приёмке.
+[История запусков](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/website/docs/user-guide/features/cron.md#L321).
+
+## Gateway: кто получает доступ
+
+Общая схема авторизации — отказ при отсутствии основания доступа; основания
+включают pairing, platform/global allowlist, явный allow-all и документированные
+исключения trusted adapters. Pairing и allowlists объединяются: наличие списка
+не отменяет уже выданный pairing grant. При настроенном allowlist неизвестные
+DM по умолчанию игнорируются; без списка обычно запускается pairing, у email
+свой default ignore. Поэтому проверять нужно эффективные grants, а не один
+видимый список.
+[Авторизация](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/gateway/authz_mixin.py#L383),
+[pairing](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/gateway/pairing.py#L92).
+
+Разделение admin/user для slash-команд ограничивает именно slash-команды;
+обычный чат само по себе не ограничивает. Доступ к боту, разрешение tool и
+согласие на изменение задачи/привычки — разные границы.
+[Slash access](https://github.com/NousResearch/hermes-agent/blob/b4b7727ea07681b40402de411ddd000bb3c439fc/gateway/slash_access.py#L1).
+
+## Порядок будущей приёмки и оставшиеся ограничения
+
+Это исследовательский вывод о порядке проверки, не список выполненных действий:
+
+1. Зафиксировать source revision пакета и версию host; проверить manifest.
+2. Получить точные skill identifiers, просмотреть content и проверить обычный
+   интерактивный ответ с загрузкой нужных instructions.
+3. Отдельно проверить официальные MCP connections, доступные schemas и
+   read-only запросы. Фильтры хоста и scopes провайдера фиксируются раздельно.
+4. Для выбранного расписания согласовать timezone, cadence, destination и
+   разрешения. Убедиться, что нужный skill действительно загружается.
+5. Проверить local delivery до внешнего канала; сопоставить job record,
+   execution history, результат и реально полученную доставку.
+6. Если нужен gateway, проверить effective identity/grants и разрешения
+   конкретного канала. Проверка pairing не доказывает политику записей JediKit.
+
+Все дополнительные факты выше подтверждены исходниками, а не живыми MCP,
+cron, DST, recovery или gateway tests. В этой работе такие действия не запускались.

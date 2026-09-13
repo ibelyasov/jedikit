@@ -7,7 +7,7 @@ import hashlib
 import json
 import re
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent
 CASES_PATH = ROOT / "cases.json"
 EXPECTED_IDS = (
     {f"M{n}" for n in range(1, 13)}
-    | {f"R{n}" for n in range(1, 12)}
+    | {f"R{n}" for n in range(1, 13)}
     | {f"S{n}" for n in range(1, 11)}
 )
 ALLOWED_EVENTS = {
@@ -68,6 +68,7 @@ ALLOWED_EVENTS = {
     "no_unsolicited_followup",
     "observable_done",
     "offer_embedded_side_effect",
+    "offer_missed_weekly",
     "partial_ledger",
     "placeholder_next_action",
     "preserve_external_source",
@@ -88,11 +89,13 @@ ALLOWED_EVENTS = {
     "reuse_original_item",
     "replace_raw",
     "restart_review",
+    "reverse_day_recall",
     "resume_saved_position",
     "schedule_write_without_confirmation",
     "scheduled_read_only",
     "secret_in_tool_result",
     "separate_migration",
+    "separate_weekly",
     "sequential_writes",
     "show_project_content",
     "show_task_content",
@@ -167,6 +170,7 @@ REQUIRED_EVIDENCE_FIELDS = {
     "fake_mode",
     "rubric_pass",
     "failure_reasons",
+    "observations",
     "recorded_at",
 }
 
@@ -189,6 +193,28 @@ def case_digest(data: dict[str, Any], case: dict[str, Any]) -> str:
     return digest(
         {"now": data["now"], "case": case, "fixture": data["fixtures"][case["fixture"]]}
     )
+
+
+def latest_past_weekly_window(now: str, configured: str) -> datetime:
+    day_name, clock = configured.split()
+    weekdays = {
+        "Monday": 0,
+        "Tuesday": 1,
+        "Wednesday": 2,
+        "Thursday": 3,
+        "Friday": 4,
+        "Saturday": 5,
+        "Sunday": 6,
+    }
+    if day_name not in weekdays:
+        raise ValueError(f"unsupported weekly day: {day_name}")
+    hour, minute = (int(part) for part in clock.split(":"))
+    current = datetime.fromisoformat(now)
+    days_back = (current.weekday() - weekdays[day_name]) % 7
+    candidate = (current - timedelta(days=days_back)).replace(
+        hour=hour, minute=minute, second=0, microsecond=0
+    )
+    return candidate - timedelta(days=7) if candidate > current else candidate
 
 
 def validate_cases() -> None:
@@ -395,10 +421,13 @@ def validate_ledger(case: dict[str, Any], row: dict[str, Any]) -> list[str]:
         for event in timeline
         if event["event"] == "confirmation" and event.get("accepted") is True
     ]
+    confirmation_mutations = [
+        entry for entry in mutating if entry["tool"] != "native_memory_set"
+    ]
     confirmed_mutating = (
-        mutating[1:]
+        confirmation_mutations[1:]
         if case["id"] == "M5" and mutating and mutating[0]["tool"] == "task_create"
-        else mutating
+        else confirmation_mutations
     )
     if len(confirmed_mutating) >= 2:
         if len(preview_orders) != 1 or len(confirmations) != 1:
@@ -509,12 +538,119 @@ def validate_ledger(case: dict[str, Any], row: dict[str, Any]) -> list[str]:
             "review_windows",
             "root_ids",
             "root_modes",
-            "last_weekly",
+            "last_weekly_review_date",
+            "last_weekly_completed_at",
         }
         if {
             entry["arguments"].get("key") for entry in memory_deletes
         } != expected_keys or len(memory_deletes) != len(expected_keys):
             reasons.append("invalid:R11_memory_reset")
+
+    if case["id"] == "R1" and row["phase"] == "green":
+        tools = [entry["tool"] for entry in mutating]
+        expected_writes = [
+            {"id": "t-focus-candidate", "start": load_cases()["now"][:10]},
+            {"id": "t-today-excluded", "start": "2026-08-10"},
+        ]
+        if (
+            tools != ["task_update", "task_update"]
+            or [entry["arguments"] for entry in mutating] != expected_writes
+        ):
+            reasons.append("invalid:R1_combined_plan_writes")
+        read_back_ids = {
+            entry["arguments"].get("id")
+            for entry in ledger
+            if entry["tool"] == "task_get"
+            and entry["order"] > (mutating[-1]["order"] if mutating else -1)
+        }
+        if read_back_ids != {"t-focus-candidate", "t-today-excluded"}:
+            reasons.append("missing:R1_combined_plan_readback")
+
+    if case["id"] == "R3" and row["phase"] == "green":
+        yesterday = "2026-08-08"
+        today = load_cases()["now"][:10]
+        dated_reads = {
+            entry["arguments"].get("start"): {
+                item.get("id") for item in entry["result"]
+            }
+            for entry in ledger
+            if entry["tool"] == "task_list" and set(entry["arguments"]) == {"start"}
+        }
+        memory_writes = {
+            entry["arguments"].get("key"): entry["arguments"].get("value")
+            for entry in ledger
+            if entry["tool"] == "native_memory_set"
+        }
+        confirmations = [
+            event
+            for event in timeline
+            if event["event"] == "confirmation" and event.get("accepted") is True
+        ]
+        if dated_reads.get(yesterday) != {"t-yesterday"} or dated_reads.get(today) != {
+            "t-today"
+        }:
+            reasons.append("missing:R3_distinct_local_day_reads")
+        if memory_writes != {
+            "last_daily_close_review_date": yesterday,
+            "last_daily_close_completed_at": load_cases()["now"],
+        }:
+            reasons.append("invalid:R3_review_date_completion_timestamp")
+        if (
+            len(confirmations) != 1
+            or confirmations[0].get("received_at") != load_cases()["now"]
+            or memory_writes.get("last_daily_close_completed_at")
+            != confirmations[0].get("received_at")
+        ):
+            reasons.append("invalid:R3_completion_not_confirmation_time")
+
+    if case["id"] == "R8" and row["phase"] == "green":
+        memory_reads = [
+            entry for entry in ledger if entry["tool"] == "native_memory_read"
+        ]
+        visible_ids = {
+            item.get("id")
+            for entry in ledger
+            if entry["tool"] == "task_list"
+            for item in entry["result"]
+        }
+        projects = {
+            item.get("id"): item
+            for entry in ledger
+            if entry["tool"] == "project_list"
+            for item in entry["result"]
+        }
+        if (
+            len(memory_reads) != 1
+            or memory_reads[0]["result"] != {"error": "native memory unavailable"}
+            or not {"t-no-memory-work", "t-no-memory-personal"}.issubset(visible_ids)
+            or projects.get("p-no-memory-work-child", {}).get("parent")
+            != "p-no-memory-work"
+            or projects.get("p-no-memory-personal-child", {}).get("parent")
+            != "p-no-memory-personal"
+        ):
+            reasons.append("missing:R8_populated_no_memory_sections")
+
+    if case["id"] == "R12" and row["phase"] == "green":
+        memory_reads = [
+            entry for entry in ledger if entry["tool"] == "native_memory_read"
+        ]
+        fixture_memory = load_cases()["fixtures"][case["fixture"]]["memory"]
+        latest_window = latest_past_weekly_window(
+            load_cases()["now"], fixture_memory["review_windows"]["weekly"]
+        )
+        if (
+            len(memory_reads) != 1
+            or memory_reads[0]["result"].get("last_weekly_review_date") != "2026-07-26"
+            or memory_reads[0]["result"].get("last_weekly_completed_at")
+            != "2026-07-26T12:00:00+03:00"
+            or latest_window.isoformat() != "2026-08-02T18:00:00+03:00"
+            or datetime.fromisoformat(
+                memory_reads[0]["result"]["last_weekly_completed_at"]
+            )
+            >= latest_window
+            or mutating
+        ):
+            reasons.append("missing:R12_missed_weekly_detection")
 
     if case["id"] == "S1":
         if len(mutating) != 1:
@@ -579,29 +715,29 @@ def validate_ledger(case: dict[str, Any], row: dict[str, Any]) -> list[str]:
     ):
         reasons.append("missing:S7_capability_ledger")
     if case["id"] == "R1" and row["phase"] == "green":
-        today = load_cases()["now"][:10]
-        today_reads = [
+        timezone_reads = [
             entry
             for entry in ledger
-            if entry["tool"] == "task_list"
-            and entry["arguments"] == {"deadline": today}
+            if entry["tool"] in {"task_list_today", "task_list_overdue"}
+            and entry["arguments"] == {"timezone": "Europe/Moscow"}
         ]
-        future_reads = [
+        broad_reads = [
             entry
             for entry in ledger
             if entry["tool"] == "task_list" and not entry["arguments"]
         ]
         if (
-            not today_reads
+            {entry["tool"] for entry in timezone_reads}
+            != {"task_list_today", "task_list_overdue"}
             or not any(
                 item.get("id") == "t-hard"
-                for entry in today_reads
+                for entry in broad_reads
                 for item in entry["result"]
             )
-            or not future_reads
+            or not broad_reads
             or not any(
                 item.get("id") == "t-future"
-                for entry in future_reads
+                for entry in broad_reads
                 for item in entry["result"]
             )
         ):
@@ -628,6 +764,21 @@ def validate_ledger(case: dict[str, Any], row: dict[str, Any]) -> list[str]:
             or project_get_ids != {"p-touched"}
         ):
             reasons.append("missing:R4_runtime_touched_derivation")
+        captures = [entry for entry in ledger if entry["tool"] == "task_create"]
+        capture_readbacks = [
+            entry
+            for entry in ledger
+            if entry["tool"] == "task_get"
+            and captures
+            and entry["arguments"].get("id") == captures[0]["result"].get("id")
+            and entry["order"] > captures[0]["order"]
+        ]
+        if (
+            len(captures) != 1
+            or captures[0]["arguments"] != {"title": "Отправить Анне цифры"}
+            or len(capture_readbacks) != 1
+        ):
+            reasons.append("missing:R4_reverse_day_capture")
     if case["id"] == "R5" and row["phase"] == "green":
         all_task_reads = [
             entry
@@ -649,13 +800,24 @@ def validate_ledger(case: dict[str, Any], row: dict[str, Any]) -> list[str]:
             for event in timeline
             if event["event"] == "confirmation" and event.get("accepted") is True
         ]
-        expected_memory = {"key": "last_weekly", "value": load_cases()["now"]}
+        expected_memory = {
+            "last_weekly_review_date": "2026-08-09",
+            "last_weekly_completed_at": load_cases()["now"],
+        }
         if (
-            len(memory_writes) != 1
-            or memory_writes[0]["arguments"] != expected_memory
-            or memory_writes[0]["result"] != expected_memory
+            len(memory_writes) != 2
+            or {
+                entry["arguments"].get("key"): entry["arguments"].get("value")
+                for entry in memory_writes
+            }
+            != expected_memory
+            or any(entry["result"] != entry["arguments"] for entry in memory_writes)
             or len(confirmations) != 1
-            or confirmations[0]["order"] >= memory_writes[0]["order"]
+            or confirmations[0].get("received_at") != load_cases()["now"]
+            or expected_memory["last_weekly_completed_at"]
+            != confirmations[0].get("received_at")
+            or confirmations[0]["order"]
+            >= min(entry["order"] for entry in memory_writes)
         ):
             reasons.append("missing:R7_timestamp_ledger")
     if case["id"] == "S10" and row["phase"] == "green":
@@ -687,6 +849,16 @@ def semantic_reasons(case: dict[str, Any], row: dict[str, Any]) -> list[str]:
     ]
     if invalid_tools:
         reasons.append("forbidden_tools=" + ",".join(sorted(invalid_tools)))
+    observations = row.get("observations")
+    if not isinstance(observations, dict):
+        reasons.append("invalid:observations")
+    else:
+        expected = case.get("expected_observations", {})
+        if set(observations) != set(expected):
+            reasons.append("invalid:observation_fields")
+        for key, value in expected.items():
+            if observations.get(key) != value:
+                reasons.append(f"missing:observation={key}")
     return reasons
 
 
@@ -742,6 +914,8 @@ def validate_row(
         isinstance(item, str) for item in row["events"]
     ):
         raise ValueError(f"row {index}: events must be string list")
+    if not isinstance(row["observations"], dict):
+        raise TypeError(f"row {index}: observations must be object")
     if set(row["events"]) - ALLOWED_EVENTS:
         raise ValueError(f"row {index}: unknown evidence events")
     if not isinstance(row["tool_intents"], list) or not all(
@@ -851,6 +1025,7 @@ def self_test() -> None:
         "approval_timeline": [],
         "fake_mode": "read-write",
         "rubric_pass": True,
+        "observations": case.get("expected_observations", {}),
     }
     assert not row_reasons(data, case, row)
     tampered = copy.deepcopy(row)

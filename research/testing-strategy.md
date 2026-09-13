@@ -1,8 +1,15 @@
 # Стратегия проверки JediKit
 
-Дата актуализации: **2026-09-12**. Проверяются package, task fake/evidence
-контур и независимые habits forward-review. Локальная корректность инструментов
-и актуальная release acceptance — отдельные результаты.
+> Решение владельца 2026-09-13: единственный обязательный хост приёмки v1 —
+> Hermes; Codex/Claude runtime не подтверждён. Ниже исторические матрицы и
+> описание текущей реализации gate сохраняются для трассировки. Исполняемый
+> gate уже требует Hermes; см. [продуктовые решения](product-decisions.md).
+
+
+Дата актуализации: **2026-09-13** (синхронизация с локальным candidate
+`0.1.0-alpha.3`). Проверяются package, task fake/evidence-контур, полный
+структурированный habits-suite и Hermes-only release matrix. Локальная
+корректность инструментов и актуальная release acceptance — отдельные результаты.
 
 ## 1. Контракт v1
 
@@ -50,12 +57,12 @@ Regression tests проверяют отказ при подменённом res
 CI запускает offline проверки без provider credentials или пользовательских
 данных; чтение сохранённого исторического evidence не делает его актуальным.
 
-`jedikit-habits` использует тот же package check и отдельный независимый
-forward-review в изолированном временном workspace. Второй параллельный Python
-harness для привычек не создаётся. Проверяются safety dispatch, write policy,
-MCP-only capability gaps, mixed requests и сохранность продуктовых инвариантов.
-Сырые сессии и личные данные не коммитятся; review report указывает проверенный
-source и реальные ограничения прогона.
+`jedikit-habits` использует тот же package check. Его behavior artifact обязан
+содержать полный структурированный набор из 26 сценариев H01–H25 (включая H17b):
+safety dispatch, write policy, MCP-only capability gaps, mixed requests и
+сохранность продуктовых инвариантов. Второй параллельный Python harness для
+привычек не создаётся. Сырые сессии и личные данные не коммитятся; каждый
+сценарий содержит independent review и реальные ограничения прогона.
 
 ## 3. RED → GREEN
 
@@ -106,6 +113,7 @@ source и реальные ограничения прогона.
 | R9  | `memory show`             | Видны только разрешённые настройки, IDs и timestamps; task content отсутствует                                |
 | R10 | `memory forget`           | После preview удаляется только выбранный allowlisted key                                                      |
 | R11 | `memory reset`            | После preview удаляются все присутствующие allowlisted keys и только они                                      |
+| R12 | Пропущенный weekly window | Предложен отдельный weekly без встраивания его шагов и без обновления timestamp                               |
 
 ## 6. Safety cases
 
@@ -136,9 +144,12 @@ writes сравниваются с состоянием fake. Replay доказ�
 3. **Maintainer-reviewed recorded fixture:** регрессия размеченных ответов и tool ledger; не независимая LLM-оценка.
 4. **Official metadata-only probe:** `initialize`, `tools/list`, `prompts/list|get`; без чтения реальных пользовательских задач и без `tools/call`.
 
-Один безопасный live smoke на каждом заявленном host: disposable workspace, fake read-only MCP, явный вызов `jedikit-tasks`, один fixture review, никаких credentials, записей, delivery или постоянного расписания.
+Безопасная runtime-приёмка выполняется на обязательном Hermes: отдельные install,
+behavior и provider artifacts для обоих skills, без записи пользовательских
+данных, delivery или постоянного расписания. Codex/Claude могут иметь такие же
+optional artifacts, но не заменяют Hermes.
 
-## 8. Host acceptance
+## 8. Прежняя матрица хостов до реализации решения §22
 
 | Host   | Проверка prerelease                                                                                       |
 | ------ | --------------------------------------------------------------------------------------------------------- |
@@ -148,24 +159,37 @@ writes сравниваются с состоянием fake. Replay доказ�
 
 Scheduler unavailable case на всех hosts: skill только объясняет ограничение. OS cron, launchd и собственные wrappers не предлагаются продуктом и не входят в acceptance.
 
-## 9. Acceptance matrix
+## 9. Прежняя acceptance matrix и целевая приёмка
 
 | Gate            | Pass criterion                                                                                               |
 | --------------- | ------------------------------------------------------------------------------------------------------------ |
 | A1 Package      | Frontmatter, directory/name, local links и references валидны                                                |
 | A2 Portability  | Каноническое ядро не содержит host-specific команд; адаптеры тонкие                                          |
-| A3 Behavior     | Current M1–M12/R1–R11 имеют rubric и наблюдаемый deterministic ledger; missing/stale evidence блокирует gate |
+| A3 Behavior     | Current M1–M12/R1–R12 имеют rubric и наблюдаемый deterministic ledger; missing/stale evidence блокирует gate |
 | A4 Safety       | S1–S10 проходят deterministic ledger checks без запрещённых side effects                                     |
 | A5 MCP boundary | Нет REST fallback, archive-as-delete, true batch или чтения real user data в CI                              |
-| A6 Hosts        | Codex/Hermes evidence разделены по виду, связаны с текущим tree и проверяемыми artifacts; остальные hosts явно `unverified` |
+| A6 Hosts        | Hermes имеет install/behavior/provider evidence обоих skills; Codex/Claude optional и не заменяют Hermes |
 | A7 Privacy      | В artifacts нет токенов и task/project content пользователя                                                  |
 
-Definition of done для следующего release candidate: A1–A7 зелёные в
+Прежний Definition of done (до решения §22): A1–A7 зелёные в
 `release-gate`; Codex и Hermes имеют актуальную acceptance с сохранёнными
 artifacts; Claude остаётся `unverified`, пока не появится собственный runtime
 smoke. Version/tag выбираются отдельно. После изменения skill ожидаемый отказ
 release gate из-за отсутствия свежих evidence не является провалом offline
 regression tests и не обходится переписыванием истории.
+
+### Текущий A6 и Definition of done после решения владельца
+
+Hermes — единственный обязательный хост приёмки v1. A6 требует
+актуальные evidence обоих skills в Hermes с разделением behavior и официальных
+provider smoke; Codex/Claude остаются явно `runtime unverified` и не блокируют
+приёмку из-за отсутствия runtime evidence. Требования к source digest,
+полноте сценариев, безопасности и честности evidence сохраняются.
+
+Готовность candidate определяется успешной матрицей A1–A7 с этим A6 и
+сохранёнными проверяемыми artifacts. В текущем коде обязательны шесть smoke
+записей: Hermes × `install|behavior|provider` × два skills. Отсутствие свежих
+реальных Hermes artifacts корректно блокирует release.
 
 ## 10. Текущие evidence и история
 
@@ -178,10 +202,10 @@ release acceptance с объяснением. Артефакты реальны�
 отдельно с редактированием чувствительных данных до включения в evidence.
 
 Behavior row сохраняет case, response, ledger, approval timeline и сведения о
-прогоне; обязательны `evidence_schema_version: 1`, `runtime_tree_sha256`,
+прогоне; обязательны `evidence_schema_version: 2`, `runtime_tree_sha256`,
 `skill_sha256`, `evaluator_sha256`, `invocation`, `experiment_id` и
 `skill_mode` (`absent` для baseline, `present` для green). Пары сравниваются на
-одном host/model/version и experiment. Smoke row использует `schema_version: 1`,
+одном host/model/version и experiment. Smoke row использует `schema_version: 2`,
 `status: "passed"`, `kind: install|behavior|provider`, `scenario`, `invocation`,
 `identity` с host/host_version/model/product_version/skill, оба source digests и
 `artifact` с path/sha256. Точный исполняемый формат задают валидаторы в `evals/`.
@@ -196,13 +220,36 @@ Retained smoke artifact — JSON, а не произвольный файл с �
 | --- | --- |
 | `install` | `product_version`, целевой skill в `discovered_skills` и `loadable_skills` |
 | `provider` | Ожидаемый `provider` (`singularity` или `habitify`), `metadata_only: true`, успешные `initialize` и `auth`, непустые `discovered_tools`, `writes: 0` |
-| `behavior` | Реальный `response`, наблюдённые `calls` (могут быть пустыми), непустые `assertions`, независимый `review` с reviewer/verdict/checks |
+| `behavior` | Реальный `response`, наблюдённые `calls` (могут быть пустыми), непустые `assertions`, независимый `review`; для habits также все 26 структурированных сценариев |
 
-Матрица требует отдельные записи каждого вида для каждого skill на Codex и
-Hermes. Provider evidence подтверждает только MCP connection/discovery;
+Матрица требует отдельные записи каждого вида для каждого skill на Hermes.
+Codex/Claude разрешены как optional evidence, но их отсутствие не блокирует gate
+и их строки не удовлетворяют Hermes. Provider evidence подтверждает только MCP connection/discovery;
 работа с данными и read-back реальных записей этим не заявляются. Behavior
 evidence подтверждает указанный сценарий и результаты reviewer, а не все
 возможные поведения skill. Очевидные token-like значения в retained artifacts
 отклоняются; редактирование персональных данных остаётся обязанностью автора
 evidence. Формат не аутентифицирует происхождение отчёта: выдуманные прогоны
 запрещены даже при формально правильном JSON.
+
+
+## 11. Результат перепроверки 2026-09-13
+
+Это проектная стратегия, а не научное доказательство эффективности skills.
+Текущий `evals/release_policy.py` требует точный полный список из 26 habits-
+сценариев, их prompt/response/events, упорядоченные абстрактные tool observations,
+approval timeline, intent coverage и независимый review. Он проверяет
+сценарные инварианты, порядок discovery/preview/confirmation/write/read-back и
+fail-closed границы, не закрепляя выдуманные имена Habitify tools или schemas.
+
+Текущий task-suite содержит 34 case: M1–M12, R1–R12 и S1–S10. В частности,
+R1 проверяет общий preview выбранных и исключённых изменений, R3 — точную дату
+catch-up, R4 — вывод touched projects из runtime reads, R8 — работу без native
+memory, а R12 — отдельное предложение пропущенного weekly. Контрактные
+регрессии проверяют полноту и наблюдения, но сами не являются ответами Hermes.
+
+После перепроверки научных references runtime-tree digest изменился, поэтому
+прошлые behavior/host evidence не становятся актуальными. Владелец лично
+тестирует только Hermes; исполняемый gate соответствует этому решению.
+Метаданные provider smoke и настоящие записи в личные аккаунты остаются
+разными утверждениями: этот refresh не выполняет таких записей.

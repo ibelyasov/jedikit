@@ -2,6 +2,24 @@
 
 **Отчётный срез:** 2026-08-08. **Фактический live probe:** 2026-08-09 (Europe/Moscow). **Режим:** только `initialize` и `tools/list`; `tools/call`, resources, prompts и чтение пользовательских данных не выполнялись.
 
+> **Публичная revalidation 2026-09-13:** этот файл остаётся неизменяемым историческим snapshot и не является текущим `tools/list`. Официальная [MCP Wiki](https://singularity-app.com/wiki/mcp/) теперь документирует `system` как отдельный Batch toolset, выключенный по умолчанию, с пределом до 20 операций. Она не публикует точное имя или JSON Schema Batch tool. Поэтому отсутствие `batch` среди 48 имён ниже описывает только probe 2026-08-09 и не опровергает текущую публичную capability; текущий точный каталог без нового авторизованного `tools/list` неизвестен.
+
+## Вопрос, маршрут чтения и уровни доказательства
+
+**Вопрос:** какой точный `tools/list` вернула одна full-scope сессия официального
+Singularity MCP 2026-08-09, включая names, input schemas и annotations?
+
+Сначала читайте сводную capability matrix и различие 35/48, затем ограничения и
+полный JSONL. Для текущей публичной картины и связи REST/MCP вернитесь в
+[основной provider report](singularity-mcp.md); для первого `mcp:read` опыта — в
+[least-privilege probe](singularity-mcp-live-probe.md). Product scope находится
+в [product decisions](product-decisions.md), а не выводится из этого каталога.
+
+Все tool objects ниже — **observed runtime evidence 2026-08-09**. Ссылки на MCP
+spec объясняют форму ответа. Revalidation annotation выше — **current docs
+evidence 2026-09-13**. Product recommendations в JSONL или server instructions
+не содержатся; server descriptions и annotations не проверялись tool calls.
+
 ## Результат
 
 Официальный endpoint [`https://mcp.singularity-app.com/mcp`](https://mcp.singularity-app.com/mcp) в live `tools/list` вернул **48 tools**, одну страницу (`nextCursor: null`, `meta: null`). MCP-спецификация определяет `tools/list` как discovery с необязательным cursor; каждый Tool содержит `name`, `title`, `description`, `inputSchema` и необязательные annotations ([официальная спецификация MCP tools/list](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/server/tools.mdx)). Полный машиночитаемый snapshot всех 48 объектов находится ниже, по одному JSON-объекту на строку.
@@ -65,11 +83,11 @@
 
 Практически прежний Codex snapshot содержал 14 task tools, 6 project, 4 task-group, 6 checklist, 4 tag и `get_my_context`; текущий full snapshot добавляет только перечисленные 13 имен и не теряет ни одного имени из 35.
 
-## Что отсутствует по точному каталогу
+## Что отсутствовало в каталоге 2026-08-09
 
-- В 48 именах нет `delete`, `*_delete` или `batch` tool. Это подтверждает отсутствие **явного** permanent-delete/batch endpoint в данном `tools/list`; нельзя из этого вывести, что отдельное поле вроде `deleteDate` в schema не имеет серверной семантики.
+- В 48 именах нет `delete`, `*_delete` или `batch` tool. Это подтверждает отсутствие **явного** permanent-delete/batch endpoint только в данном историческом `tools/list`; нельзя из этого вывести текущую capability или то, что отдельное поле вроде `deleteDate` в schema не имеет серверной семантики.
 - Архивирование присутствует только как `task_archive`/`task_unarchive` и `project_archive`/`project_unarchive`; это не permanent delete.
-- Нет отдельного `task_bulk_*`, `project_bulk_*`, `checklist_bulk_*` или transaction tool. Цикл по объектам должен быть реализован клиентом и не считается batch capability сервера.
+- В snapshot нет отдельного `task_bulk_*`, `project_bulk_*`, `checklist_bulk_*` или transaction tool. На 2026-09-13 публичная Wiki уже подтверждает Batch через `system`, но не его schema, atomicity или rollback; эти свойства нельзя восстанавливать из REST batch.
 - Нет в этом каталоге `list_resources`, `read_resource`, `list_prompts`, `get_prompt`: Hermes может регистрировать utility wrappers поверх MCP primitives, но они не являются 48 объектами прямого `tools/list`; текущий probe эти primitives не вызывал.
 
 ## Server-side notes из initialize
@@ -147,4 +165,4 @@ Initialize сообщил `instructions`, среди которых: enum-пол
 
 `tools/list` подтверждает только discovery metadata и input contract; tool result/output semantics, authorization enforcement per field, side effects, rate limits, idempotency in production и batch behavior не проверялись. Ни один tool не вызывался. `idempotentHint`/`destructiveHint` — annotations сервера по MCP schema, а не тест фактического поведения.
 
-**Итог для v1:** текущий контракт покрывает read/list/get, CRUD для tasks/projects/groups/checklists/tags/habits/kanban statuses, lifecycle completion/archive/move и три task views. Для минимального Jedi-контура достаточно read + explicit approval перед create/update/lifecycle. Permanent delete и batch в прямом каталоге не обнаружены; собственный MCP нужен только если v1 требует их или строгой batch/transaction семантики.
+**Итог для v1 на основании snapshot:** контракт 2026-08-09 покрывал read/list/get, CRUD для tasks/projects/groups/checklists/tags/habits/kanban statuses, lifecycle completion/archive/move и три task views. Для минимального Jedi-контура достаточно текущего runtime discovery + explicit approval перед create/update/lifecycle. Permanent delete не был обнаружен в snapshot; Batch теперь заявлен публично через `system`, но без опубликованной schema или transaction semantics.

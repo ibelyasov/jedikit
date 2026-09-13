@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import contextlib
 import copy
 import hashlib
+import io
 import json
 import subprocess
 import sys
@@ -17,10 +19,14 @@ from contracts import MEMORY_KEYS, TOOL_CONTRACTS, validate_arguments
 from fake_mcp import FakeSingularity, load_fixture
 from ledger import replay_ledger
 from release_policy import (
+    HABIT_INTENTS,
+    HABITS_SCENARIOS,
     product_version,
     runtime_tree_digest,
     skill_digest,
+    validate_current_behavior,
     validate_smoke_row,
+    validate_smokes,
 )
 
 
@@ -35,7 +41,19 @@ def scored_row(
         "approval_timeline": timeline or [],
         "fake_mode": "read-only" if fake.read_only else "read-write",
         "rubric_pass": True,
+        "observations": copy.deepcopy(case.get("expected_observations", {})),
     }
+
+
+def value_digest(value: object) -> str:
+    raw = (
+        value
+        if isinstance(value, str)
+        else json.dumps(
+            value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        )
+    )
+    return hashlib.sha256(raw.encode()).hexdigest()
 
 
 class ContractTests(unittest.TestCase):
@@ -118,7 +136,7 @@ class ReplayTests(unittest.TestCase):
             replay_ledger("S2", row)
 
         memory = FakeSingularity(load_fixture("R7"))
-        memory.memory_set("last_weekly", "2026-08-09T12:00:00+03:00")
+        memory.memory_set("last_weekly_review_date", "2026-08-09")
         row = {"fake_mode": "read-write", "tool_ledger": copy.deepcopy(memory.ledger)}
         row["tool_ledger"][0]["result"]["value"] = "stale"
         with self.assertRaisesRegex(ValueError, "replay_result=native_memory_set"):
@@ -153,6 +171,7 @@ class BehaviorContractTests(unittest.TestCase):
             "fake_mode": "not-executed",
             "rubric_pass": False,
             "failure_reasons": [],
+            "observations": {},
         }
         reasons = self.behavior.row_reasons(self.data, case, nondiscriminating)
         self.assertEqual(reasons, [])
@@ -340,8 +359,16 @@ class BehaviorContractTests(unittest.TestCase):
         )
 
         r7 = FakeSingularity(load_fixture("R7"))
-        r7.memory_set("last_weekly", self.data["now"], order=2)
-        confirmation = [{"event": "confirmation", "order": 1, "accepted": True}]
+        r7.memory_set("last_weekly_review_date", "2026-08-09", order=2)
+        r7.memory_set("last_weekly_completed_at", self.data["now"], order=3)
+        confirmation = [
+            {
+                "event": "confirmation",
+                "order": 1,
+                "accepted": True,
+                "received_at": self.data["now"],
+            }
+        ]
         r7_row = scored_row(self.cases["R7"], r7, confirmation)
         self.assertEqual(
             self.behavior.row_reasons(self.data, self.cases["R7"], r7_row), []
@@ -359,6 +386,14 @@ class BehaviorContractTests(unittest.TestCase):
             "missing:R7_timestamp_ledger",
             self.behavior.row_reasons(self.data, self.cases["R7"], late),
         )
+        crossed_midnight = copy.deepcopy(r7_row)
+        crossed_midnight["approval_timeline"][0]["received_at"] = (
+            "2026-08-10T00:01:00+03:00"
+        )
+        self.assertIn(
+            "missing:R7_timestamp_ledger",
+            self.behavior.row_reasons(self.data, self.cases["R7"], crossed_midnight),
+        )
 
     def test_touched_project_is_derived_from_runtime_reads(self) -> None:
         r4 = FakeSingularity(load_fixture("R4"))
@@ -368,7 +403,92 @@ class BehaviorContractTests(unittest.TestCase):
         r4.call("task_list_overdue", {"timezone": "Europe/Moscow"}, order=4)
         r4.call("project_get", {"id": "p-touched"}, order=5)
         r4.call("task_list", {"projectId": "p-touched"}, order=6)
+        captured = r4.call("task_create", {"title": "Отправить Анне цифры"}, order=7)
+        r4.call("task_get", {"id": captured["id"]}, order=8)
         self.assert_case("R4", r4)
+
+    def test_daily_open_combines_selected_and_excluded_changes(self) -> None:
+        r1 = FakeSingularity(load_fixture("R1"))
+        r1.call("task_list_today", {"timezone": "Europe/Moscow"}, order=1)
+        r1.call("task_list_overdue", {"timezone": "Europe/Moscow"}, order=2)
+        r1.call("task_list", {}, order=3)
+        r1.call(
+            "task_update",
+            {"id": "t-focus-candidate", "start": self.data["now"][:10]},
+            order=6,
+        )
+        r1.call(
+            "task_update",
+            {"id": "t-today-excluded", "start": "2026-08-10"},
+            order=7,
+        )
+        r1.call("task_get", {"id": "t-focus-candidate"}, order=8)
+        r1.call("task_get", {"id": "t-today-excluded"}, order=9)
+        timeline = [
+            {"event": "preview", "order": 4},
+            {"event": "confirmation", "order": 5, "accepted": True},
+        ]
+        row = scored_row(self.cases["R1"], r1, timeline)
+        self.assertEqual(
+            self.behavior.row_reasons(self.data, self.cases["R1"], row), []
+        )
+
+        incomplete = copy.deepcopy(row)
+        incomplete["observations"]["combined_preview_task_ids"] = ["t-focus-candidate"]
+        self.assertIn(
+            "missing:observation=combined_preview_task_ids",
+            self.behavior.row_reasons(self.data, self.cases["R1"], incomplete),
+        )
+
+    def test_catch_up_no_memory_and_missed_weekly_fixtures_are_discriminating(
+        self,
+    ) -> None:
+        r3 = FakeSingularity(load_fixture("R3"))
+        r3.call("task_list", {"start": "2026-08-08"}, order=1)
+        r3.call("task_list", {"start": "2026-08-09"}, order=2)
+        r3.memory_set("last_daily_close_review_date", "2026-08-08", order=3)
+        r3.memory_set("last_daily_close_completed_at", self.data["now"], order=4)
+        confirmation = [
+            {
+                "event": "confirmation",
+                "order": 0,
+                "accepted": True,
+                "received_at": self.data["now"],
+            }
+        ]
+        self.assert_case("R3", r3, confirmation)
+
+        conflated = scored_row(self.cases["R3"], r3, confirmation)
+        conflated["observations"]["review_date"] = self.data["now"][:10]
+        self.assertIn(
+            "missing:observation=review_date",
+            self.behavior.row_reasons(self.data, self.cases["R3"], conflated),
+        )
+
+        r8 = FakeSingularity(load_fixture("R8"))
+        with self.assertRaises(RuntimeError):
+            r8.memory_read(order=1)
+        r8.call("project_list", {}, order=2)
+        r8.call("task_list", {}, order=3)
+        self.assert_case("R8", r8)
+
+        hidden_personal = scored_row(self.cases["R8"], r8)
+        hidden_personal["observations"]["personal_task_ids"] = []
+        self.assertIn(
+            "missing:observation=personal_task_ids",
+            self.behavior.row_reasons(self.data, self.cases["R8"], hidden_personal),
+        )
+
+        r12 = FakeSingularity(load_fixture("R12"))
+        r12.memory_read(order=1)
+        self.assert_case("R12", r12)
+
+        embedded = scored_row(self.cases["R12"], r12)
+        embedded["observations"]["weekly_steps_embedded"] = True
+        self.assertIn(
+            "missing:observation=weekly_steps_embedded",
+            self.behavior.row_reasons(self.data, self.cases["R12"], embedded),
+        )
 
 
 class SmokePolicyTests(unittest.TestCase):
@@ -385,20 +505,20 @@ class SmokePolicyTests(unittest.TestCase):
         self, kind: str = "behavior", skill: str = "jedikit-tasks"
     ) -> dict[str, object]:
         row: dict[str, object] = {
-            "schema_version": 1,
+            "schema_version": 2,
             "status": "passed",
             "kind": kind,
             "scenario": f"explicit {skill} {kind} smoke",
             "identity": {
-                "host": "codex",
-                "host_version": "codex 1.0",
+                "host": "hermes",
+                "host_version": "hermes 1.0",
                 "model": "gpt-test",
                 "product_version": product_version(REPO),
                 "skill": skill,
             },
             "runtime_tree_sha256": runtime_tree_digest(),
             "skill_sha256": skill_digest(REPO, skill),
-            "invocation": "codex exec explicit skill invocation",
+            "invocation": "hermes explicit skill invocation",
             "artifact": {
                 "path": self.artifact.name,
                 "sha256": "",
@@ -431,10 +551,156 @@ class SmokePolicyTests(unittest.TestCase):
                 "writes": 0,
             },
         }[kind]
+        if kind == "behavior" and skill == "jedikit-habits":
+            observed["scenarios"] = self.habit_scenarios()
         retained = {key: value for key, value in row.items() if key != "artifact"}
         retained["observed"] = observed
         self.write_artifact(row, retained)
         return row
+
+    def habit_scenarios(self) -> list[dict[str, object]]:
+        scenarios: list[dict[str, object]] = []
+        for scenario_id, rule in HABITS_SCENARIOS.items():
+            mutation = rule["mutation"]
+            timeline: list[dict[str, object]] = []
+            calls: list[dict[str, object]] = (
+                [
+                    {
+                        "order": 0,
+                        "tool": "observed provider discovery/read",
+                        "mutating": False,
+                        "status": "read",
+                    }
+                ]
+                if "capability_discovery" in rule["required"]
+                or "existing_habits_read" in rule["required"]
+                else []
+            )
+            if mutation == "explicit":
+                calls.extend(
+                    [
+                        {
+                            "order": 1,
+                            "tool": "observed provider write",
+                            "mutating": True,
+                            "status": "applied",
+                        },
+                        {
+                            "order": 2,
+                            "tool": "observed provider readback",
+                            "mutating": False,
+                            "status": "read",
+                        },
+                    ]
+                )
+            elif mutation == "confirmed":
+                timeline = [
+                    {"event": "preview", "order": 1},
+                    {"event": "confirmation", "order": 2, "accepted": True},
+                ]
+                calls.extend(
+                    [
+                        {
+                            "order": 3,
+                            "tool": "observed provider write",
+                            "mutating": True,
+                            "status": "applied",
+                        },
+                        {
+                            "order": 4,
+                            "tool": "observed provider readback",
+                            "mutating": False,
+                            "status": "read",
+                        },
+                    ]
+                )
+            elif mutation == "partial_failure":
+                timeline = [
+                    {"event": "preview", "order": 1},
+                    {"event": "confirmation", "order": 2, "accepted": True},
+                ]
+                calls.extend(
+                    [
+                        {
+                            "order": 3,
+                            "tool": "observed provider write A",
+                            "mutating": True,
+                            "status": "applied",
+                        },
+                        {
+                            "order": 4,
+                            "tool": "observed provider write B",
+                            "mutating": True,
+                            "status": "error",
+                        },
+                        {
+                            "order": 5,
+                            "tool": "observed provider readback",
+                            "mutating": False,
+                            "status": "read",
+                        },
+                    ]
+                )
+            prompt = f"Synthetic contract prompt for {scenario_id}"
+            required_checks = [
+                f"required:{event}" for event in sorted(rule["required"])
+            ]
+            intent_checks = (
+                [f"intent:{intent}" for intent in sorted(HABIT_INTENTS)]
+                if scenario_id == "H24-safety-intent-matrix"
+                else []
+            )
+            evidence_lines = {
+                invariant: f"Synthetic retained evidence for {scenario_id} / {invariant}."
+                for invariant in required_checks + intent_checks
+            }
+            response = "\n".join(evidence_lines.values())
+            checks = [
+                {
+                    "invariant": invariant,
+                    "verdict": "passed",
+                    "evidence": {
+                        "source": "response",
+                        "excerpt": evidence_lines[invariant],
+                    },
+                }
+                for invariant in required_checks + intent_checks
+            ]
+            checks.extend(
+                {
+                    "invariant": f"forbidden:{event}",
+                    "verdict": "passed",
+                    "evidence": {
+                        "source": "absence-review",
+                        "note": "Reviewer inspected the retained response and calls.",
+                    },
+                }
+                for event in sorted(rule["forbidden"])
+            )
+            scenarios.append(
+                {
+                    "id": scenario_id,
+                    "prompt": prompt,
+                    "response": response,
+                    "events": sorted(rule["required"]),
+                    "tool_calls": calls,
+                    "approval_timeline": timeline,
+                    "intent_coverage": (
+                        sorted(HABIT_INTENTS)
+                        if scenario_id == "H24-safety-intent-matrix"
+                        else []
+                    ),
+                    "review": {
+                        "reviewer": "independent-reviewer-1",
+                        "verdict": "passed",
+                        "prompt_sha256": value_digest(prompt),
+                        "response_sha256": value_digest(response),
+                        "tool_calls_sha256": value_digest(calls),
+                        "checks": checks,
+                    },
+                }
+            )
+        return scenarios
 
     def write_artifact(self, row: dict[str, object], content: object) -> None:
         self.artifact.write_text(json.dumps(content) + "\n")
@@ -445,7 +711,7 @@ class SmokePolicyTests(unittest.TestCase):
     def test_strict_status_stale_runtime_and_artifact_tamper(self) -> None:
         self.assertEqual(
             validate_smoke_row(self.row(), 1, self.evidence, REPO),
-            ("codex", "behavior/jedikit-tasks"),
+            ("hermes", "behavior/jedikit-tasks"),
         )
         row = self.row()
         row["status"] = "passed_but_not_really"
@@ -466,7 +732,7 @@ class SmokePolicyTests(unittest.TestCase):
                 row = self.row(kind)
                 self.assertEqual(
                     validate_smoke_row(row, 1, self.evidence, REPO),
-                    ("codex", f"{kind}/jedikit-tasks"),
+                    ("hermes", f"{kind}/jedikit-tasks"),
                 )
 
     def test_boolean_is_not_an_integer_schema_field(self) -> None:
@@ -545,6 +811,136 @@ class SmokePolicyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "behavior response/review"):
             validate_smoke_row(row, 1, self.evidence, REPO)
 
+    def test_habits_requires_full_structured_q32_suite(self) -> None:
+        row = self.row("behavior", "jedikit-habits")
+        self.assertEqual(
+            validate_smoke_row(row, 1, self.evidence, REPO),
+            ("hermes", "behavior/jedikit-habits"),
+        )
+
+        arbitrary_help = self.row("behavior", "jedikit-habits")
+        retained = json.loads(self.artifact.read_text())
+        retained["observed"]["scenarios"] = []
+        self.write_artifact(arbitrary_help, retained)
+        with self.assertRaisesRegex(ValueError, "coverage mismatch"):
+            validate_smoke_row(arbitrary_help, 1, self.evidence, REPO)
+
+        generic_help = self.row("behavior", "jedikit-habits")
+        retained = json.loads(self.artifact.read_text())
+        for scenario in retained["observed"]["scenarios"]:
+            scenario["response"] = "I can help you with habits."
+            scenario["review"]["response_sha256"] = value_digest(scenario["response"])
+        self.write_artifact(generic_help, retained)
+        with self.assertRaisesRegex(ValueError, "lacks response evidence"):
+            validate_smoke_row(generic_help, 1, self.evidence, REPO)
+
+        missing_safety = self.row("behavior", "jedikit-habits")
+        retained = json.loads(self.artifact.read_text())
+        retained["observed"]["scenarios"][0]["events"].remove("safety_check")
+        self.write_artifact(missing_safety, retained)
+        with self.assertRaisesRegex(ValueError, "invariant mismatch"):
+            validate_smoke_row(missing_safety, 1, self.evidence, REPO)
+
+        early_write = self.row("behavior", "jedikit-habits")
+        retained = json.loads(self.artifact.read_text())
+        scenario = next(
+            item
+            for item in retained["observed"]["scenarios"]
+            if item["id"] == "H01-new-design"
+        )
+        scenario["tool_calls"][0]["order"] = 1
+        scenario["approval_timeline"][0]["order"] = 2
+        scenario["approval_timeline"][1]["order"] = 3
+        scenario["review"]["tool_calls_sha256"] = value_digest(scenario["tool_calls"])
+        self.write_artifact(early_write, retained)
+        with self.assertRaisesRegex(
+            ValueError, "mutation occurred before confirmation"
+        ):
+            validate_smoke_row(early_write, 1, self.evidence, REPO)
+
+        continued = self.row("behavior", "jedikit-habits")
+        retained = json.loads(self.artifact.read_text())
+        scenario = next(
+            item
+            for item in retained["observed"]["scenarios"]
+            if item["id"] == "H19-partial-failure"
+        )
+        scenario["tool_calls"].insert(
+            -1,
+            {
+                "order": 5,
+                "tool": "observed forbidden write after error",
+                "mutating": True,
+                "status": "error",
+            },
+        )
+        scenario["tool_calls"][-1]["order"] = 6
+        scenario["review"]["tool_calls_sha256"] = value_digest(scenario["tool_calls"])
+        self.write_artifact(continued, retained)
+        with self.assertRaisesRegex(ValueError, "writes continued after first error"):
+            validate_smoke_row(continued, 1, self.evidence, REPO)
+
+    def test_only_hermes_is_required_and_optional_hosts_do_not_substitute(self) -> None:
+        rows = []
+        for kind in ("install", "behavior", "provider"):
+            for skill in ("jedikit-tasks", "jedikit-habits"):
+                self.artifact = self.evidence / f"hermes-{kind}-{skill}.json"
+                rows.append(self.row(kind, skill))
+        (self.evidence / "smoke.jsonl").write_text(
+            "".join(json.dumps(row) + "\n" for row in rows)
+        )
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(validate_smokes(self.evidence, REPO), [])
+
+        malformed_optional = {
+            "identity": {"host": "codex"},
+            "runtime_tree_sha256": "stale",
+        }
+        (self.evidence / "smoke.jsonl").write_text(
+            "".join(json.dumps(row) + "\n" for row in rows)
+            + json.dumps(malformed_optional)
+            + "\n"
+        )
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(validate_smokes(self.evidence, REPO), [])
+
+        optional_rows = []
+        for kind in ("install", "behavior", "provider"):
+            for skill in ("jedikit-tasks", "jedikit-habits"):
+                self.artifact = self.evidence / f"codex-{kind}-{skill}.json"
+                row = self.row(kind, skill)
+                retained = json.loads(self.artifact.read_text())
+                row["identity"]["host"] = "codex"
+                row["identity"]["host_version"] = "codex 1.0"
+                row["invocation"] = "codex optional runtime probe"
+                for field in ("identity", "invocation"):
+                    retained[field] = row[field]
+                self.write_artifact(row, retained)
+                optional_rows.append(row)
+        (self.evidence / "smoke.jsonl").write_text(
+            "".join(json.dumps(row) + "\n" for row in optional_rows)
+        )
+        with contextlib.redirect_stdout(io.StringIO()):
+            blockers = validate_smokes(self.evidence, REPO)
+        self.assertEqual(len(blockers), 6)
+        self.assertTrue(
+            all("current smoke missing: hermes/" in item for item in blockers)
+        )
+
+    def test_optional_behavior_rows_are_nonblocking_diagnostics(self) -> None:
+        optional_row = {"host": "codex", "malformed_optional_row": True}
+        for phase in ("baseline", "green"):
+            (self.evidence / f"{phase}.jsonl").write_text(
+                json.dumps(optional_row) + "\n"
+            )
+        with contextlib.redirect_stdout(io.StringIO()):
+            blockers = validate_current_behavior(self.evidence, REPO)
+        self.assertEqual(len(blockers), 2)
+        self.assertTrue(
+            all("missing/failing" in blocker for blocker in blockers), blockers
+        )
+        self.assertFalse(any("stale" in blocker for blocker in blockers), blockers)
+
 
 class PublicEntryTests(unittest.TestCase):
     def test_run_validate_public_entry(self) -> None:
@@ -556,7 +952,7 @@ class PublicEntryTests(unittest.TestCase):
             capture_output=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("cases: 33 valid", result.stdout)
+        self.assertIn("cases: 34 valid", result.stdout)
 
     def test_fake_stdio(self) -> None:
         requests = [

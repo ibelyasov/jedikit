@@ -87,18 +87,20 @@ class BuildTest(unittest.TestCase):
     def test_future_semver_is_generated_from_one_source(self) -> None:
         metadata = self.root / "package-metadata.json"
         value = json.loads(metadata.read_text(encoding="utf-8"))
-        value["package"]["version"] = "0.1.0-alpha.3"
+        current_major = int(value["package"]["version"].split(".", 1)[0])
+        future_version = f"{current_major + 1}.0.0-rc.1"
+        value["package"]["version"] = future_version
         metadata.write_text(
             json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
         output = self.root / "candidate"
         result = self.run_build("--output", str(output))
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertTrue((output / "jedikit-v0.1.0-alpha.3-candidate.zip").is_file())
+        self.assertTrue((output / f"jedikit-v{future_version}-candidate.zip").is_file())
         manifest = json.loads(
             (self.root / ".codex-plugin/plugin.json").read_text(encoding="utf-8")
         )
-        self.assertEqual(manifest["version"], "0.1.0-alpha.3")
+        self.assertEqual(manifest["version"], future_version)
 
     def test_platform_metadata_cannot_override_common_fields(self) -> None:
         metadata = self.root / "package-metadata.json"

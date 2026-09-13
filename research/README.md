@@ -1,36 +1,102 @@
-# Исследовательская база JediKit
+# Исследовательская библиотека JediKit
 
-Индекс источников и решений. Текущий продуктовый контракт —
-[product-decisions.md](product-decisions.md); устройство модулей —
-[skill-suite-architecture.md](skill-suite-architecture.md); команды разработки —
-[README](../README.md#разработка-и-проверка).
+Подробные основания для работы с задачами и привычками: что говорят источники,
+как получены выводы, где они применимы и что остаётся неизвестным.
+**Срез проверки источников: 13 сентября 2026.** Даты отдельных наблюдений,
+версии и ограничения доступа указаны в самих материалах.
 
-## Навигация
+Начните с интересующего вопроса. Для понимания исследований не требуется
+читать `SKILL.md` или восстанавливать историю чата.
 
-| Направление              | Файл                                                                    | Что внутри                                                          |
-| ------------------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Итоги grilling           | [product-decisions.md](product-decisions.md)                            | Согласованный продуктовый контракт v1 и закрытые границы            |
-| Архитектура набора       | [skill-suite-architecture.md](skill-suite-architecture.md)              | Один пакет, узкие skills, адаптеры Codex/Claude/Hermes              |
-| Нейминг                  | [naming-candidates.md](naming-candidates.md)                            | Финальное решение JediKit и история проверенных кандидатов          |
-| Исследования habits      | [skills/jedikit-habits/references](../skills/jedikit-habits/references) | Академические основания, safety и Habitify MCP-контракт             |
-| Habitify provider research | [habitify-provider-research.md](habitify-provider-research.md) | Датированный REST/OpenAPI срез, исключённый из runtime |
-| Отложенные направления   | [../BACKLOG.md](../BACKLOG.md)                                          | Идеи, ожидания, напоминания и другие расширения                     |
-| SingularityApp и MCP     | [singularity-mcp.md](singularity-mcp.md)                                | REST API v2, hosted MCP, OAuth/scopes, сущности и ограничения       |
-| Live MCP probe           | [singularity-mcp-live-probe.md](singularity-mcp-live-probe.md)          | OAuth least privilege, версия сервера и scope-filtered `tools/list` |
-| Полный каталог MCP tools | [singularity-mcp-tools.md](singularity-mcp-tools.md)                    | Live `tools/list`: 48 точных контрактов и capability matrix         |
-| Встроенные MCP prompts   | [singularity-mcp-prompts.md](singularity-mcp-prompts.md)                | Четыре server-provided шаблона и расхождения с продуктом            |
-| Авторская методология    | [jedi-method-primary.md](jedi-method-primary.md)                        | Decision trees, операционные карточки, правила и provenance         |
-| Практики сообщества      | [jedi-community-practices.md](jedi-community-practices.md)              | Сценарии, примеры, decision tables и recovery playbooks             |
-| Codex                    | [platform-codex.md](platform-codex.md)                                  | Agent Skills, plugins, MCP и Scheduled Tasks                        |
-| Claude                   | [platform-claude.md](platform-claude.md)                                | Skills/plugins, marketplace, MCP и scheduling                       |
-| Hermes                   | [platform-hermes.md](platform-hermes.md)                                | Skills Hub/taps, MCP, cron, delivery и permissions                  |
-| Право и атрибуция        | [legal-and-attribution.md](legal-and-attribution.md)                    | Copyright, бренды, MIT и дисклеймер                                 |
-| Тестирование             | [testing-strategy.md](testing-strategy.md)                              | Fake MCP, safety cases, smoke tests и acceptance matrix             |
-| Архив Procoder           | [archive/procoder](archive/procoder)                                    | Исторические ответы и решения retired local workflow                |
+## С чего начать
 
-Platform-файлы сохраняют датированные срезы первоначального task-only исследования. Их старые product-overlay формулировки считаются историческими; текущая двухskill-архитектура зафиксирована здесь и в [product-decisions.md](product-decisions.md).
+| Ваш вопрос | Куда перейти |
+| --- | --- |
+| Как устроен метод задач и что действительно рекомендует Дорофеев? | [Задачи: карта материалов](tasks/README.md) |
+| Какие практики встречаются у пользователей, в каких ситуациях и с какими ограничениями? | [36 кейсов сообщества](tasks/community-practices.md) |
+| Что известно о формировании, изменении и прекращении привычек? | [Привычки: карта исследований](habits/README.md) |
+| Насколько надёжны конкретные научные выводы? | [Доказательства и ограничения](habits/evidence-and-safety.md) |
+| Какие операции действительно доступны в SingularityApp и Habitify? | [Провайдеры](#провайдеры-и-данные) |
+| Что умеют Hermes, Codex и Claude, и что мы проверили сами? | [Платформы](#платформы-и-архитектура) |
+| Как различать исследование, нашу интерпретацию и правило продукта? | [Как читать и обновлять библиотеку](reading-guide.md) |
+| Что ещё неизвестно или требует решения? | [Открытые вопросы](open-questions.md) |
+| Что было восстановлено после сокращения старых исследований? | [Покрытие и история переработки](coverage.md) |
 
-Датированные platform research и grilling records сохраняют основания и историю
-решений. Они не являются инструкцией установки текущего candidate или
-доказательством его готовности. Исполняемые правила находятся в `skills/`;
-вопросы текущей сборки и проверки решаются по README и исходникам инструментов.
+## Задачи
+
+Исследуем цепочку от появления мысли до её обработки, выбора действия,
+выполнения и обзора. Авторские источники, личный опыт автора, редакционные
+пересказы и кейсы сообщества различаются явно. Подробные примеры сохраняются;
+продуктовые преобразования помечены отдельно.
+
+- [Навигация по методу и кейсам](tasks/README.md).
+- [Авторские основания](tasks/author-method.md).
+- [Кейсы сообщества](tasks/community-practices.md).
+
+## Привычки
+
+Научные досье находятся здесь, отдельно от исполняемых инструкций. Они
+содержат вопросы, результаты работ, дизайн и выборки, ограничения переноса,
+примеры интерпретации и ссылки на источники.
+
+- [Навигация и последовательность чтения](habits/README.md).
+- [Формирование привычек и личные эксперименты](habits/habit-method.md).
+- [Coaching и поддержка изменения поведения](habits/coaching.md).
+- [Пищевое поведение](habits/food-behavior.md).
+- [Прекращение поведения и зависимости](habits/cessation.md).
+- [Сексуальное поведение](habits/sexual-behavior.md).
+- [Оценка доказательств и границы безопасности](habits/evidence-and-safety.md).
+
+## Провайдеры и данные
+
+Публичная документация, наблюдавшийся ответ сервера и пользовательское
+разрешение на операцию отвечают на разные вопросы. Новые публичные функции
+не дописываются задним числом в старый `tools/list`.
+
+| Материал | Для чего нужен |
+| --- | --- |
+| [SingularityApp: обзор интеграции](singularity-mcp.md) | Сущности, OAuth, доступ, ограничения и текущие публичные сведения |
+| [SingularityApp: точные tools](singularity-mcp-tools.md) | Исторический каталог 48 MCP-контрактов и отдельные актуальные уточнения |
+| [SingularityApp: протокол live probe](singularity-mcp-live-probe.md) | Что наблюдалось в конкретную дату и что этим не доказано |
+| [SingularityApp: prompts](singularity-mcp-prompts.md) | Встроенные шаблоны сервера и отличия от продукта |
+| [Habitify: исследование провайдера](habitify-provider-research.md) | Публичные MCP-возможности, REST/OpenAPI как справочная информация, пробелы discovery |
+
+## Платформы и архитектура
+
+| Материал | Для чего нужен |
+| --- | --- |
+| [Hermes](platform-hermes.md) | Установленная версия, пакет, реальные skill identifiers, MCP и cron |
+| [Codex](platform-codex.md) | Форматы skills/plugins, MCP и различия поверхностей запуска |
+| [Claude](platform-claude.md) | Code/plugins, другие поверхности и scheduling |
+| [Архитектура набора](skill-suite-architecture.md) | Основания двух самостоятельных skills, упаковка и границы модулей |
+| [Стратегия проверки](testing-strategy.md) | Что доказывают offline checks, behavior evidence и provider smoke |
+
+Hermes — единственный обязательный хост приёмки v1 по решению владельца.
+Codex/Claude остаются исследованными платформами без подтверждённой
+runtime-совместимости. Release gate уже требует только актуальную Hermes-матрицу
+для обоих skills; свежие реальные runtime artifacts ещё не получены.
+
+## Право, название и принятые решения
+
+- [Право и атрибуция](legal-and-attribution.md): источники, условия сервисов,
+  права на материалы, ограничения правовой проверки.
+- [Название](naming-candidates.md): принятое имя и датированная история кандидатов.
+- [Продуктовые решения](product-decisions.md): единственный действующий документ
+  согласованных продуктовых правил; это отдельный слой от исследовательских выводов.
+- [Ответы grilling по привычкам](habits-grill-decisions.md): история выбора владельца.
+- [Архив Procoder](archive/procoder/README.md): прежние ответы и решения.
+- [Backlog](../BACKLOG.md): отложенная реализация, а не перечень научных неизвестных.
+
+## Связь со скиллами
+
+`research/` хранит подробную аргументацию и источники. `skills/` содержит
+исполняемые инструкции и локальные оперативные справочники. `packages/`
+содержит сгенерированные копии для доставки; `evals/` — проверки и evidence.
+Исследовательская библиотека не включается целиком в runtime package.
+
+Изменение исследования не меняет автоматически продуктовый контракт или
+действия агента. Подробности про безопасность и операции в runtime остаются
+обязательными: перенос исследований сюда не удаляет их из автономного пакета.
+Локальный candidate `0.1.0-alpha.3` перестроил оба skills и gate по принятым
+решениям. Это ещё не install, publication или runtime acceptance. Команды работы
+с реализацией находятся в [корневом README](../README.md).

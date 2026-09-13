@@ -1,6 +1,6 @@
 # Backlog
 
-Отложенные области после повторного grilling 2026-08-29. Это не roadmap и не обещание релиза: пункт получает scope только после отдельного исследования, grilling и acceptance cases. `jedikit-habits` уже получил scope и реализован отдельным skill; в backlog он не входит.
+Отложенные области после повторного grilling 2026-08-29 и пересборки candidate 2026-09-13. Это не roadmap и не обещание релиза: пункт получает scope только после отдельного исследования, grilling и acceptance cases. `jedikit-habits` уже получил scope и реализован отдельным skill; в backlog он не входит.
 
 ## Future skills
 
@@ -35,12 +35,16 @@
 - Root/router skill не планируется в варианте A; cross-domain запросы разделяются на два child-skill workflow. Повторное рассмотрение возможно только после отдельного подтверждённого контракта.
 - Marketplace submissions Codex/Claude и Hermes tap/Hub после стабильного GitHub release.
 
+## Не реализованное расширение памяти
+
+- Для прежнего opt-in на обезличенные productivity patterns ещё нужен точный контракт разрешённых полей. Текущий task-skill хранит только настройки, IDs и технические даты; общий opt-in сам по себе не включает хранение паттернов.
+
 ## Explicitly not planned without new evidence
 
 - собственный production MCP;
 - REST fallback;
 - permanent delete вне узкого подтверждённого cleanup исходного Inbox item после ручного переноса;
-- транзакционный server batch, которого нет в hosted MCP;
+- server batch: продукт остаётся на последовательных операциях; документация провайдера упоминает optional Batch, но его точная текущая MCP schema и транзакционные гарантии не подтверждены;
 - telemetry;
 - self-update или scheduled installation;
 - служебные проекты, теги, notebooks и metadata-блоки;

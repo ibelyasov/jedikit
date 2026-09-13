@@ -1,9 +1,9 @@
 # Архитектура коллекции Agent Skills
 
 **Архитектура обновлена:** 2026-09-12 (Europe/Moscow).
-**Платформенный срез:** 2026-08-29; его совместимость не перепроверялась этим рефакторингом.
+**Повторная проверка платформенных источников:** 2026-09-13; локальные runtime smoke этим исследованием не выполнялись. Подробности версий и ограничений — в `platform-codex.md`, `platform-claude.md` и `platform-hermes.md`.
 
-**Статус:** platform research для набора JediKit. Context7 использован первым (`/openai/codex`, `/anthropics/claude-code`, `/nousresearch/hermes-agent`), затем выводы сверены с официальной документацией и публичными коллекциями.
+**Статус:** platform research для набора JediKit. Историческая проверка использовала Context7, затем официальные источники. Перепроверка 2026-09-13 опирается на доступные локальные версии/исходники и текущие официальные документы. Продуктовая архитектура и уже реализованные manifests не мигрируют автоматически вслед за изменением платформенных рекомендаций.
 
 ## Краткий вывод
 
@@ -14,21 +14,21 @@
 - Даже после появления второй области выбран вариант A: два независимых implicit skills. Cross-domain workflow делится на отдельные вызовы; отдельный router можно пересмотреть только по новому подтверждённому контракту.
 - «Одна установка» реализуется платформенными plugin manifests: Codex и Claude устанавливают plugin с несколькими skills и root `.mcp.json`, а Hermes 0.20.6+ принимает skills-only package с root `plugin.json` и `skills/`.
 
-Решение: umbrella source/package/plugin `jedikit`, независимые skills `jedikit-tasks` и `jedikit-habits`, без root/router skill. Естественный язык — основной UX, explicit child invocation — fallback. `@jedikit` означает только OpenAI plugin mention/scoping; `$jedikit` не существует как portable tag.
+Решение: umbrella source/package/plugin `jedikit`, независимые skills `jedikit-tasks` и `jedikit-habits`, без root/router skill. Естественный язык — основной UX, explicit child invocation — целевой fallback; для Hermes нужно брать фактическое qualified name из discovery, стабильность имени ещё не принята. `@jedikit` означает только OpenAI plugin mention/scoping; `$jedikit` не существует как portable tag.
 
 ## Подтверждённые факты платформ
 
 ### Codex
 
 - Portable skill — каталог с `SKILL.md` и optional `scripts/`, `references/`, `assets`; discovery использует `name` и `description`, полное тело загружается при активации ([Build skills](https://learn.chatgpt.com/docs/build-skills)).
-- Distributable plugin содержит `.codex-plugin/plugin.json` и может включать несколько каталогов в `skills/` ([Package plugins](https://developers.openai.com/plugins/build/plugins)).
+- Текущий переносимый plugin содержит root `plugin.json` и `skills/`; OpenAI-настройки вынесены в `extensions.com.openai`. `.codex-plugin/plugin.json` поддерживается как compatibility fallback и остаётся текущим форматом JediKit ([Package plugins](https://developers.openai.com/plugins/build/plugins)).
 - Один plugin install выставляет все bundled skills. Marketplace JSON — каталог plugins; добавление marketplace регистрирует источник, а не устанавливает весь каталог.
 - Документированные Codex dependencies относятся к tools, а не образуют переносимый skill-to-skill dependency graph.
 - Plugin mention `@jedikit` scopes plugin context, но не является отдельным router skill; implicit discovery по descriptions остаётся основным путём.
 
 ### Claude Code
 
-- Plugin содержит `.claude-plugin/plugin.json` и `skills/<name>/SKILL.md`; skills вызываются в namespace plugin и могут активироваться по description ([Plugins](https://code.claude.com/docs/en/plugins)).
+- JediKit содержит `.claude-plugin/plugin.json` и `skills/<name>/SKILL.md`; в текущем общем контракте Claude manifest необязателен, но при его наличии нужен `name`. Skills вызываются в namespace plugin и могут активироваться по description ([Plugins](https://code.claude.com/docs/en/plugins), [Plugin reference](https://code.claude.com/docs/en/plugins-reference)).
 - Marketplace содержит `plugins[]`; пользователь добавляет источник и устанавливает конкретный plugin ([Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)).
 - Один plugin может нести несколько skills и устанавливаться одной операцией.
 - Claude имеет host-specific plugin dependencies и bundle-plugin; это нельзя переносить как общий контракт на Codex/Hermes ([Plugin dependencies](https://code.claude.com/docs/en/plugin-dependencies)).
@@ -37,14 +37,14 @@
 
 - Одиночные skills по-прежнему индексируются из `~/.hermes/skills` и устанавливаются через Skills Hub/taps ([Skills](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/features/skills.md)).
 - Hermes 0.20.6+ отдельно поддерживает Portable Agent Plugins v1: `hermes plugins install <owner/repo/subdir> --enable` клонирует repository, но валидирует и сканирует только выбранный package subdirectory, затем регистрирует все валидные `skills/*/SKILL.md`. JediKit не кладёт туда `mcp.json`.
-- Plugin-provided skills read-only и namespaced; они входят в progressive `skills_list`, но не копируются в плоский `~/.hermes/skills`. Root plugin не становится router skill.
-- В проверенном Hermes 0.20.6 portable HTTP translation разрешает только `type`, `url`, `headers` и не добавляет native `auth: oauth`; поэтому OAuth providers используют существующие host-level MCP connections. Неавторизованные plugin-level дубли удалены, а token files между namespace не переносятся.
+- Plugin-provided skills read-only и namespaced; они входят в progressive `skills_list`, но не копируются в плоский `~/.hermes/skills`. Root plugin не становится router skill. В установленной 0.20.6 обнаружено имя `agent-plugin-jedikit-805a716c:jedikit-habits`; bare name и `jedikit:jedikit-habits` не разрешаются. Это наблюдение, не стабильный portable identifier: точное имя берётся из `skills_list`. Cron может молча пропустить отсутствующий skill, поэтому успешного job недостаточно без проверки его загрузки.
+- В повторно просмотренной локальной реализации Hermes 0.20.6 portable HTTP schema разрешает только `type`, `url`, `headers` и не переносит Claude-specific `auth: oauth`; поэтому текущий package использует host-level MCP connections. Это ограничение проверенной реализации/формата, не общее утверждение о невозможности OAuth у portable MCP. Последний документированный релиз 0.21.2 отдельно отмечен в [platform-hermes.md](platform-hermes.md); он не установлен этой работой.
 - YAML skill bundle остаётся runtime alias уже доступных skills, а tap — источником одиночных skills; ни то ни другое не нужно для package install JediKit.
 
 ### Открытый формат Agent Skills
 
 - Стандарт определяет каталог отдельного skill, frontmatter и относительные support files.
-- Universal package manifest, межskill dependency graph и единый install protocol не определены ([Agent Skills specification](https://agentskills.io/specification)).
+- Сам Agent Skills определяет отдельный skill, а отдельная спецификация [Agent Plugins 1.0.0](https://agent-plugins.org/specification) уже определяет переносимый root `plugin.json`, skills и MCP-компоненты. Прежний вывод «универсального manifest нет» был слишком широким. Наличие пакетного формата не доказывает одинаковую OAuth/install реализацию хостов или гарантированный вызов одного skill другим.
 
 ## Наблюдаемые публичные коллекции
 
@@ -56,7 +56,7 @@
 | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills)                     | Multi-skill repo и внешняя grouping metadata без обязательного router      | discovery может обходиться descriptions/grouping       |
 | [obra/superpowers](https://github.com/obra/superpowers)                                     | Большая библиотека с отдельными harness integration paths                  | одинаковый repo не означает одинаковый install/runtime |
 
-Observed repo patterns не являются стандартом и не доказывают поддержку теми хостами, где соответствующая механика не документирована.
+Эти репозитории приведены как примеры организации исходников из исходного исследования; их полный текущий состав этим refresh не аттестуется. Patterns не являются стандартом и не доказывают поддержку конкретного manifest, install или OAuth поведения теми хостами, где соответствующая механика не документирована. Наличие доступного репозитория не является runtime acceptance его plugins.
 
 ## Router: когда нужен и когда вреден
 
@@ -136,7 +136,25 @@ README. Отдельный постоянный слой спецификаци�
 - Umbrella identity — да.
 - Root/router skill — нет; это вариант A.
 - Два независимых skills (`jedikit-tasks`, `jedikit-habits`) — да.
-- Implicit natural-language routing и explicit child fallback — да.
+- Implicit natural-language routing и explicit child fallback — целевой UX; стабильный explicit identifier Hermes требует отдельной приёмки.
 - `@jedikit` — только OpenAI plugin scope; `$jedikit` — отсутствующий tag.
 - Atomic one-install на всех трёх хостах — не обещать.
 - Ideas, waiting, reminders и расширенные projects — backlog до самостоятельной спецификации. Habits вышли из backlog и имеют отдельный академический reference/eval контур.
+
+## Объём поддержки и отдельная исследовательская база
+
+| Область | Принятое направление | Фактическая граница |
+| --- | --- | --- |
+| Hermes | Единственный обязательный хост приёмки v1 | Parser/discovery подтверждены; свежая полная behavior/provider acceptance ещё нужна |
+| Codex/Claude | Сохраняются материалы о платформе и текущие package manifests | Runtime-совместимость текущего candidate не подтверждена |
+| Release gate | Hermes-only обязательная матрица обоих skills | Реализована структурно; свежие реальные Hermes artifacts ещё отсутствуют |
+| Research | Самостоятельная подробная библиотека в `research/` | Не исполняемая политика и не доказательство успешного runtime |
+| Skills | Автономные инструкции с локальными оперативными references | Обязательные safety/operation правила остаются доступны внутри пакета |
+
+Исследование привычек больше не требует читать runtime references как
+единственный полный источник: подробные досье находятся в
+[research/habits](habits/README.md), метод задач — в [research/tasks](tasks/README.md).
+При изменении основания сначала фиксируется вывод и его влияние, затем
+согласованный контракт переносится в skill и проверяется. Это сохраняет
+самодостаточность пакета и позволяет библиотеке быть существенно подробнее
+оперативных инструкций.

@@ -443,8 +443,9 @@ def self_test() -> None:
     memory = FakeSingularity(load_fixture("R9"))
     shown = json.dumps(memory.memory_show(), ensure_ascii=False)
     assert "Позвонить врачу" not in shown and "Ремонт" not in shown
-    memory.memory_set("last_weekly", "2026-08-09T12:00:00+03:00")
-    assert memory.memory["last_weekly"] == "2026-08-09T12:00:00+03:00"
+    memory.memory_set("last_weekly_review_date", "2026-08-09")
+    memory.memory_set("last_weekly_completed_at", "2026-08-09T12:00:00+03:00")
+    assert memory.memory["last_weekly_review_date"] == "2026-08-09"
     memory.memory_delete("timezone")
     assert (
         "timezone" not in memory.memory_show()

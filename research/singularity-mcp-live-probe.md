@@ -2,7 +2,26 @@
 
 Проверено: **2026-08-09** (Europe/Moscow).
 
+> **Публичная revalidation 2026-09-13:** live probe не повторялся, OAuth и данные аккаунта не читались. Текущая [MCP Wiki](https://singularity-app.com/wiki/mcp/) подтверждает базовый endpoint, OAuth onboarding и URL `toolsets`, а также теперь публикует `system` Batch до 20 операций. Она не подтверждает исторические server version, tool count, exact schemas или наблюдение конкретного Codex OAuth-клиента ниже. Всё это остаётся датированным evidence 2026-08-09.
+
 > Этот файл фиксирует первый least-privilege probe с одним `mcp:read`. Последующий full-scope metadata probe подтвердил 48 tools и вынесен в [singularity-mcp-tools.md](singularity-mcp-tools.md); встроенные prompts — в [singularity-mcp-prompts.md](singularity-mcp-prompts.md). Ни в одном из probes инструменты не вызывались.
+
+## Вопрос, маршрут чтения и уровни доказательства
+
+**Вопрос:** может ли официальный hosted MCP пройти OAuth с минимальным
+`mcp:read`, и какой inventory был виден такой сессии без чтения задач и без
+`tools/call`?
+
+Этот файл следует читать как последовательность probe contract → OAuth
+observations → точный `tools/list` result → открытые вопросы. Полный более широкий
+исторический inventory находится в [tool snapshot](singularity-mcp-tools.md),
+общая текущая документация — в [provider report](singularity-mcp.md), а product
+policy — отдельно в [product decisions](product-decisions.md).
+
+OAuth и inventory ниже — **observed runtime evidence 2026-08-09**. Верхняя
+revalidation annotation — **current docs evidence 2026-09-13**. Никакой вывод о
+текущем count, доступе к account data или допустимом scope JediKit из probe не
+делается.
 
 ## Граница проверки
 
@@ -80,6 +99,6 @@
 | Задачи или иные данные были прочитаны | Нет |
 | Tool calls выполнялись | Нет |
 | Полный контракт task/project/tag/checklist tools | В этом probe не подтверждён; позднее зафиксирован в [полном snapshot](singularity-mcp-tools.md) |
-| Write/delete schemas | Create/update/lifecycle подтверждены позднее; явных permanent-delete/batch tools в 48 именах нет |
+| Write/delete schemas | Create/update/lifecycle подтверждены позднее в snapshot 2026-08-09; явных permanent-delete/batch tools в тех 48 именах нет. Публичная Wiki 2026-09-13 отдельно заявляет `system` Batch, но не публикует точную schema |
 
 Исторический вывод этого шага — scopes нужно согласовывать отдельно — остаётся верным. Точные имена и JSON Schema последующего full-scope snapshot находятся в отдельном отчёте, чтобы не смешивать least-privilege observation с более широкой сессией.

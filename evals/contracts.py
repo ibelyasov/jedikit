@@ -172,8 +172,10 @@ MEMORY_KEYS = frozenset(
         "review_windows",
         "root_ids",
         "root_modes",
-        "last_daily_close",
-        "last_weekly",
+        "last_daily_close_review_date",
+        "last_daily_close_completed_at",
+        "last_weekly_review_date",
+        "last_weekly_completed_at",
     }
 )
 MEMORY_CONTRACTS: Mapping[str, tuple[type, ...]] = MappingProxyType(
@@ -183,8 +185,10 @@ MEMORY_CONTRACTS: Mapping[str, tuple[type, ...]] = MappingProxyType(
         "review_windows": (dict,),
         "root_ids": (list,),
         "root_modes": (dict,),
-        "last_daily_close": (str,),
-        "last_weekly": (str,),
+        "last_daily_close_review_date": (str,),
+        "last_daily_close_completed_at": (str,),
+        "last_weekly_review_date": (str,),
+        "last_weekly_completed_at": (str,),
     }
 )
 

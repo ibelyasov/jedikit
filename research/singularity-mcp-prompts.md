@@ -2,6 +2,26 @@
 
 **Отчётный срез:** 2026-08-08. **Фактический live metadata probe:** 2026-08-09 (Europe/Moscow). **Статус:** исследование шаблонов, без исполнения полученных сообщений и без чтения данных аккаунта.
 
+> **Публичная revalidation 2026-09-13:** prompts probe не повторялся. Текущая публичная SingularityApp MCP Wiki не перечисляет prompt names, arguments или тексты, поэтому все четыре prompt и их schemas ниже остаются только snapshot 2026-08-09. Wiki теперь отдельно документирует `system` Batch до 20 операций; это не меняет содержимое исторических prompt messages и не доказывает конкретный Batch tool contract.
+
+## Вопрос, маршрут чтения и уровни доказательства
+
+**Вопрос:** какие prompts вернул официальный Singularity MCP 2026-08-09, каковы
+их точные metadata/messages и где их инструкции совпадают или расходятся с
+методикой и продуктовой политикой JediKit?
+
+Сначала читайте границу probe, затем точные `prompts/list`/`prompts/get` ответы,
+после них — сравнительный анализ и safety boundary. Общий provider contract
+описан в [singularity-mcp.md](singularity-mcp.md), tool inventory — в
+[singularity-mcp-tools.md](singularity-mcp-tools.md), а финальные требования — в
+[product decisions](product-decisions.md).
+
+Точные prompt texts и metadata — **observed runtime evidence 2026-08-09**.
+Ссылки на MCP spec подтверждают protocol semantics. Раздел сопоставления —
+**research analysis**, а строки «заменить в skill» фиксируют историческую
+рекомендацию; при конфликте действует product-decisions. Revalidation annotation
+выше — **current docs evidence 2026-09-13**, не новый prompt probe.
+
 ## Короткий вывод
 
 Официальный сервер вернул ровно четыре MCP prompts: `plan_my_day`, `triage_inbox`, `weekly_review` и `summarize_project`. Они являются готовыми текстовыми макросами, а не отдельными безопасными операциями: каждый результат `prompts/get` — одно сообщение с ролью `user`, в тексте которого перечислены будущие вызовы Singularity tools. MCP определяет prompts как выбираемые пользователем шаблоны, поэтому получение шаблона не равно его выполнению ([MCP Prompts, 2025-11-25](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/server/prompts.mdx)).
@@ -220,7 +240,7 @@ Then produce in the user's language:
 | Контракт аргументов | Три prompt с `arguments:[]`; `summarize_project` требует `projectId` | Вызов без map `{}` дал `expected object, received undefined`; SDK/server validation не полностью документирована | Всегда отправлять объект `arguments`; валидировать required argument до `prompts/get` |
 | Полный текст | Все четыре `messages` получены; структура — один `user` text message | `description` в get = `null`, хотя list description заполнен | Текст годится для анализа/preview, но не считается политикой skill |
 | Чтение/запись данных | Этот probe не читал задачи/проекты/теги/checklists | Наличие перечисленных в тексте tools не доказывает их schema/доступ | Передать реальные операции отдельному least-privilege tool probe; prompts-only режим остаётся безопасным |
-| Batch | В prompt нет MCP batch API; лишь циклы «для каждого task» в тексте | Ни batching, ни idempotency, ни transaction semantics не проверялись | Не обещать batch; после общего preview выполнять подтверждённые операции последовательно и сообщать частичный сбой |
+| Batch | В snapshot prompt нет MCP batch API; лишь циклы «для каждого task» в тексте. Публичная Wiki 2026-09-13 отдельно заявляет `system` Batch до 20 операций | Prompt probe не проверял tool; точные schema, idempotency, atomicity и rollback не опубликованы | По умолчанию выполнять подтверждённые операции последовательно; при ошибке остановиться и сообщить applied/error/unapplied, не обещая rollback. Batch использовать только после текущего runtime discovery и отдельного решения |
 | Sandbox/demo/test account | Не найден и не создавался | Проверена существующая Hermes OAuth-сессия, без новых внешних изменений | Для автономных тестов нужен отдельный согласованный аккаунт или mock MCP |
 | Ошибки | Подтверждена ошибка отсутствующего `arguments`; исправлена `{}` | Известный HTTP 400 `get_my_context` в этом probe не воспроизводился и поэтому не утверждается | Не включать эту ошибку в диагностику prompts; повторять только с согласованными scopes |
 | Нужен собственный MCP | Prompts дают четыре полезных read-oriented сценария | Нет доказанного покрытия Jedi capture/entity/next-step/consent и нет sandbox | Собственный MCP не нужен только ради prompt discovery; собственный safety/method wrapper нужен для соответствия Jedi |
