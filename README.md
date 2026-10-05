@@ -65,8 +65,8 @@ Hermes package использует host-level OAuth connections `singularity` �
 подключений — `hermes mcp test singularity` и `hermes mcp test habitify`.
 Package не переносит токены и не создаёт plugin-level MCP-дубли.
 
-Root `.mcp.json` объявляет подключения для Codex/Claude. Для установки всего
-plugin в Codex нужен локальный или опубликованный marketplace. Root manifest
+Codex/Claude plugin не объявляет MCP servers: подключения `singularity` и
+`habitify` настраиваются на стороне host. Для установки всего plugin в Codex нужен локальный или опубликованный marketplace. Root manifest
 не регистрирует ChatGPT Connected App; это отдельная platform integration.
 Claude runtime, реальные Habitify writes и текущая provider acceptance не
 подтверждаются локальной сборкой.

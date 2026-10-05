@@ -139,14 +139,14 @@ class BuildTest(unittest.TestCase):
         self.assertEqual(sentinel.read_text(encoding="utf-8"), "unchanged")
 
     def test_top_level_archive_input_symlink_is_rejected(self) -> None:
-        mcp = self.root / ".mcp.json"
-        mcp.unlink()
-        external = Path(self.temporary.name) / "external-mcp.json"
-        external.write_text('{"sentinel": true}\n', encoding="utf-8")
-        os.symlink(external, mcp)
+        license_file = self.root / "LICENSE"
+        license_file.unlink()
+        external = Path(self.temporary.name) / "external-LICENSE"
+        external.write_text("sentinel\n", encoding="utf-8")
+        os.symlink(external, license_file)
         result = self.run_build()
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("archive input must not be a symlink: .mcp.json", result.stderr)
+        self.assertIn("archive input must not be a symlink: LICENSE", result.stderr)
 
     def test_source_skill_symlink_is_rejected(self) -> None:
         source = self.root / "skills/jedikit-habits"
