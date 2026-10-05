@@ -24,6 +24,7 @@
     "claude": {},
     "codex": {
       "skills": "./skills/",
+      "mcpServers": "./.mcp.json",
       "interface": {
         "displayName": "JediKit",
         "shortDescription": "Задачи Singularity и привычки Habitify.",

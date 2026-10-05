@@ -26,6 +26,7 @@ COPY_ROOT = Path("packages/jedikit/skills")
 ARCHIVE_INPUTS = (
     ("LICENSE", "LICENSE"),
     ("THIRD-PARTY-NOTICES.md", "THIRD-PARTY-NOTICES.md"),
+    (".mcp.json", ".mcp.json"),
     ("packages/jedikit/plugin.json", "plugin.json"),
     (".claude-plugin/plugin.json", ".claude-plugin/plugin.json"),
     (".codex-plugin/plugin.json", ".codex-plugin/plugin.json"),
@@ -52,7 +53,7 @@ COMMON_METADATA_KEYS = {
 }
 PLATFORM_KEYS = {
     "claude": set(),
-    "codex": {"skills", "interface"},
+    "codex": {"skills", "mcpServers", "interface"},
     "hermes": {"$schema"},
 }
 
@@ -131,8 +132,10 @@ def load_metadata(root: Path) -> dict[str, Any]:
                 f"metadata platforms.{platform} fields are invalid: {'; '.join(details)}"
             )
     codex = platforms["codex"]
-    if not isinstance(codex.get("skills"), str):
-        raise BuildError("metadata Codex skills path must be a string")
+    if not isinstance(codex.get("skills"), str) or not isinstance(
+        codex.get("mcpServers"), str
+    ):
+        raise BuildError("metadata Codex paths must be strings")
     if not isinstance(codex.get("interface"), dict):
         raise BuildError("metadata platforms.codex.interface must be an object")
     if not isinstance(platforms["hermes"].get("$schema"), str):

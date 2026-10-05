@@ -194,7 +194,7 @@
   tree генерируются `scripts/build.py`. Генерируемые копии не редактируются вручную.
 - Сборка candidate воспроизводима и отделена от исторических release archives.
   Локальная сборка не публикует релиз и не меняет установленные plugins.
-- Codex и Claude устанавливают один plugin с несколькими skills без MCP servers; подключения `singularity` и `habitify` настраиваются на стороне host. Hermes 0.20.6+ устанавливает тот же GitHub repository одной командой как Portable Agent Plugin v1 из чистого skills-only подкаталога `packages/jedikit`: его `plugin.json` и оба `skills/`, без `mcp.json`.
+- Codex и Claude устанавливают один plugin с несколькими skills и root `.mcp.json`. Hermes 0.20.6+ устанавливает тот же GitHub repository одной командой как Portable Agent Plugin v1 из чистого skills-only подкаталога `packages/jedikit`: его `plugin.json` и оба `skills/`, без `mcp.json`.
 - Межskill dependencies не являются переносимым стандартом. Runtime references каждого skill самодостаточны; нет `../shared` dependency.
 - Hermes v1 — одна plugin-установка из GitHub через `hermes plugins install <owner/repo/packages/jedikit> --enable`; community plugin index с `subdir: packages/jedikit` может позднее дать короткий marketplace identifier. Skills Hub/tap publication не требуется.
 - В Hermes 0.20.6 portable remote MCP регистрируются namespaced, но переводчик Agent Plugins v1 не переносит `auth: oauth`, а MCP login CLI перечисляет только host-level config. Поэтому Hermes package не объявляет remote MCP: существующие OAuth `singularity`/`habitify` остаются единственными provider connections, токены не копируются, а release gate блокирует возврат `packages/jedikit/mcp.json`.

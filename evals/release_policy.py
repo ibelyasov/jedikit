@@ -326,6 +326,7 @@ def runtime_tree_digest() -> str:
         root / "skills",
         root / ".codex-plugin" / "plugin.json",
         root / ".claude-plugin" / "plugin.json",
+        root / ".mcp.json",
         root / "packages" / "jedikit",
     ]
     hasher = hashlib.sha256()
