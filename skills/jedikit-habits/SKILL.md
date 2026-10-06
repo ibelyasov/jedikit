@@ -16,14 +16,14 @@ description: Помогает проектировать, отмечать и п
 
 | Намерение | Что прочитать и выполнить |
 | --- | --- |
-| `setup` | [setup.md](references/setup.md): timezone, выбранные ID, названия и окна обзоров |
+| `setup` | [setup.md](references/setup.md): существующие привычки, timezone, названия и окна обзоров |
 | `design` | [experiments.md](references/experiments.md), [coaching.md](references/coaching.md), [habit-method.md](references/habit-method.md): одна гипотеза и план эксперимента |
 | `log` | [tracking.md](references/tracking.md): одна отметка или явно выбранная отмена |
 | `urge` | [tracking.md](references/tracking.md), [cessation.md](references/cessation.md): поддержка при тяге |
 | `review` | [review.md](references/review.md), [coaching.md](references/coaching.md), [habit-method.md](references/habit-method.md): оставить, изменить одну вещь, пауза или завершить |
 | `adjust` | [experiments.md](references/experiments.md) и [coaching.md](references/coaching.md): изменить одну вещь в плане |
 | `pause`, `archive` | [review.md](references/review.md): пауза или архив выбранной привычки |
-| `status` | [setup.md](references/setup.md): прочитать выбранный эксперимент без записи |
+| `status` | [setup.md](references/setup.md): выбранный эксперимент или запрошенный обзор привычек за день |
 | `help` | Объясни команды и правила из этого файла; не обращайся к аккаунту |
 
 При коучинге по еде или весу дополнительно прочитай [food-behavior.md](references/food-behavior.md); по порно или мастурбации — [sexual-behavior.md](references/sexual-behavior.md); по сокращению или отказу — [cessation.md](references/cessation.md). При вопросах о доказательствах, сроках формирования или причинности прочитай [evidence-and-safety.md](references/evidence-and-safety.md).
