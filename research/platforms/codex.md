@@ -2,8 +2,7 @@
 
 Дата исходного исследования: **2026-10-05**, консолидация — **2026-10-06**. Даты доступа отдельных источников указаны в [реестре](../sources.md).
 Это исследование платформы, а не подтверждение runtime-совместимости JediKit.
-По [issue #1](https://github.com/ibelyasov/jedikit/issues/1) и [ADR 0005](../../docs/adr/0005-one-source-host-connections.md) обязательная приёмка — Hermes на Nix-сервере владельца; Codex поддерживается без обязательного runtime-гейта. В этой работе не выполнялись установка
-плагина, OAuth, вызовы моделей или операции с данными провайдеров.
+Модель изменена в 0.3.0: плагин не объявляет подключения или секреты; операции предоставляет хост ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)). В этой работе не выполнялись установка плагина, OAuth, вызовы моделей или операции с данными провайдеров.
 
 ## Версии и границы доказательства
 
@@ -18,7 +17,7 @@ commit `a956835d020762cb2b570053af06f643a11c0ecc`; дата release tag —
 Текущая документация OpenAI не привязана к установленной версии. Дополнительно
 прочитаны CLI command definitions и portable manifest parser текущего upstream
 на commit `7c2ce90716335c889a5076ded9a630459f9c9899`: в этих ограниченных областях
-не обнаружен отдельный CLI validator/eval, portable parser совпадает с 0.160.0.
+не обнаружен отдельный CLI validator, portable parser совпадает с 0.160.0.
 Это не проверка всего upstream и не обещание для будущих релизов.
 [PL-O-18](../sources.md),
 [PL-O-19](../sources.md),
@@ -161,17 +160,11 @@ MCP descriptor и подключённый аккаунт — отдельные
 доказательства доступа.
 [PL-O-3](../sources.md).
 
-Для Codex SingularityApp MCP подключается на хосте, Habitify использует официальный REST v2 по [ADR 0001](../../docs/adr/0001-habitify-via-rest.md). Уточнённый [ADR 0005](../../docs/adr/0005-one-source-host-connections.md) сохраняет корневой `.mcp.json` только для Claude Code: один публичный SingularityApp endpoint без секретов, OAuth средствами Claude Code. Codex и Hermes его не читают; это исключение не добавляет MCP declarations в их portable пакет и не переносит аккаунты между хостами. Источник уточнения — локальный commit `149ce0d`; runtime не проверялся. [JEDIKIT-ADR0005-149CE0D](../sources.md). Portable MCP
-документация показывает root `mcp.json`, Agent Plugins MCP schema и
-`type: "streamable-http"`. Не достаточно переименовать `.mcp.json`: нужен
-соответствующий schema/transport. В этом исследовании endpoints не подключались.
-[PL-O-2](../sources.md).
+Для Codex SingularityApp MCP подключается на хосте. Habitify использует официальный REST/OpenAPI v2 как бизнес-контракт; транспорт — OpenAPI→MCP-адаптер хоста или эквивалент с теми же именами, ключ остаётся только у адаптера ([ADR 0001](../../docs/adr/0001-habitify-via-rest.md)). Официальный Habitify MCP отвергнут из-за неполноты операций. Плагин не объявляет MCP и секреты ни для одного хоста ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)). `tools.json` задаёт базовые имена без host prefix, серверы `singularity`/`habitify`, доступ `read`/`write` и `required` у Habitify. Если tools отсутствуют, агент называет недостающие операции и рекомендует подключить их на хосте; ничего не устанавливает и не запрашивает ключ.
 
-## Официальные проверки и eval
+## Официальные проверки
 
-В CLI 0.160.0 нет отдельной команды `codex plugin validate`, `codex skill validate`
-или skill eval runner в прочитанном command tree. `codex features list`
-показывает plugins stable; отдельный validator/eval feature не наблюдался.
+В CLI 0.160.0 нет отдельной команды `codex plugin validate` или `codex skill validate` в прочитанном command tree. `codex features list` показывает plugins stable; отдельный validator feature не наблюдался.
 `codex app-server generate-json-schema` — experimental генерация schema
 **app-server protocol**, а не валидатор plugin package. Это ограниченный вывод
 по установленной справке, CLI source и protocol definitions, не утверждение,
@@ -195,9 +188,7 @@ leniency разрешением убрать обязательные metadata.
 неполный ввод, non-triggers и edge cases, оценивая activation и output.
 Bundled creator описывает независимую поведенческую проверку агентом при
 достаточной сложности/риске; это инструкция workflow, не бесплатный
-детерминированный CLI runner. В будущем отдельно нужны parser/load smoke и
-поведенческие сценарии на pinned host/model, с preview/approval/read-back для
-разрешённых действий. Ни schema validity, ни список skill names этого не доказывают.
+детерминированный CLI runner. Проверки проекта ограничены штатными Claude/Hermes validators, `git diff --check` и независимым агентным ревью; модельные прогоны не входят в текущую проверку. Ни schema validity, ни список skill names этого не доказывают.
 [PL-O-4](../sources.md),
 [PL-O-24](../sources.md).
 
@@ -207,11 +198,11 @@ Bundled creator описывает независимую поведенческ
 
 Не проверены: загрузка текущего JediKit в новой сессии Codex, installed cache
 identity, реальный implicit routing, OAuth и права официальных MCP, execution
-и read-back, desktop/web availability в конкретном аккаунте. По уточнённому [ADR 0005](../../docs/adr/0005-one-source-host-connections.md) поставляется Claude-only `.mcp.json`; Codex его не читает, а portable `mcp.json` не добавляется. [JEDIKIT-ADR0005-149CE0D](../sources.md). Внешние
+и read-back, desktop/web availability в конкретном аккаунте. Подключения и авторизация находятся на хосте ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)). Внешние
 community anecdotes не использованы; vendor documentation и source inspection
 отделены от локальных наблюдений. Исторические данные 2026-09-13 (`codex-cli 0.154.0`, чтение version/marketplace/MCP help без мутаций) сохранены как наблюдения прежней среды, не доказательство нынешней совместимости.
 
-Принятый root layout и границы проверок — в [Hermes](hermes.md); детали Claude native eval — в [Claude Code](claude.md). По [ADR 0006](../../docs/adr/0006-memory-holds-settings-only.md) native memory хранит только настройки, не состояние обзоров. Наличие host memory и plugin identity не обеспечивает перенос этих настроек между платформами.
+Принятый root layout и границы проверок — в [Hermes](hermes.md); детали Claude validator — в [Claude Code](claude.md). По [ADR 0006](../../docs/adr/0006-memory-holds-settings-only.md) native memory хранит только настройки, не состояние обзоров. Наличие host memory и plugin identity не обеспечивает перенос этих настроек между платформами.
 
 ## Scheduled tasks и публичная публикация
 

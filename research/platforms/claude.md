@@ -1,11 +1,11 @@
 # Claude Code: актуальный контракт JediKit
 
-Дата исходного исследования: **2026-10-05**, консолидация — **2026-10-06**. По [issue #1](https://github.com/ibelyasov/jedikit/issues/1) и [ADR 0005](../../docs/adr/0005-one-source-host-connections.md) Claude Code поддерживается без обязательного runtime-гейта; acceptance host — Hermes на Nix-сервере владельца. Это исследование совместимости, а не runtime acceptance.
+Дата исходного исследования: **2026-10-05**, консолидация — **2026-10-06**. Модель изменена в 0.3.0: плагин не объявляет подключения и секреты ни для одного хоста ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)). Это исследование совместимости, а не подтверждение runtime.
 
 ## Что является доказательством
 
-- **Наблюдение 2026-10-05:** установленный Claude Code **2.1.289**, его `--version` и native help для `plugin`, `plugin validate`, `plugin eval`. Полный исходный код исполняемого файла не исследован: публичный репозиторий Anthropic не является открытой реализацией этого бинарника. Help подтверждает наличие команд, но не их выполнение с моделью. Официальный контекст версии и продукта: [PL-C-0](../sources.md).
-- **Заявления vendor:** контракты ниже из официальной документации [PL-C-1](../sources.md), [PL-C-5](../sources.md), [PL-C-6](../sources.md), [PL-C-7](../sources.md); они помечены отдельно от локальных запусков.
+- **Наблюдение 2026-10-05:** установленный Claude Code **2.1.289**, его `--version` и native help для `plugin`, `plugin validate`. Полный исходный код исполняемого файла не исследован: публичный репозиторий Anthropic не является открытой реализацией этого бинарника. Help подтверждает наличие команд, но не их выполнение с моделью. Официальный контекст версии и продукта: [PL-C-0](../sources.md).
+- **Заявления vendor:** контракты ниже из официальной документации [PL-C-1](../sources.md), [PL-C-6](../sources.md), [PL-C-7](../sources.md); они помечены отдельно от локальных запусков.
 - **Anecdote:** пользовательские отзывы и старые успешные сессии не использованы как доказательство текущего контракта.
 
 ## Layout, manifest и invocation
@@ -14,9 +14,9 @@
 
 Claude namespace даёт explicit invocation `/jedikit:jedikit-tasks` и `/jedikit:jedikit-habits`; description используется для выбора skill моделью. Это документированный UX, а не выполненный smoke test. [PL-C-2](../sources.md)
 
-Платформа допускает `mcpServers` inline либо путь к JSON, стандартный `.mcp.json` в root; remote transport называется `http`, а `streamable-http` принимается как alias. По уточнённому [ADR 0005](../../docs/adr/0005-one-source-host-connections.md) JediKit сохраняет специальное исключение: корневой `.mcp.json` читает только Claude Code; в нём объявлен только публичный endpoint SingularityApp без секретов, а OAuth проводит Claude Code. Hermes и Codex этот файл не читают. Habitify остаётся REST v2 с ключом на хосте по [ADR 0001](../../docs/adr/0001-habitify-via-rest.md). Уточнение ADR взято из локального commit `149ce0d`, не из runtime-проверки или опубликованного релиза. [JEDIKIT-ADR0005-149CE0D](../sources.md), [PL-C-1](../sources.md), [PL-C-3](../sources.md), [PL-C-8](../sources.md)
+Платформа поддерживает plugin MCP declarations, но JediKit ими не пользуется. SingularityApp и Habitify подключает хост. Habitify сохраняет официальный REST/OpenAPI v2 как бизнес-контракт; операции предоставляет OpenAPI→MCP-адаптер или эквивалент с теми же именами, ключ остаётся только у адаптера ([ADR 0001](../../docs/adr/0001-habitify-via-rest.md), [ADR 0005](../../docs/adr/0005-one-source-host-connections.md)). Официальный Habitify MCP отвергнут из-за неполноты операций. `tools.json` задаёт базовые имена без host prefix, серверы `singularity`/`habitify`, доступ `read`/`write` и `required` у Habitify. При отсутствии tools агент называет недостающие операции и рекомендует подключить их на хосте; ничего не устанавливает. [PL-C-1](../sources.md), [PL-C-3](../sources.md)
 
-**Сосуществование manifests:** документация регулярной загрузки описывает `.claude-plugin/plugin.json`. Документация eval разрешает также root `plugin.json`, но это не гарантия одинакового приоритета manifest у всех loaders. Практический вариант — отдельный небольшой Claude manifest и общий root `skills/`; полный межплатформенный вывод находится в [hermes.md](hermes.md). [PL-C-1](../sources.md), [PL-C-5](../sources.md)
+**Сосуществование manifests:** документация регулярной загрузки описывает `.claude-plugin/plugin.json`. JediKit использует небольшой Claude manifest и общий root `skills/`; межплатформенные границы изложены в [hermes.md](hermes.md). [PL-C-1](../sources.md)
 
 ## Local development
 
@@ -43,40 +43,9 @@ env CLAUDE_CONFIG_DIR=/private/tmp/jedikit-platform-research-claude-static \
   claude plugin validate . --strict --json
 ```
 
-Exit `0`, `success: true`, target — текущий `.claude-plugin/plugin.json`, errors/warnings пусты. В report `contents: []`; это не inventory проверенных файлов. Дополнительно проверена временная декларативная fixture с portable root `plugin.json`, Claude manifest с `skills: "./skills"`, `mcpServers: "./mcp.json"` и MCP-файлом с portable `$schema` + `type: streamable-http`: strict validation прошла. После удаления skill description и подстановки неизвестного MCP transport эта же fixture дала exit `1`, warning по frontmatter и error по MCP type. Тем самым проверено, что validator действительно проверяет компоненты, а portable MCP JSON принимается статически. Runtime loading этим не доказан. [PL-C-1](../sources.md), [PL-C-6](../sources.md), [PL-C-8](../sources.md)
+Exit `0`, `success: true`, target — текущий `.claude-plugin/plugin.json`, errors/warnings пусты. В report `contents: []`; это не inventory проверенных файлов. Исторически, до изменения модели в 0.3.0 ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)), проверена временная декларативная fixture с portable root `plugin.json`, Claude manifest с `skills: "./skills"`, `mcpServers: "./mcp.json"` и MCP-файлом с portable `$schema` + `type: streamable-http`: strict validation прошла. После удаления skill description и подстановки неизвестного MCP transport эта же fixture дала exit `1`, warning по frontmatter и error по MCP type. Тем самым проверено, что validator действительно проверяет компоненты, а portable MCP JSON принимается статически. Runtime loading этим не доказан. [PL-C-1](../sources.md), [PL-C-6](../sources.md), [PL-C-8](../sources.md)
 
 Изолированная config directory не содержала аккаунта; модель и MCP не запускались. Исследованный validator пригоден для статического CI без пользовательского аккаунта; packet tracing отсутствия сети не выполнялся. Временная fixture использовала только `https://example.com/mcp`, без обращения к адресу или provider data. Команда и смысл report соответствуют [PL-C-6](../sources.md).
-
-## Native eval: определение cases и mocks
-
-Vendor предоставляет `claude plugin eval` начиная с 2.1.269; при установленном Git требуется >=2.31. Suite — `evals/`, case — `prompt.md` с frontmatter и graders, либо `case.yaml` с `schema_version: "1.1"` и `name`. Native graders: `regex`, `tool_used`, `tool_order`, `file_exists`, `llm`, `baseline`. Четыре первых не вызывают judge model; custom-code graders отсутствуют. [PL-C-5](../sources.md)
-
-Native MCP mocks — Markdown `evals/mocks/<server>/<tool>.md`, с override в case. Тело задаёт result, `expect` проверяет inputs; нарушение прерывает run со score `0`. `_tools.json` позволяет сохранить настоящие descriptions и schemas; без него mock schema permissive. Fixed mocks заменяют сервис без своего MCP server. [PL-C-5](../sources.md)
-
-Следующие flags независимо обнаружены в локальном help 2.1.289; официальный контракт — [PL-C-5](../sources.md):
-
-| Возможность | Точный смысл |
-| --- | --- |
-| `--mocks record` | Default; server без mock не запускается |
-| `--allow-real-servers` | Разрешает реальные servers без mocks |
-| `--mocks off` | Запускает реальные servers вместо mocks |
-| `--scaffold` | Отдельно разрешает author-supplied Bash; default off |
-| `--trust-plugin` | Убирает trust prompt для CI; не включает scaffold, gated tools или real servers |
-| `--runs` | Default case.runs либо 3 |
-| `--ablation` | При найденном plugin default `with-without` |
-| `--threshold` | Default `1.0`; ниже него exit `1` |
-| `--no-publish` | Сохраняет report локально |
-| `--max-cost-usd` | Проверяется перед стартом run; уже запущенные runs могут превысить ceiling |
-| `--concurrency` | 1–8 model runs |
-
-**Стоимость:** agent runs обращаются к модели с обычными credentials и расходуют plan usage/API budget; judge и `type: agent` mocks добавляют model calls. Fixed MCP mocks убирают обращения к provider, но не делают eval offline. Default comparison выполняет оба arms; стоимость не является фиксированной ценой case. Пример ниже предназначен для будущего отдельно разрешённого model CI, не выполнялся. [PL-C-5](../sources.md)
-
-```sh
-claude plugin eval . --trust-plugin --mocks record --no-publish \
-  --ablation none --runs 1 --max-cost-usd 1 --concurrency 1
-```
-
-**Вывод для ограничения «no custom code»:** prompt/grader/mock files позволяют проверить invocation, tool arguments/order и текстовый результат штатными средствами. Создание workspace через `context.scaffold_script` уже требует авторского Bash script и не подходит принятому ограничению. Stateful fake-provider model и произвольные machine assertions не возникают автоматически из Markdown mocks. Eval на Claude не доказывает поведение Hermes. [PL-C-5](../sources.md)
 
 ## AGENTS.md и CLAUDE.md
 
@@ -86,9 +55,7 @@ claude plugin eval . --trust-plugin --mocks record --no-publish \
 
 ## Открытые риски и граница проверки
 
-Не выполнены `--plugin-dir` runtime, install, eval, OAuth или tool discovery hosted MCP. Не проверены фактическая загрузка AGENTS и runtime priority двух manifests. Наличие CLI и успешная статическая проверка не подтверждают эти слои. Приняты один настоящий `skills/`, небольшие manifests и раздельные статический CI, model eval и Hermes acceptance. [PL-C-1](../sources.md), [PL-C-4](../sources.md), [PL-C-5](../sources.md), [PL-C-6](../sources.md), [PL-C-7](../sources.md)
-
-**Открытый вопрос native mocks:** документация eval связывает MCP mocks с server names, объявленными тестируемым plugin. Уточнённый [ADR 0005](../../docs/adr/0005-one-source-host-connections.md) допускает Claude-only `.mcp.json` с публичным SingularityApp endpoint; эта декларация может предоставить требуемое имя сервера для native mocks. Фактическая mock inventory и выполнение eval с ней здесь не проверены. Habitify использует REST, и его покрытие штатными mocks остаётся неподтверждённым. Выбранное направление из [ADR 0004](../../docs/adr/0004-no-custom-code.md) сохраняется: нужно проверить штатный механизм, без собственного fake server, изменения host credentials или расширения утверждённого MCP-исключения. [JEDIKIT-ADR0005-149CE0D](../sources.md), [PL-C-5](../sources.md)
+Не выполнены `--plugin-dir` runtime, install, OAuth или tool discovery. Не проверены фактическая загрузка AGENTS и runtime priority manifests. Наличие CLI и успешная статическая проверка не подтверждают эти слои. Проверки проекта — штатные Claude/Hermes validators, `git diff --check` и независимое агентное ревью; модельные прогоны не входят в текущую проверку. [PL-C-1](../sources.md), [PL-C-4](../sources.md), [PL-C-6](../sources.md), [PL-C-7](../sources.md)
 
 ## Источники
 
@@ -104,4 +71,4 @@ Marketplace регистрирует источник plugins, установк�
 
 Для диагностики проверяются source/revision, manifest, inventory обоих namespaced skills, новая session и host MCP/tool schemas, затем поведение. Project trust, tool permission и согласие пользователя на запись различаются. Пользовательский OAuth не переносится при копировании repo. Unattended permission bypass не служит доказательством корректного preview/approval/read-back. По [ADR 0003](../../docs/adr/0003-no-unattended-writes.md) фоновые обзоры только читают. `disable-model-invocation: true` на платформе отключает автоматическую активацию; его нельзя добавлять как универсальную safety policy для skills с scheduled invocation. [PL-C-12](../sources.md)
 
-Native memory не является общим хранилищем трёх hosts. По [ADR 0006](../../docs/adr/0006-memory-holds-settings-only.md) там только настройки; состояние обзоров не сохраняется. Не проверены Cloud/Desktop delivery и фактическая загрузка skills в каждой поверхности. Заявленная поддержка Claude Code остаётся без runtime-гейта; Claude behavioral eval не заменяет обязательную Hermes acceptance.
+Native memory не является общим хранилищем трёх hosts. По [ADR 0006](../../docs/adr/0006-memory-holds-settings-only.md) там только настройки; состояние обзоров не сохраняется. Не проверены Cloud/Desktop delivery и фактическая загрузка skills в каждой поверхности.

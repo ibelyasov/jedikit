@@ -10,6 +10,5 @@
   "repository": "https://github.com/ibelyasov/jedikit",
   "license": "MIT",
   "keywords": ["singularityapp", "habitify", "agent-skill"],
-  "skills": "./skills/",
-  "mcpServers": "./.mcp.json"
+  "skills": "./skills/"
 }
