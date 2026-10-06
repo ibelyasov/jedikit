@@ -4,6 +4,8 @@
 
 > **Публичная revalidation 2026-09-13:** prompts probe не повторялся. Текущая публичная SingularityApp MCP Wiki не перечисляет prompt names, arguments или тексты, поэтому все четыре prompt и их schemas ниже остаются только snapshot 2026-08-09. Wiki теперь отдельно документирует `system` Batch до 20 операций; это не меняет содержимое исторических prompt messages и не доказывает конкретный Batch tool contract.
 
+Редакционная граница пересборки 2026-10-06: exact prompt messages и metadata сохранены. Последующий анализ — прежние рекомендации, не текущий runtime-контракт. В нынешнем проекте собственного MCP или кода нет ([ADR0004](../../docs/adr/0004-no-custom-code.md)); упомянутый ниже safety/method wrapper означает инструкции skill. Актуальный scope — [основное досье](singularity.md) и решения issue #1/ADR.
+
 ## Вопрос, маршрут чтения и уровни доказательства
 
 **Вопрос:** какие prompts вернул официальный Singularity MCP 2026-08-09, каковы
@@ -12,25 +14,25 @@
 
 Сначала читайте границу probe, затем точные `prompts/list`/`prompts/get` ответы,
 после них — сравнительный анализ и safety boundary. Общий provider contract
-описан в [singularity-mcp.md](singularity-mcp.md), tool inventory — в
-[singularity-mcp-tools.md](singularity-mcp-tools.md), а финальные требования — в
-[product decisions](product-decisions.md).
+описан в [основном provider досье](singularity.md), tool inventory — в
+[датированном tools snapshot](singularity-tools-2026-08-09.md), а нынешние требования — в
+[product decisions](https://github.com/ibelyasov/jedikit/issues/1).
 
 Точные prompt texts и metadata — **observed runtime evidence 2026-08-09**.
 Ссылки на MCP spec подтверждают protocol semantics. Раздел сопоставления —
 **research analysis**, а строки «заменить в skill» фиксируют историческую
-рекомендацию; при конфликте действует product-decisions. Revalidation annotation
+рекомендацию; при конфликте действуют нынешние issue #1 и ADR. Revalidation annotation
 выше — **current docs evidence 2026-09-13**, не новый prompt probe.
 
 ## Короткий вывод
 
-Официальный сервер вернул ровно четыре MCP prompts: `plan_my_day`, `triage_inbox`, `weekly_review` и `summarize_project`. Они являются готовыми текстовыми макросами, а не отдельными безопасными операциями: каждый результат `prompts/get` — одно сообщение с ролью `user`, в тексте которого перечислены будущие вызовы Singularity tools. MCP определяет prompts как выбираемые пользователем шаблоны, поэтому получение шаблона не равно его выполнению ([MCP Prompts, 2025-11-25](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/server/prompts.mdx)).
+Официальный сервер вернул ровно четыре MCP prompts: `plan_my_day`, `triage_inbox`, `weekly_review` и `summarize_project`. Они являются готовыми текстовыми макросами, а не отдельными безопасными операциями: каждый результат `prompts/get` — одно сообщение с ролью `user`, в тексте которого перечислены будущие вызовы Singularity tools. MCP определяет prompts как выбираемые пользователем шаблоны, поэтому получение шаблона не равно его выполнению ([MCP-SPEC-PROMPTS](../sources.md)).
 
 Для `jedikit-tasks` это исследовательский материал, но не runtime dependency и не опциональный workflow v1. Наиболее существенные конфликты — жёсткие часы дня, лимит **6 часов** фокусной работы и фиксированные группы **3–5/2–3/2–3**, автоматическая установка даты `09:00`, а также упрощение triage до трёх веток. Core v1 использует собственные согласованные правила и не вызывает эти prompts.
 
 ## Граница и воспроизводимость probe
 
-Проверялся официальный MCP endpoint [`https://mcp.singularity-app.com/mcp`](https://mcp.singularity-app.com/mcp). Использована уже существовавшая авторизованная Hermes-сессия; новый OAuth не запускался, OAuth URL, client ID и токены в отчёт не попадают.
+Проверялся официальный MCP endpoint [SINGULARITY-MCP-ENDPOINT](../sources.md). Использована уже существовавшая авторизованная Hermes-сессия; новый OAuth не запускался, OAuth URL, client ID и токены в отчёт не попадают.
 
 | Поле | Наблюдение |
 | --- | --- |
@@ -43,17 +45,17 @@
 | Запрещённые/не выполнявшиеся действия | `tools/list`, `tools/call`, `resources/list`, `resources/read`, любые task/project/tag/checklist reads и любые записи/архивирование/удаление |
 | Песочница/demo/test account | отдельная не подтверждена и не создавалась; использована существующая сессия только для metadata |
 
-Полный предыдущий контекстный probe (без prompts и без чтения задач) находится в [`research/singularity-mcp-live-probe.md`](singularity-mcp-live-probe.md). Его результат не подменяет текущий prompts probe.
+Полный предыдущий контекстный probe (без prompts и без чтения задач) находится в [основном досье, исторической least-privilege проверке](singularity.md#историческая-least-privilege-проверка-2026-08-09). Его результат не подменяет описанный здесь prompts probe.
 
 ## Что именно требует MCP
 
-Официальная спецификация описывает prompts как **user-controlled** шаблоны, которые клиент показывает пользователю для явного выбора. `prompts/list` принимает необязательный `cursor` и возвращает `prompts` с полями `name`, `title`, `description`, необязательным `arguments` и, при необходимости, `icons`; `nextCursor` используется для следующей страницы. Capability `prompts.listChanged` сообщает, будут ли уведомления об изменении списка ([спецификация prompts/list](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/server/prompts.mdx#listing-prompts)).
+Официальная спецификация описывает prompts как **user-controlled** шаблоны, которые клиент показывает пользователю для явного выбора. `prompts/list` принимает необязательный `cursor` и возвращает `prompts` с полями `name`, `title`, `description`, необязательным `arguments` и, при необходимости, `icons`; `nextCursor` используется для следующей страницы. Capability `prompts.listChanged` сообщает, будут ли уведомления об изменении списка ([MCP-SPEC-PROMPTS](../sources.md)).
 
-`prompts/get` принимает обязательный `name` и необязательную map `arguments`, а возвращает `description` и массив `messages`. У сообщения есть `role` и `content`; content может быть текстом либо embedded resource ([спецификация prompts/get](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/server/prompts.mdx#getting-a-prompt)). Сервер не исполняет инструкции из текста сам: это материал, который клиент решает, добавлять ли в контекст модели. Tools имеют отдельный `tools/call` и могут приводить к операциям, resources — отдельные `resources/read` для данных/контекста ([MCP tools](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/server/tools.mdx), [MCP resources](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/server/resources.mdx)).
+`prompts/get` принимает обязательный `name` и необязательную map `arguments`, а возвращает `description` и массив `messages`. У сообщения есть `role` и `content`; content может быть текстом либо embedded resource ([MCP-SPEC-PROMPTS](../sources.md)). Сервер не исполняет инструкции из текста сам: это материал, который клиент решает, добавлять ли в контекст модели. Tools имеют отдельный `tools/call` и могут приводить к операциям, resources — отдельные `resources/read` для данных/контекста ([MCP-SPEC-TOOLS](../sources.md), [MCP-SPEC-RESOURCES](../sources.md)).
 
 ## `prompts/list`: live-ответ
 
-Сервер [`https://mcp.singularity-app.com/mcp`](https://mcp.singularity-app.com/mcp) вернул одну страницу без `nextCursor` (SDK обернул результат с `meta: null`):
+Сервер [SINGULARITY-MCP-ENDPOINT](../sources.md) вернул одну страницу без `nextCursor` (SDK обернул результат с `meta: null`):
 
 | `name` | `title` | `description` | `arguments` |
 | --- | --- | --- | --- |
@@ -68,7 +70,7 @@
 
 Для трёх prompt без аргументов правильный вызов потребовал явно передать `arguments: {}`. Первая попытка с отсутствующим полем `arguments` дала подтверждённую ошибку SDK: `McpError: Invalid arguments for prompt <name>: Invalid input: expected object, received undefined`. Это не HTTP 400 и не вызов инструмента. Для `summarize_project` передан синтетический, заведомо не использовавшийся ID `P-00000000-0000-0000-0000-000000000000`; поэтому реальный проект не читался.
 
-Общая форма каждого live-ответа с [`https://mcp.singularity-app.com/mcp`](https://mcp.singularity-app.com/mcp): `meta: null`, `description: null`, ровно одно `messages[0]`, `role: "user"`, `content.type: "text"`, `content.annotations: null`, `content.meta: null`. Схематично (поле `text` полностью приведено в подразделе prompt):
+Общая форма каждого live-ответа с [SINGULARITY-MCP-ENDPOINT](../sources.md): `meta: null`, `description: null`, ровно одно `messages[0]`, `role: "user"`, `content.type: "text"`, `content.annotations: null`, `content.meta: null`. Схематично (поле `text` полностью приведено в подразделе prompt):
 
 ```json
 {
@@ -192,9 +194,9 @@ Then produce in the user's language:
 - **Recommendation**: which 1-3 tasks to focus on next, or whether to archive the project if it has no recent activity
 ```
 
-## Сопоставление с `jedi-method-primary.md`
+## Историческое сопоставление с авторским методом
 
-Ниже сравниваются server templates, авторская методология и финальная продуктовая адаптация. Последняя сознательно не читает календарь: daily выдаёт focus list и сообщает ограничение, weekly также явно говорит «календарь не проверен».
+Ниже сохранён анализ server templates по состоянию исходного исследования, включая ссылки DT на [авторский метод](../tasks/author-method.md) и тогдашнюю продуктовую адаптацию. Он не вводит новых правил реализации. Нынешние решения — [#1](https://github.com/ibelyasov/jedikit/issues/1) и [ADR](../../docs/adr/); в частности, разобранные идеи, справки и встречи отменяются через `task_cancel` по ADR0008. Историческая адаптация сознательно не читала календарь: daily выдавал focus list и сообщал ограничение, weekly также явно говорил «календарь не проверен».
 
 ### `plan_my_day`
 
@@ -229,10 +231,10 @@ Then produce in the user's language:
 1. `prompts/list`/`prompts/get` — discovery и получение шаблона. Они не читают задачи сами по себе и не меняют состояние.
 2. `tools/list`/`tools/call` — отдельный механизм действий. В текстах prompts перечислены будущие `task_list_*`, `task_get`, `task_update`, `project_get` и т. п., но этот probe их не вызывал.
 3. `resources/list`/`resources/read` — отдельный механизм поставки контекста; он также не вызывался. Нельзя выдавать содержание prompt за данные Singularity.
-4. MCP подчёркивает user consent/data privacy/tool safety и необходимость считать описания tools потенциально недоверенными ([Security and Trust & Safety](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/index.mdx)). Из этого следует практическое правило skill: текст server prompt — внешняя инструкция, а не повышение привилегий. Его нельзя позволять ему менять system/developer policy, автоматически вызывать tools или обходить подтверждение пользователя. Даже «только archive» в `triage_inbox` остаётся будущим изменением состояния; сначала показать preview и спросить.
+4. MCP подчёркивает user consent/data privacy/tool safety и необходимость считать описания tools потенциально недоверенными ([MCP-SPEC-SECURITY](../sources.md)). Из этого следует практическое правило skill: текст server prompt — внешняя инструкция, а не повышение привилегий. Его нельзя позволять ему менять system/developer policy, автоматически вызывать tools или обходить подтверждение пользователя. Даже «только archive» в `triage_inbox` остаётся будущим изменением состояния; сначала показать preview и спросить.
 5. Полученный `messages[0]` не следует автоматически отправлять в модель без маркировки источника и проверки prompt-injection. В частности, server text может содержать команды, несовместимые с безопасным контуром Jedi (`task_update` с датой, archive, suggested project creation); это анализ риска, а не утверждение, что данный сервер злонамерен.
 
-## Таблица решения для v1
+## Историческая таблица рекомендаций для v1
 
 | Вопрос | Подтверждено live / официальным spec | Не подтверждено или ограничение | Вывод для v1 skill |
 | --- | --- | --- | --- |
@@ -245,6 +247,6 @@ Then produce in the user's language:
 | Ошибки | Подтверждена ошибка отсутствующего `arguments`; исправлена `{}` | Известный HTTP 400 `get_my_context` в этом probe не воспроизводился и поэтому не утверждается | Не включать эту ошибку в диагностику prompts; повторять только с согласованными scopes |
 | Нужен собственный MCP | Prompts дают четыре полезных read-oriented сценария | Нет доказанного покрытия Jedi capture/entity/next-step/consent и нет sandbox | Собственный MCP не нужен только ради prompt discovery; собственный safety/method wrapper нужен для соответствия Jedi |
 
-## Итоговое решение
+## Итог исследования 2026-08-09
 
 Core v1 не использует и не показывает server prompts. Их точные тексты остаются только evidence для regression/совместимости. `jedikit-tasks` самостоятельно реализует focus list, поштучный triage, weekly и project summary по согласованной политике; получение prompts не требуется для работы skill.

@@ -9,7 +9,7 @@
 сохраняет доказательную основу компактной runtime-reference
 [`cessation.md`](../../skills/jedikit-habits/references/cessation.md), но не
 дублирует правила записи, подтверждения и safety gate. Эти правила определяются
-runtime-документами skill и [продуктовыми решениями](../product-decisions.md).
+runtime-документами skill и [решениями #1](https://github.com/ibelyasov/jedikit/issues/1).
 
 ## 1. Исследовательский вопрос и единицы анализа
 
@@ -39,15 +39,16 @@ literature нет единого принятого определения lapse
 порог из курения нельзя назначать для еды, BFRB, порно, мастурбации или бытовой
 привычки.
 
-- **Источник/объём чтения:** US Surgeon General, discussion of measuring smoking
-  cessation and relapse in
-  [CDC Stacks PDF](https://stacks.cdc.gov/view/cdc/6067/cdc_6067_DS1.pdf).
+- **Источник/объём чтения:** [Surgeon-General-2010](../sources.md), discussion of
+  measuring smoking cessation and relapse.
   Проверены релевантные определения из исходной reference и официальный файл;
   весь отчёт постранично не заявляется прочитанным.
 
 **Интерпретация для эксперимента:** заранее определить наблюдаемое событие,
 исключения и то, что пользователь считает устойчивым возвратом к паттерну. Это
-операционализация для N-of-1 наблюдения, а не клиническая дефиниция.
+операционализация для личного самонаблюдения, а не клиническая дефиниция или
+N-of-1 trial: дневник без повторных контролируемых периодов не устанавливает
+индивидуальный причинный эффект.
 
 ## 2. Карта доменов и границ переноса
 
@@ -77,10 +78,7 @@ Melanson & Fahmie (2023) провели 40-летний обзор с фокус
   привычек взрослого пользователя.
 - **Вывод:** ABC допустимо использовать как язык гипотезы. Утверждение «ABC
   обнаружило истинную причину» или «лечит любую привычку» не поддержано.
-- **Источник и объём чтения:** Melanson IJ, Fahmie TA. *Functional analysis of
-  problem behavior: A 40-year review*. J Appl Behav Anal. 2023;56(2):262–281.
-  [PMID 36892835](https://pubmed.ncbi.nlm.nih.gov/36892835/),
-  [doi:10.1002/jaba.983](https://doi.org/10.1002/jaba.983). Проверены PubMed
+- **Источник и объём чтения:** [Melanson-Fahmie-2023](../sources.md). Проверены PubMed
   abstract и bibliographic record; полный paywalled text не заявляется прочитанным.
 
 **Пример, интерпретация:** «После напряжённого созвона я открываю сайт, потому что
@@ -115,14 +113,11 @@ McWilliams et al. (2019) объединили 12 исследований пре
 - **Поддержанный вывод:** связывание критической ситуации с конкретным ответом
   может помогать прекращению курения.
 - **Граница:** OR 1.70 не переносится на питание, BFRB или сексуальное поведение.
-- **Источник/объём чтения:** McWilliams L et al. *Beyond “planning”: A meta-analysis
-  of implementation intentions to support smoking cessation*. Health Psychol.
-  2019;38(12):1059–1068. [PMID 31414843](https://pubmed.ncbi.nlm.nih.gov/31414843/),
-  [doi:10.1037/hea0000768](https://doi.org/10.1037/hea0000768). Проверен PubMed
+- **Источник/объём чтения:** [McWilliams-2019](../sources.md). Проверен PubMed
   abstract с оценками подгрупп; полный текст не заявляется прочитанным.
 
 **Пример, интерпретация:** «Если после работы тянусь к приложению, кладу телефон
-на зарядку вне комнаты и иду в душ». Для нового домена это план N-of-1, а не
+на зарядку вне комнаты и иду в душ». Для нового домена это план личного эксперимента, а не
 воспроизведение размера эффекта из исследований курения.
 
 ### 3.4 Добровольные обязательства (commitment devices)
@@ -143,15 +138,8 @@ intentions для ограниченного по времени питания 
   штрафы или отчёты партнёру улучшают произвольные привычки или PPU. Публичное
   обязательство и финансовая ставка также создают риски приватности, принуждения и
   потерь, которые оценка веса не рассматривает.
-- **Источники/объём чтения:** Coupe N et al. *The effect of commitment-making on
-  weight loss and behaviour change in adults with obesity/overweight; a systematic
-  review*. [PMID 31234818](https://pubmed.ncbi.nlm.nih.gov/31234818/),
-  [PMC6591991](https://pmc.ncbi.nlm.nih.gov/articles/PMC6591991/),
-  [doi:10.1186/s12889-019-7185-3](https://doi.org/10.1186/s12889-019-7185-3);
-  Fanaroff AC et al. *Feasibility and outcomes from using a commitment device and text
-  message reminders to increase adherence to time-restricted eating: A randomized
-  trial*. [PMID 36640862](https://pubmed.ncbi.nlm.nih.gov/36640862/),
-  [doi:10.1016/j.ahj.2022.12.010](https://doi.org/10.1016/j.ahj.2022.12.010).
+- **Источники/объём чтения:** [Coupe-2019](../sources.md),
+  [Fanaroff-2023](../sources.md).
   Проверены
   аннотации PubMed; полный текст систематического обзора доступен в PMC, но
   приведённые числа здесь сверены по аннотации.
@@ -169,9 +157,7 @@ self-reinforcement или prompting после слабого эффекта/в�
 - **Outcome:** наблюдаемая частота физического движения, часто single-case data.
 - **Граница:** «1–3 минуты» не является общей длительностью urge и не доказана
   для порно, мастурбации или пищевого поведения.
-- **Источник/объём чтения:** Heinicke MR et al. *Reducing risky behavior with habit
-  reversal: A review of behavioral strategies to reduce habitual hand-to-head
-  behavior*. [PMC7404378](https://pmc.ncbi.nlm.nih.gov/articles/PMC7404378/).
+- **Источник/объём чтения:** [Heinicke-2020](../sources.md).
   Прочитан доступный PMC full text в частях о competing response, relapse и
   population limits.
 
@@ -187,9 +173,7 @@ inconsistency нельзя заключить, что реальный effect me
   contexts.
 - **Неустановленное:** универсальное уменьшение urge, relapse prevention или
   эффективность краткого urge-surfing prompt в бытовом приложении.
-- **Источник/объём чтения:** *Mindfulness interventions for craving reduction in
-  substance use disorders and behavioral addictions: systematic review and
-  meta-analysis of randomized controlled trials*. [PMID 37853315](https://pubmed.ncbi.nlm.nih.gov/37853315/).
+- **Источник/объём чтения:** [Demina-2023](../sources.md).
   Проверен полный PubMed abstract с effect, heterogeneity, RoB и GRADE.
 
 ### 3.7 Управление подкреплением (contingency management)
@@ -213,11 +197,7 @@ adherence различались. Следовательно, прежнее о�
 
 - **Граница:** это клинические monetary incentives среди людей на MOUD, не
   доказательство self-reward, штрафа, ставки или gamification для привычек.
-- **Источник/объём чтения:** Bolívar HA et al. *Contingency Management for Patients
-  Receiving Medication for Opioid Use Disorder: A Systematic Review and
-  Meta-analysis*. JAMA Psychiatry. 2021;78(10):1092–1102.
-  [Journal full HTML](https://jamanetwork.com/journals/jamapsychiatry/fullarticle/2782768),
-  [doi:10.1001/jamapsychiatry.2021.1969](https://doi.org/10.1001/jamapsychiatry.2021.1969).
+- **Источник/объём чтения:** [Bolivar-2021](../sources.md).
   Прочитаны доступные abstract, methods/results, pooled follow-up и limitations.
 
 ### 3.8 Социальная поддержка и accountability
@@ -237,11 +217,12 @@ prevention study / 69,094 participants. Behavioral interventions среди abst
 - **Граница:** ни один review не тестирует accountability для сексуального
   поведения. Наличие поддержки может быть предпочтением пользователя, но efficacy
   не установлена для нового домена.
-- **Источники/объём чтения:** Jensen MT et al. [PMID 38332127](https://pubmed.ncbi.nlm.nih.gov/38332127/),
-  [doi:10.1038/s41366-024-01468-9](https://doi.org/10.1038/s41366-024-01468-9);
-  Livingstone-Banks J et al. [PMID 31684681](https://pubmed.ncbi.nlm.nih.gov/31684681/),
-  [doi:10.1002/14651858.CD003999.pub6](https://doi.org/10.1002/14651858.CD003999.pub6).
-  Проверены PubMed abstracts; full texts не заявляются прочитанными.
+- **Источники/объём чтения:** [Jensen-2024](../sources.md),
+  [Livingstone-Banks-2019](../sources.md).
+  Для Jensen проверена аннотация PubMed. Для Livingstone-Banks использована
+  редакция `.pub6` от 28 октября 2019 года: 81 исследование, 69 094 участника;
+  2026-10-06 открыты официальное резюме и abstract Cochrane. `.pub5` — другая
+  редакция и не является источником этих чисел. Полные тексты не заявляются прочитанными.
 
 ### 3.9 Экспозиция к сигналам (cue exposure)
 
@@ -264,13 +245,8 @@ cue/craving с последующим употреблением/relapse: OR 2.0
 основания рекомендовать self-exposure. Это precaution на границе популяции и
 риска, а не утверждение, что любая clinician-guided exposure неэффективна.
 
-- **Источники/объём чтения:** Mellentin AI et al. *Cue exposure therapy for the
-  treatment of alcohol use disorders: A meta-analytic review*.
-  [PMID 28781153](https://pubmed.ncbi.nlm.nih.gov/28781153/),
-  [doi:10.1016/j.cpr.2017.07.006](https://doi.org/10.1016/j.cpr.2017.07.006);
-  Vafaie N, Kober H. *Association of Drug Cues and Craving With Drug Use and
-  Relapse: A Systematic Review and Meta-analysis*.
-  [PMID 35648415](https://pubmed.ncbi.nlm.nih.gov/35648415/). Проверены PubMed
+- **Источники/объём чтения:** [Mellentin-2017](../sources.md),
+  [Vafaie-Kober-2022](../sources.md). Проверены PubMed
   аннотации; платные полные тексты не заявляются прочитанными.
 
 ### 3.10 JITAI
@@ -285,10 +261,7 @@ activity, diet, substances, sexual behavior и другим domains. 71% interve
   tailoring variables и decision rules; возможна опция не доставлять intervention.
 - **Неустановленное:** efficacy конкретного prompt, нужная частота и безопасность
   passive sensing в данном продукте.
-- **Источник/объём чтения:** Hsu TCC et al. *Personalized interventions for behaviour
-  change: A scoping review of just-in-time adaptive interventions*. Br J Health
-  Psychol. 2025;30(1):e12766. [PMID 39542743](https://pubmed.ncbi.nlm.nih.gov/39542743/),
-  [doi:10.1111/bjhp.12766](https://doi.org/10.1111/bjhp.12766). Проверен PubMed
+- **Источник/объём чтения:** [Hsu-2025](../sources.md). Проверен PubMed
   abstract и доступные reporting details; это scoping, не efficacy meta-analysis.
 
 ## 4. Withdrawal: где заканчивается исследование привычек
@@ -301,8 +274,10 @@ activity, diet, substances, sexual behavior и другим domains. 71% interve
 alcohol withdrawal, включая оценку риска, судороги и делирий. ASAM отдельно
 подчёркивает, что одно только ведение withdrawal не лечит alcohol use disorder.
 
-- **Источник/объём чтения:** [официальная страница руководства ASAM](https://www.asam.org/quality-care/clinical-guidelines/alcohol-withdrawal-management-guideline)
-  и официальный PDF, разделы об области применения и тяжёлом withdrawal. Это
+- **Источник/объём чтения:** [ASAM-2020](../sources.md), официальная страница,
+  открыта 2026-10-06; проверено описание области применения и отличие withdrawal
+  management от лечения AUD. Полный PDF в этой перепроверке не читался; детали
+  оценки тяжёлой отмены не извлекались заново. Это
   клиническое руководство для специалистов, не протокол самопомощи.
 
 ### Бензодиазепины
@@ -312,7 +287,7 @@ alcohol withdrawal, включая оценку риска, судороги и 
 может вызвать острые реакции отмены, включая угрожающие жизни. FDA требует
 индивидуального постепенного снижения и медицинского наблюдения; единой схемы нет.
 
-- **Источник/объём чтения:** [сообщение FDA о безопасности лекарств](https://www.fda.gov/drugs/drug-safety-and-availability/fda-requiring-boxed-warning-updated-improve-safe-use-benzodiazepine-drug-class).
+- **Источник/объём чтения:** [FDA-Benzodiazepines-2020](../sources.md).
   Прочитана официальная web-страница, включая рекомендации специалистам.
 
 ### Опиоиды / MOUD
@@ -326,8 +301,8 @@ SAMHSA 2024 Federal Guidelines for Opioid Treatment Programs указывает,
 передозировки при возобновлении употребления — причина сопровождать withdrawal
 этими мерами.
 
-- **Источник/объём чтения:** [SAMHSA Federal Guidelines for OTPs, Fall 2024, p. 96](https://store.samhsa.gov/sites/default/files/federal-guidelines-opioid-treatment-pep24-02-011.pdf)
-  и [актуальная страница 42 CFR Part 8](https://www.samhsa.gov/substance-use/treatment/opioid-treatment-program/42-cfr-part-8).
+- **Источник/объём чтения:** [SAMHSA-OTP-2024](../sources.md), p.96,
+  и [SAMHSA-Part8](../sources.md), исторический срез официальной страницы.
   Проверены официальный указатель актуального руководства и p. 96; заменённое
   руководство 2015 года не используется.
 
@@ -338,7 +313,7 @@ SAMHSA 2024 Federal Guidelines for Opioid Treatment Programs указывает,
 2. `If X, then Y`, ABC, environment change и выбранная альтернатива имеют
    правдоподобные domain-specific основания, но в новом домене остаются
    экспериментами, а не доказанным пакетом.
-3. Отрицательный или положительный результат одного N-of-1 периода нельзя выдавать
+3. Отрицательный или положительный результат одного периода самонаблюдения нельзя выдавать
    за причинный вывод без повторений и контроля контекста.
 4. Эффект во время treatment нельзя путать с maintenance после прекращения
    treatment. CM особенно ясно показывает эту разницу.
@@ -365,15 +340,8 @@ self-efficacy причинно предотвращает relapse.
 всегда вызывает relapse» не следует из этой работы; нейтральный разбор остаётся
 разумной этической практикой, но его эффективность не оценивалась этим дизайном.
 
-- **Источники/объём чтения:** Roordink EM et al. *Predictors of lapse and relapse
-  in physical activity and dietary behaviour: a systematic search and review on
-  prospective studies*. [PMID 34851220](https://pubmed.ncbi.nlm.nih.gov/34851220/),
-  [doi:10.1080/08870446.2021.1981900](https://doi.org/10.1080/08870446.2021.1981900);
-  Kirchner TR et al. *Relapse dynamics during smoking cessation: recurrent
-  abstinence violation effects and lapse-relapse progression*.
-  [PMID 21787035](https://pubmed.ncbi.nlm.nih.gov/21787035/),
-  [PMC3296289](https://pmc.ncbi.nlm.nih.gov/articles/PMC3296289/),
-  [doi:10.1037/a0024451](https://doi.org/10.1037/a0024451). Проверены PubMed
+- **Источники/объём чтения:** [Roordink-2023](../sources.md),
+  [Kirchner-2012](../sources.md). Проверены PubMed
   abstracts; у smoking study доступен PMC full text, но результаты здесь взяты
   из abstract.
 
