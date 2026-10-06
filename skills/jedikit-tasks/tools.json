@@ -1,144 +1,178 @@
 {
-  "version": 1,
-  "server": "singularity",
+  "version": 2,
   "tools": [
     {
+      "server": "singularity",
       "name": "task_list",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "task_get",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "task_list_inbox",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "task_list_today",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "task_list_overdue",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "project_list",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "project_get",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "task_group_list",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "task_group_get",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "tag_list",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "tag_get",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "checklist_item_list",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "checklist_item_get",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "get_my_context",
       "access": "read"
     },
     {
+      "server": "singularity",
       "name": "task_create",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "task_update",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "task_move",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "task_complete",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "task_uncomplete",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "task_complete_today",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "task_cancel",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "task_archive",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "task_unarchive",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "project_create",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "project_update",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "project_archive",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "project_unarchive",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "task_group_create",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "task_group_update",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "tag_create",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "tag_update",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "checklist_item_create",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "checklist_item_update",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "checklist_item_check",
       "access": "write"
     },
     {
+      "server": "singularity",
       "name": "checklist_item_uncheck",
       "access": "write"
     }

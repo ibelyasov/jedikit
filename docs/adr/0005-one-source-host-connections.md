@@ -2,7 +2,7 @@
 
 `skills/` в корне — единственный источник для Hermes, Claude Code и Codex: корневой portable `plugin.json` читают Hermes и Codex, `.claude-plugin/plugin.json` — Claude Code. Генерации и копий нет. В 0.3.0 плагин не объявляет MCP и секреты ни для одного хоста; прежнее исключение для Claude Code снято. Подключения и их реализация принадлежат хосту.
 
-Скиллы объявляют ожидания в [`skills/jedikit-tasks/tools.json`](../../skills/jedikit-tasks/tools.json) и [`skills/jedikit-habits/tools.json`](../../skills/jedikit-habits/tools.json): сервер, базовое имя без префикса хоста, `read`/`write`; у Habitify ещё `required`. Это декларативный внешний контракт, задаваемый JediKit. Изменение имён выполняется вместе со скиллом и отмечается в release notes.
+Скиллы объявляют ожидания в [`skills/jedikit-tasks/tools.json`](../../skills/jedikit-tasks/tools.json) и [`skills/jedikit-habits/tools.json`](../../skills/jedikit-habits/tools.json): сервер у каждой операции, базовое имя без префикса хоста, `read`/`write`; у Habitify ещё `required`. С `version: 2` чтения Habitify объявлены на сервере `habitify_read`, записи — на `habitify`: хост может разделить их по экземплярам с разным уровнем доверия. Это декларативный внешний контракт, задаваемый JediKit. Изменение имён выполняется вместе со скиллом и отмечается в release notes.
 
 SingularityApp подключается через официальный hosted MCP, OAuth проводит хост. Habitify предоставляется инструментами хоста по REST/OpenAPI v2, с ключом только у доверенного адаптера ([ADR 0001](0001-habitify-via-rest.md)). На Hermes владельца это делает clanwright.
 

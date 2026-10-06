@@ -9,7 +9,7 @@
 
 ## Состояние
 
-Последняя опубликованная версия — GitHub prerelease [`v0.3.0-alpha.1`](https://github.com/ibelyasov/jedikit/releases/tag/v0.3.0-alpha.1). В 0.3.0 принят контракт «только скиллы, подключения даёт хост» ([ADR 0005](docs/adr/0005-one-source-host-connections.md)). Владелец пользуется скиллами и сообщает о проблемах; обязательного ручного runtime-гейта нет. Публикация версии (тег и GitHub release) остаётся отдельным решением владельца.
+Последняя опубликованная версия — GitHub prerelease [`v0.3.0-alpha.2`](https://github.com/ibelyasov/jedikit/releases/tag/v0.3.0-alpha.2). В 0.3.0 принят контракт «только скиллы, подключения даёт хост» ([ADR 0005](docs/adr/0005-one-source-host-connections.md)). Владелец пользуется скиллами и сообщает о проблемах; обязательного ручного runtime-гейта нет. Публикация версии (тег и GitHub release) остаётся отдельным решением владельца.
 
 Штатные валидаторы проверяют файлы и загрузку в пределах своего контракта. Они не подтверждают доступ к провайдерам, поведение модели, выполнение операций или Read-back.
 
@@ -26,7 +26,7 @@
 
 ### ChatGPT и Claude.ai
 
-1. Скачайте `jedikit-tasks.zip` или `jedikit-habits.zip` со [страницы релиза](https://github.com/ibelyasov/jedikit/releases/tag/v0.3.0-alpha.1).
+1. Скачайте `jedikit-tasks.zip` или `jedikit-habits.zip` со [страницы релиза](https://github.com/ibelyasov/jedikit/releases/tag/v0.3.0-alpha.2).
 2. ChatGPT: **Skills → Create → Upload from your computer** ([справка](https://help.openai.com/en/articles/20001066-skills-in-chatgpt)). Claude.ai: **Settings → Capabilities → Skills → Upload skill** ([справка](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills)).
 3. Подключите MCP средствами веб-хоста согласно разделу «Что должен дать хост».
 
@@ -40,7 +40,7 @@
 
 ## Что должен дать хост
 
-JediKit задаёт машиночитаемый контракт в [`skills/jedikit-tasks/tools.json`](skills/jedikit-tasks/tools.json) и [`skills/jedikit-habits/tools.json`](skills/jedikit-habits/tools.json). Каждая запись содержит сервер (`singularity` или `habitify`), базовое имя без префикса хоста и `access: read | write`; у Habitify дополнительно указаны обязательные аргументы `required`. Для задач ожидаются 35 операций, для привычек — все 23. Имена — внешний контракт: они меняются вместе со скиллом и отмечаются в release notes.
+JediKit задаёт машиночитаемый контракт в [`skills/jedikit-tasks/tools.json`](skills/jedikit-tasks/tools.json) и [`skills/jedikit-habits/tools.json`](skills/jedikit-habits/tools.json). Каждая запись содержит сервер у каждой записи (`singularity`; для Habitify чтения — `habitify_read`, записи — `habitify`), базовое имя без префикса хоста и `access: read | write`; у Habitify дополнительно указаны обязательные аргументы `required`. Формат — `version: 2`. Для задач ожидаются 35 операций, для привычек — все 23. Имена — внешний контракт: они меняются вместе со скиллом и отмечаются в release notes.
 
 - **SingularityApp:** официальный hosted MCP `https://mcp.singularity-app.com/mcp` подключается средствами хоста. OAuth проводит хост. Агент использует предоставленные tools и их runtime schemas.
 - **Habitify:** хост поднимает OpenAPI→MCP-адаптер или эквивалент с теми же именами операций. Официальный REST/OpenAPI v2 остаётся бизнес-контрактом; ключ хранится только у доверенного адаптера, агент получает операции. Официальный Habitify MCP не используется из-за неполного набора возможностей ([ADR 0001](docs/adr/0001-habitify-via-rest.md), [справка инструментов](skills/jedikit-habits/references/habitify-tools.md)).
@@ -81,7 +81,7 @@ claude plugin install jedikit@jedikit
 Каталог [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) указывает на корневой пакет без копирования `skills/`. Из GitHub с закреплённой версией:
 
 ```sh
-codex plugin marketplace add ibelyasov/jedikit --ref v0.3.0-alpha.1
+codex plugin marketplace add ibelyasov/jedikit --ref v0.3.0-alpha.2
 codex plugin add jedikit@jedikit
 ```
 
