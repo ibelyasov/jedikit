@@ -7,9 +7,9 @@
 
 Явная одиночная команда выполняется сразу. Изменение, предложенное агентом, требует Preview и подтверждения. Группа операций получает один Preview и одно подтверждение, выполняется последовательно и останавливается на первой ошибке с отчётом applied/unapplied. После записи — Read-back. Расписание хоста выполняет только read-only проверки и приглашения; память агента хранит только настройки ([спецификация #1](https://github.com/ibelyasov/jedikit/issues/1), [глоссарий](CONTEXT.md)).
 
-## Состояние 0.2.0
+## Состояние 0.2.1
 
-Версия опубликована как GitHub prerelease [`v0.2.0`](https://github.com/ibelyasov/jedikit/releases/tag/v0.2.0): её можно ставить, но **обязательная приёмка — Hermes на Nix-сервере владельца** по [чек-листу](docs/acceptance.md) — ещё не пройдена. Claude Code и Codex входят в заявленную поддержку без runtime-гейта. Статические валидаторы проверяют файлы; они не подтверждают загрузку в сессии, доступ к провайдерам, выполнение операций или Read-back.
+Версия опубликована как GitHub prerelease [`v0.2.1`](https://github.com/ibelyasov/jedikit/releases/tag/v0.2.1): её можно ставить, но **обязательная приёмка — Hermes на Nix-сервере владельца** по [чек-листу](docs/acceptance.md) — ещё не пройдена. Claude Code и Codex входят в заявленную поддержку без runtime-гейта. Статические валидаторы проверяют файлы; они не подтверждают загрузку в сессии, доступ к провайдерам, выполнение операций или Read-back.
 
 ## Установка
 
@@ -24,7 +24,7 @@
 
 ### ChatGPT и Claude.ai
 
-1. Скачайте `jedikit-tasks.zip` со [страницы релиза](https://github.com/ibelyasov/jedikit/releases/tag/v0.2.0).
+1. Скачайте `jedikit-tasks.zip` со [страницы релиза](https://github.com/ibelyasov/jedikit/releases/tag/v0.2.1).
 2. ChatGPT: **Skills → Create → Upload from your computer** ([справка](https://help.openai.com/en/articles/20001066-skills-in-chatgpt)). Claude.ai: **Settings → Capabilities → Skills → Upload skill** ([справка](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills)).
 3. Подключите SingularityApp как коннектор приложения с адресом `https://mcp.singularity-app.com/mcp` и пройдите OAuth.
 
@@ -100,7 +100,7 @@ claude mcp login singularity
 Каталог [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) указывает на корневой пакет без копирования `skills/`. Из GitHub с закреплённой версией:
 
 ```sh
-codex plugin marketplace add ibelyasov/jedikit --ref v0.2.0
+codex plugin marketplace add ibelyasov/jedikit --ref v0.2.1
 codex plugin add jedikit@jedikit
 ```
 

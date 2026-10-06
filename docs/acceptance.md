@@ -1,6 +1,6 @@
 # Приёмка JediKit владельцем
 
-Обязательная runtime-приёмка пересборки — **Hermes на Nix-сервере владельца**. Claude Code и Codex заявлены без runtime-гейта. Зелёная статика, загрузка, поведение модели, авторизация, запись и Read-back — отдельные результаты. Этот документ задаёт сценарии, а не удостоверяет их прохождение. Основание: [#1](https://github.com/ibelyasov/jedikit/issues/1), [#6](https://github.com/ibelyasov/jedikit/issues/6), [CONTEXT](../CONTEXT.md), [ADR 0005](adr/0005-one-source-host-connections.md), состояние контракта 2026-10-06. Версия `v0.2.0` опубликована как prerelease; после успешной приёмки владелец снимает отметку prerelease.
+Обязательная runtime-приёмка пересборки — **Hermes на Nix-сервере владельца**. Claude Code и Codex заявлены без runtime-гейта. Зелёная статика, загрузка, поведение модели, авторизация, запись и Read-back — отдельные результаты. Этот документ задаёт сценарии, а не удостоверяет их прохождение. Основание: [#1](https://github.com/ibelyasov/jedikit/issues/1), [#6](https://github.com/ibelyasov/jedikit/issues/6), [CONTEXT](../CONTEXT.md), [ADR 0005](adr/0005-one-source-host-connections.md), состояние контракта 2026-10-06. Версия `v0.2.1` опубликована как prerelease; после успешной приёмки владелец снимает отметку prerelease.
 
 ## Подготовка владельца
 
