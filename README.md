@@ -9,7 +9,26 @@
 
 ## Состояние 0.2.0
 
-Это пересборка, ожидающая приёмки. **Обязательная приёмка — Hermes на Nix-сервере владельца**, по его чек-листу. Claude Code и Codex входят в заявленную поддержку без runtime-гейта. Статические валидаторы проверяют файлы; они не подтверждают загрузку в сессии, доступ к провайдерам, выполнение операций или Read-back. Тег и prerelease требуют отдельного решения после приёмки.
+Версия опубликована как GitHub prerelease [`v0.2.0`](https://github.com/ibelyasov/jedikit/releases/tag/v0.2.0): её можно ставить, но **обязательная приёмка — Hermes на Nix-сервере владельца** по [чек-листу](docs/acceptance.md) — ещё не пройдена. Claude Code и Codex входят в заявленную поддержку без runtime-гейта. Статические валидаторы проверяют файлы; они не подтверждают загрузку в сессии, доступ к провайдерам, выполнение операций или Read-back.
+
+## Установка
+
+| Хост | Что ставить | Задачи | Привычки |
+| --- | --- | --- | --- |
+| Hermes | плагин из репозитория | да | да |
+| Claude Code | плагин из GitHub marketplace | да | да |
+| Codex | плагин из GitHub marketplace | да | да |
+| ChatGPT, Claude.ai | ZIP скилла из релиза | да, с коннектором SingularityApp | нет |
+
+`jedikit-habits` вызывает Habitify REST через `curl` и ключ из secret-окружения. В веб-приложениях ChatGPT и Claude.ai нет места для такого секрета, поэтому там поддерживается только `jedikit-tasks`. Команды для каждого хоста — ниже.
+
+### ChatGPT и Claude.ai
+
+1. Скачайте `jedikit-tasks.zip` со [страницы релиза](https://github.com/ibelyasov/jedikit/releases/tag/v0.2.0).
+2. ChatGPT: **Skills → Create → Upload from your computer** ([справка](https://help.openai.com/en/articles/20001066-skills-in-chatgpt)). Claude.ai: **Settings → Capabilities → Skills → Upload skill** ([справка](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills)).
+3. Подключите SingularityApp как коннектор приложения с адресом `https://mcp.singularity-app.com/mcp` и пройдите OAuth.
+
+Работа скилла в веб-приложениях не проверялась.
 
 `AGENTS.md` — единый контракт разработчиков. По уточнению владельца от 2026-10-06 адаптер `CLAUDE.md` исключён: Claude Code читает `AGENTS.md` напрямую при отсутствии project `CLAUDE.md`. Native discovery документирован начиная с 2.1.277; проверка этой работы использует 2.1.289 ([досье Claude Code](research/platforms/claude.md), [официальный контракт](https://code.claude.com/docs/en/memory)). Это инструкции разработки в checkout; установленный плагин передаёт пользовательские процедуры через `skills/`.
 
@@ -27,7 +46,7 @@
 
 ## Hermes на сервере владельца
 
-Устанавливайте корневой пакет с GitHub, закрепляя полный **40-символьный commit SHA JediKit**. Замените `<FULL_JEDIKIT_COMMIT_SHA>` на опубликованный и выбранный владельцем commit: локальные незакоммиченные изменения эта команда не устанавливает. Branch, tag и сокращённый SHA не подходят проверенному exact-ref контракту.
+Устанавливайте корневой пакет с GitHub, закрепляя полный **40-символьный commit SHA JediKit**. SHA каждой версии указан на её [странице релиза](https://github.com/ibelyasov/jedikit/releases). Branch, tag и сокращённый SHA не подходят проверенному exact-ref контракту.
 
 ```sh
 hermes plugins install ibelyasov/jedikit --ref <FULL_JEDIKIT_COMMIT_SHA> --enable
@@ -54,20 +73,14 @@ hermes chat --skills '<EXACT_QUALIFIED_SKILL_NAME>'
 
 ## Claude Code
 
-В локальном checkout загрузите пакет на одну сессию:
+Из GitHub:
 
 ```sh
-claude --plugin-dir .
-```
-
-Либо подключите включённый локальный marketplace и установите plugin:
-
-```sh
-claude plugin marketplace add .
+claude plugin marketplace add ibelyasov/jedikit
 claude plugin install jedikit@jedikit
 ```
 
-Компоненты остаются в общем `skills/`. После изменения примените `/reload-plugins`. Явные вызовы — `/jedikit:jedikit-tasks` и `/jedikit:jedikit-habits`. GitHub marketplace станет доступен после публикации этого layout; его доступность сейчас не подтверждена.
+Для разработки в локальном checkout — `claude --plugin-dir .` на одну сессию; после правок `/reload-plugins`. Явные вызовы — `/jedikit:jedikit-tasks` и `/jedikit:jedikit-habits`.
 
 При загрузке плагина `.mcp.json` объявляет сервер `plugin:jedikit:singularity`. Авторизуйте именно его через `/mcp` в сессии Claude Code; имя проверьте в списке. [Официальная MCP-документация](https://code.claude.com/docs/en/mcp#plugin-provided-mcp-servers) описывает scoped names. Установка плагина сама по себе не завершает OAuth.
 
@@ -84,28 +97,14 @@ claude mcp login singularity
 
 ## Codex
 
-Нужен локальный marketplace. Владелец вручную создаёт **в своём локальном checkout** `.agents/plugins/marketplace.json` с каталогом ниже. Это настройка локальной установки; каталог не входит в поставляемые файлы этого тикета. `source.path` считается от корня marketplace и указывает на тот же корневой пакет, без копирования `skills/`:
-
-```json
-{
-  "name": "jedikit-local",
-  "plugins": [{
-    "name": "jedikit",
-    "source": {"source": "local", "path": "./"},
-    "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
-    "category": "Productivity"
-  }]
-}
-```
-
-Из этого checkout:
+Каталог [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) указывает на корневой пакет без копирования `skills/`. Из GitHub с закреплённой версией:
 
 ```sh
-codex plugin marketplace add .
-codex plugin add jedikit@jedikit-local
+codex plugin marketplace add ibelyasov/jedikit --ref v0.2.0
+codex plugin add jedikit@jedikit
 ```
 
-Команды подтверждены досье Codex и справкой 0.160.0. Local install использует cache: после правок проверьте установленную ревизию в новой сессии. Порядок marketplace и OpenAI extension описан в [официальной документации](https://developers.openai.com/plugins/build/plugins).
+Для разработки — `codex plugin marketplace add .` из checkout. Команды подтверждены досье Codex и справкой 0.160.0. Установка использует cache: после обновления проверьте установленную ревизию в новой сессии. Порядок marketplace и OpenAI extension описан в [официальной документации](https://developers.openai.com/plugins/build/plugins).
 
 SingularityApp добавляется в личный `~/.codex/config.toml` или trusted project `.codex/config.toml`, без токенов:
 
