@@ -1,6 +1,6 @@
 {
   "name": "jedikit",
-  "version": "0.2.1",
+  "version": "0.3.0-alpha.1",
   "description": "Два русскоязычных Agent Skill: задачи в SingularityApp и поведенческие эксперименты в Habitify.",
   "author": {
     "name": "Igor Belyasov",

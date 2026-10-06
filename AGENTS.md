@@ -11,6 +11,7 @@ Claude Code читает этот `AGENTS.md` напрямую при отсут
 | Путь | Назначение |
 | --- | --- |
 | `skills/jedikit-tasks/`, `skills/jedikit-habits/` | Единственный источник инструкций и справочных материалов скиллов |
+| `skills/*/tools.json` | Машиночитаемый контракт инструментов, которые скилл ожидает от хоста; clanwright сверяет с ним `tools.include` |
 | `plugin.json`, `.claude-plugin/plugin.json` | Portable manifest для Hermes/Codex и manifest Claude Code |
 | `README.md` | Установка, подключения провайдеров на хосте и приёмка |
 | `research/{tasks,habits,providers,platforms}/`, `research/sources.md` | Основания, контракты и происхождение источников |

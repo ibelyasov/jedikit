@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "server": "singularity",
+  "tools": [
+    {
+      "name": "task_list",
+      "access": "read"
+    },
+    {
+      "name": "task_get",
+      "access": "read"
+    },
+    {
+      "name": "task_list_inbox",
+      "access": "read"
+    },
+    {
+      "name": "task_list_today",
+      "access": "read"
+    },
+    {
+      "name": "task_list_overdue",
+      "access": "read"
+    },
+    {
+      "name": "project_list",
+      "access": "read"
+    },
+    {
+      "name": "project_get",
+      "access": "read"
+    },
+    {
+      "name": "task_group_list",
+      "access": "read"
+    },
+    {
+      "name": "task_group_get",
+      "access": "read"
+    },
+    {
+      "name": "tag_list",
+      "access": "read"
+    },
+    {
+      "name": "tag_get",
+      "access": "read"
+    },
+    {
+      "name": "checklist_item_list",
+      "access": "read"
+    },
+    {
+      "name": "checklist_item_get",
+      "access": "read"
+    },
+    {
+      "name": "get_my_context",
+      "access": "read"
+    },
+    {
+      "name": "task_create",
+      "access": "write"
+    },
+    {
+      "name": "task_update",
+      "access": "write"
+    },
+    {
+      "name": "task_move",
+      "access": "write"
+    },
+    {
+      "name": "task_complete",
+      "access": "write"
+    },
+    {
+      "name": "task_uncomplete",
+      "access": "write"
+    },
+    {
+      "name": "task_complete_today",
+      "access": "write"
+    },
+    {
+      "name": "task_cancel",
+      "access": "write"
+    },
+    {
+      "name": "task_archive",
+      "access": "write"
+    },
+    {
+      "name": "task_unarchive",
+      "access": "write"
+    },
+    {
+      "name": "project_create",
+      "access": "write"
+    },
+    {
+      "name": "project_update",
+      "access": "write"
+    },
+    {
+      "name": "project_archive",
+      "access": "write"
+    },
+    {
+      "name": "project_unarchive",
+      "access": "write"
+    },
+    {
+      "name": "task_group_create",
+      "access": "write"
+    },
+    {
+      "name": "task_group_update",
+      "access": "write"
+    },
+    {
+      "name": "tag_create",
+      "access": "write"
+    },
+    {
+      "name": "tag_update",
+      "access": "write"
+    },
+    {
+      "name": "checklist_item_create",
+      "access": "write"
+    },
+    {
+      "name": "checklist_item_update",
+      "access": "write"
+    },
+    {
+      "name": "checklist_item_check",
+      "access": "write"
+    },
+    {
+      "name": "checklist_item_uncheck",
+      "access": "write"
+    }
+  ]
+}

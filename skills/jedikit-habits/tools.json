@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "server": "habitify",
+  "tools": [
+    {
+      "name": "list-habits",
+      "access": "read",
+      "required": []
+    },
+    {
+      "name": "create-habit",
+      "access": "write",
+      "required": [
+        "name",
+        "type"
+      ]
+    },
+    {
+      "name": "get-journal",
+      "access": "read",
+      "required": []
+    },
+    {
+      "name": "get-habit",
+      "access": "read",
+      "required": [
+        "habitId"
+      ]
+    },
+    {
+      "name": "update-habit",
+      "access": "write",
+      "required": [
+        "habitId"
+      ]
+    },
+    {
+      "name": "delete-habit",
+      "access": "write",
+      "required": [
+        "habitId"
+      ]
+    },
+    {
+      "name": "archive-habit",
+      "access": "write",
+      "required": [
+        "habitId"
+      ]
+    },
+    {
+      "name": "get-habit-statistics",
+      "access": "read",
+      "required": [
+        "habitId"
+      ]
+    },
+    {
+      "name": "add-habit-log",
+      "access": "write",
+      "required": [
+        "habitId",
+        "value",
+        "unitSymbol"
+      ]
+    },
+    {
+      "name": "delete-habit-log",
+      "access": "write",
+      "required": [
+        "habitId",
+        "logId"
+      ]
+    },
+    {
+      "name": "complete-habit",
+      "access": "write",
+      "required": [
+        "habitId"
+      ]
+    },
+    {
+      "name": "fail-habit",
+      "access": "write",
+      "required": [
+        "habitId"
+      ]
+    },
+    {
+      "name": "skip-habit",
+      "access": "write",
+      "required": [
+        "habitId"
+      ]
+    },
+    {
+      "name": "undo-habit-logs",
+      "access": "write",
+      "required": [
+        "habitId"
+      ]
+    },
+    {
+      "name": "list-habit-notes",
+      "access": "read",
+      "required": [
+        "habitId"
+      ]
+    },
+    {
+      "name": "create-habit-note",
+      "access": "write",
+      "required": [
+        "habitId"
+      ]
+    },
+    {
+      "name": "update-habit-note",
+      "access": "write",
+      "required": [
+        "habitId",
+        "noteId"
+      ]
+    },
+    {
+      "name": "delete-habit-note",
+      "access": "write",
+      "required": [
+        "habitId",
+        "noteId"
+      ]
+    },
+    {
+      "name": "list-areas",
+      "access": "read",
+      "required": []
+    },
+    {
+      "name": "create-area",
+      "access": "write",
+      "required": [
+        "name"
+      ]
+    },
+    {
+      "name": "get-area",
+      "access": "read",
+      "required": [
+        "areaId"
+      ]
+    },
+    {
+      "name": "update-area",
+      "access": "write",
+      "required": [
+        "areaId"
+      ]
+    },
+    {
+      "name": "delete-area",
+      "access": "write",
+      "required": [
+        "areaId"
+      ]
+    }
+  ]
+}

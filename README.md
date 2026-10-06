@@ -7,9 +7,9 @@
 
 Явная одиночная команда выполняется сразу. Изменение, предложенное агентом, требует Preview и подтверждения. Группа операций получает один Preview и одно подтверждение, выполняется последовательно и останавливается на первой ошибке с отчётом applied/unapplied. После записи — Read-back. Расписание хоста выполняет только read-only проверки и приглашения; память агента хранит только настройки ([спецификация #1](https://github.com/ibelyasov/jedikit/issues/1), [глоссарий](CONTEXT.md)).
 
-## Состояние 0.2.1
+## Состояние 0.3.0-alpha.1
 
-Версия опубликована как GitHub prerelease [`v0.2.1`](https://github.com/ibelyasov/jedikit/releases/tag/v0.2.1): её можно ставить, но **обязательная приёмка — Hermes на Nix-сервере владельца** по [чек-листу](docs/acceptance.md) — ещё не пройдена. Claude Code и Codex входят в заявленную поддержку без runtime-гейта. Статические валидаторы проверяют файлы; они не подтверждают загрузку в сессии, доступ к провайдерам, выполнение операций или Read-back.
+Версия опубликована как GitHub prerelease [`v0.3.0-alpha.1`](https://github.com/ibelyasov/jedikit/releases/tag/v0.3.0-alpha.1): её можно ставить, но **обязательная приёмка — Hermes на Nix-сервере владельца** по [чек-листу](docs/acceptance.md) — ещё не пройдена. Claude Code и Codex входят в заявленную поддержку без runtime-гейта. Статические валидаторы проверяют файлы; они не подтверждают загрузку в сессии, доступ к провайдерам, выполнение операций или Read-back.
 
 ## Установка
 
@@ -24,7 +24,7 @@
 
 ### ChatGPT и Claude.ai
 
-1. Скачайте `jedikit-tasks.zip` со [страницы релиза](https://github.com/ibelyasov/jedikit/releases/tag/v0.2.1).
+1. Скачайте `jedikit-tasks.zip` со [страницы релиза](https://github.com/ibelyasov/jedikit/releases/tag/v0.3.0-alpha.1).
 2. ChatGPT: **Skills → Create → Upload from your computer** ([справка](https://help.openai.com/en/articles/20001066-skills-in-chatgpt)). Claude.ai: **Settings → Capabilities → Skills → Upload skill** ([справка](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills)).
 3. Подключите SingularityApp как коннектор приложения с адресом `https://mcp.singularity-app.com/mcp` и пройдите OAuth.
 
@@ -43,6 +43,12 @@
 `jedikit-tasks` использует только официальный hosted MCP SingularityApp: `https://mcp.singularity-app.com/mcp`. `jedikit-habits` использует только официальный REST API v2 Habitify: `https://api.habitify.me/v2`, заголовок `X-API-Key` из `HABITIFY_API_KEY` ([ADR 0001](docs/adr/0001-habitify-via-rest.md)). Habitify MCP не подключается. Нужны соответствующие права и тарифы провайдеров: SingularityApp заявляет Pro/Elite, для Habitify REST ADR указывает Pro. Точные условия доступа проверяются владельцем ([SingularityApp](research/providers/singularity.md), [Habitify](research/providers/habitify.md)).
 
 На каждом хосте владелец передаёт `HABITIFY_API_KEY` через своё secret-окружение процессу агента и его штатному средству HTTP-запросов. Значение ключа не помещается в prompt, manifests, `config.toml`, коммиты, историю команд или вывод. Способ доставки секрета и доступность штатного HTTP-инструмента проверяются на конкретном хосте; собственного wrapper, MCP-сервера или runtime у JediKit нет.
+
+## Контракт инструментов хоста
+
+[`skills/jedikit-tasks/tools.json`](skills/jedikit-tasks/tools.json) и [`skills/jedikit-habits/tools.json`](skills/jedikit-habits/tools.json) — машиночитаемый список инструментов, которые скилл ожидает от хоста. Каждая запись содержит ID сервера (`singularity`, `habitify`), базовое имя без префикса хоста и `access: read | write`; у Habitify дополнительно указаны обязательные аргументы API (`required`). Подключения реализует хост. На Hermes владельца это делает clanwright и сверяет `tools.include` с файлами закреплённого релиза: расхождение даёт красную проверку.
+
+В 0.3.0-alpha.1 добавлены только эти списки. Скиллы не изменились с 0.2.1: `jedikit-habits` пока вызывает REST через `curl`, переход на инструменты из списка будет в следующем релизе.
 
 ## Hermes на сервере владельца
 
@@ -100,7 +106,7 @@ claude mcp login singularity
 Каталог [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) указывает на корневой пакет без копирования `skills/`. Из GitHub с закреплённой версией:
 
 ```sh
-codex plugin marketplace add ibelyasov/jedikit --ref v0.2.1
+codex plugin marketplace add ibelyasov/jedikit --ref v0.3.0-alpha.1
 codex plugin add jedikit@jedikit
 ```
 
