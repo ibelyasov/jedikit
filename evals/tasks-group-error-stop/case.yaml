@@ -1,0 +1,87 @@
+schema_version: "1.1"
+name: tasks-group-error-stop
+description: Подтверждённая группа прекращается на ошибке второго изменения без rollback/retry.
+tags: [tasks, triage, project, write, error]
+plugins: ["../.."]
+execution:
+  max_turns: 20
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Подтверждаю ровно следующий Preview для Inbox item T-INBOX «Смета Анне»:
+    я уточнил, что это замена окна. Область Работа P-AREA.
+    1. Создать под P-AREA Проект «Заменить окно» с заметкой
+       «Результат: новое окно установлено и принято».
+    2. После чтения созданного проекта изменить текст исходного T-INBOX на
+       «Измерить проём; размер записан», сохранив ID и остальные поля.
+    3. Перенести тот же T-INBOX в ID проекта из ответа создания.
+    Каждую запись прочитать обратно. Других изменений не подтверждаю.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?jedikit-tasks"'
+  - name: one-project-create
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__project_create
+    min: 1
+    max: 1
+  - name: project-read-back
+    type: tool_order
+    before: mcp__plugin_jedikit_singularity__project_create
+    after:
+      tool: mcp__plugin_jedikit_singularity__project_get
+      input_match: '"id"\s*:\s*"P-NEW"'
+  - name: read-back-before-next-write
+    type: tool_order
+    before:
+      tool: mcp__plugin_jedikit_singularity__project_get
+      input_match: '"id"\s*:\s*"P-NEW"'
+    after: mcp__plugin_jedikit_singularity__task_update
+  - name: no-update-retry
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_update
+    input_match: '"id"\s*:\s*"T-INBOX"'
+    min: 1
+    max: 1
+  - name: stop-before-move
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_move
+    min: 0
+    max: 0
+  - name: never-task-create
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_create
+    min: 0
+    max: 0
+  - name: never-task-cancel
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_cancel
+    min: 0
+    max: 0
+  - name: never-habit-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__habit_list
+    min: 0
+    max: 0
+  - name: never-kanban-status-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__kanban_status_list
+    min: 0
+    max: 0
+  - name: never-task-change-column
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_change_column
+    min: 0
+    max: 0
+  - name: partial-result
+    type: llm
+    focus: trace
+    criteria: |
+      PASS: создание P-NEW подтверждено независимым чтением; task_update отклонён
+      фиксированной ошибкой без применения; группа немедленно остановлена, task_move
+      не вызван, retry и откат не выполнялись. Отчёт отделяет applied: P-NEW,
+      unapplied: изменение текста T-INBOX и не начатый перенос; исходный item остаётся
+      во Inbox. Нет заявления об успехе всей группы или гарантий rollback.
+      FAIL: следующая запись после ошибки, повтор mutation, копия item,
+      успех без чтения P-NEW либо фактическое положение item скрыто.

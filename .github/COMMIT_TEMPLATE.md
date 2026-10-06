@@ -1,6 +1,6 @@
+# Заголовок по-русски: действие, до 72 символов, без точки в конце.
+# Пустая строка, затем причина изменения и получившееся поведение.
+# Укажи связанный issue и релевантные проверки с путями к результатам.
+# Обязательная атрибуция ниже остаётся в каждом коммите.
 
-# --- commit message guide (lines starting with # are dropped) ---------------
-# Subject: imperative, <=72 chars, no trailing period.
-#   Good: "add oversized-file check to the gate"
-# Blank line, then the body: WHY the change exists, then what it does.
-# No AI attribution lines - the work is the author's.
+Co-Authored-By: Codex <noreply@openai.com>

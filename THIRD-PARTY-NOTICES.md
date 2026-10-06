@@ -1,9 +1,10 @@
-# Third-party notices
+# Права третьих лиц
 
-The MIT License in this repository covers only the project's original source code, tests and documentation.
+[MIT](LICENSE) распространяется на оригинальные инструкции, manifests и документацию JediKit. Она не передаёт права на сторонние произведения, сервисы и товарные знаки.
 
-- The books, articles and other works of Maxim Dorofeev remain the property of their respective rights holders. JediKit implements independently written workflows and does not redistribute book text.
-- SingularityApp, its hosted MCP/API, product name and documentation remain the property of their respective rights holders. Access is governed by SingularityApp's own terms.
-- Other product names and trademarks belong to their respective owners. Their mention identifies compatibility or a referenced methodology and does not imply endorsement.
+- Книги, статьи и другие работы Максима Дорофеева принадлежат соответствующим правообладателям. JediKit содержит самостоятельно написанные инструкции и адаптации метода; тексты книг не распространяются.
+- SingularityApp, Habitify, их API/MCP, документация, названия и товарные знаки принадлежат соответствующим правообладателям. Доступ к сервисам определяется их собственными условиями.
+- Hermes Agent/Nous Research, Claude Code/Anthropic и Codex/OpenAI, их документация, названия и товарные знаки принадлежат соответствующим правообладателям. Упоминание обозначает поддержку хоста, а не одобрение проекта.
+- Другие упомянутые названия и товарные знаки принадлежат своим владельцам; атрибуция научных и методических источников сохранена в исследовательской библиотеке.
 
-JediKit is an independent project and is not affiliated with or endorsed by Maxim Dorofeev or SingularityApp.
+JediKit — независимый проект, не связанный и не одобренный Максимом Дорофеевым, SingularityApp, Habitify, Nous Research, Anthropic или OpenAI. Указание совместимости не делает его официальным продуктом этих сторон.

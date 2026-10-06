@@ -1,0 +1,100 @@
+# Habitify: официальный REST API v2 и границы MCP
+
+Исходное исследование: **2026-10-05**. Перепроверка **2026-10-06**: официальный OpenAPI v2 (`info.version: 2.0.0`), MCP Others, Off Mode Help Center и официальное пояснение REST `403`. Читались только публичные документы, без ключа, OAuth и данных аккаунта. OpenAPI просмотрен по введению/auth, schemas Habit/Log/Note/Area и paths; ответ провайдера с данными не проверен. API reference через web не отдал содержание, OpenAPI получен публичным `curl`; `/llms.txt` вернул HTML оболочку, а не пригодный индекс документации.
+
+## Решение проекта и происхождение доказательств
+
+`jedikit-habits` использует **только официальный REST API v2**, без MCP fallback и собственного сервера: [ADR0001](../../docs/adr/0001-habitify-via-rest.md). Базовый URL `https://api.habitify.me/v2`, auth header `X-API-Key`. Ключ предоставляет secret-окружение хоста как `HABITIFY_API_KEY`; не записывать его в skill, manifests, диалог или evidence. Pro — согласованный тариф проекта; OpenAPI формулирует требование шире как paid subscription, без отдельной таблицы тарифов. Наличие подписки и пригодность ключа владельца здесь не проверены. [HABITIFY-OPENAPI](../sources.md)
+
+Acceptance host — Hermes на Nix-сервере владельца; Claude Code и Codex заявлены поддерживаемыми клиентами, без обязательного runtime-гейта ([ADR0005](../../docs/adr/0005-one-source-host-connections.md)). Один исходный `skills/`, без generated copies и custom code ([ADR0004](../../docs/adr/0004-no-custom-code.md)). Настройка secret-окружения и установка не выполнялись.
+
+Уровни доказательств различаются:
+
+- **Документация поставщика:** опубликованный REST contract и MCP promises; не проверка операций.
+- **Переданное наблюдение ведущего 2026-10-05:** metadata и schemas из авторизованного Claude Code, `https://mcp.habitify.me/mcp`, 12 tools. Raw export исполнителю не предоставлен; расположение неизвестно. Исполнитель probe не проводил; по переданному описанию tools не вызывались и данные не читались. [HABITIFY-DISCOVERY-2026-10-05](../sources.md)
+- **Историческое наблюдение:** 2026-08-29 публичный OpenAPI имел version `2.0.0`, `Last-Modified: 2026-05-18`; анонимный preflight вернул `401`. Это не текущий ответ endpoint.
+- **Решение и вывод:** выбор REST и правила preview/read-back; не vendor promise о безопасности.
+
+Независимых испытаний надёжности, coaching efficacy или пользовательских anecdotes в досье нет.
+
+## REST: точные операции и семантические ловушки
+
+Все paths ниже относительны к `/v2`. API key создаётся в приложении `Settings > API`; одновременно активен один ключ, новый отзывает старый. Здесь ключи не создавались. OpenAPI также перечисляет bearer `AccessTokenAuth`/`IdTokenAuth`, но не задаёт OAuth flow; JediKit их не использует и не выдумывает token exchange. Документированный предел — 500 requests/minute/account и HTTP `429`; это опубликованный лимит, не результат нагрузки. [HABITIFY-OPENAPI](../sources.md)
+
+Не смешивать legacy URL/инструкции/ключи с REST v2. Официальная статья от 2026-03-20, прочитанная в прежнем исследовании 2026-09-13 и повторно 2026-10-06, объясняет частую причину `403`: **новый V2 key отправлен на legacy endpoints**, где он не распознаётся. Статья направляет к актуальной API v2 документации; OpenAPI задаёт базовый `/v2` URL. Это документированная диагностика, а не ответ аккаунта владельца; из `403` нельзя автоматически заключать, что ключ истёк, или генерировать новый ключ, отзывающий существующий. Совместимость любого старого ключа с v2 здесь не доказана. [HABITIFY-API-403](../sources.md), [HABITIFY-OPENAPI](../sources.md)
+
+| Сценарий | Публичный REST contract | Граница для JediKit |
+| --- | --- | --- |
+| Habit CRUD | `GET/POST /habits`; `GET/PUT/DELETE /habits/{habitId}` | Модель различает `good`/`bad`; create/update покрывают name, description, startDate, occurrence, goal, reminders/stacks/endCondition и связи. DELETE permanent, уничтожает связанные logs/notes/goals/reminders; не обычный способ завершить эксперимент. |
+| Список привычек | Query `archived`, `areaId`, `type`, `timeOfDay`, `limit` 1–100 (default 50), `offset` ≥0 (default 0) | Description обещает scheduled-date filter, но date parameter в schema нет. Не изобретать его и не считать одну страницу полным списком. |
+| Journal | `GET /habits/journal`, optional `date` `YYYY-MM-DD` | Default today по timezone аккаунта. Отдельного user-timezone read/set в просмотренном OpenAPI нет; согласованный день лучше указывать явно. Journal включает status/progress/current streak/log info. |
+| Statistics | `GET /habits/{habitId}/statistics` | Агрегаты logs/skips/fails/completions/average и daily progress; не raw log range query и не доказательство эффекта эксперимента. |
+| Measurable log | `POST /habits/{habitId}/logs`, required `value`, `unitSymbol`; optional `targetDate` `YYYY-MM-DD` | Создаёт entry; `createdAt` — отдельное date-time. Unit и goal должны соответствовать выбранному habit, не переносить MCP `unit`/`date` в REST. |
+| Complete/fail/skip | `POST /habits/{habitId}/logs/complete`, `/failed`, `/skipped`; optional `targetDate` | Complete вычисляет value из goal, failed пишет failure, skipped — intentional skip. Ответ `409` описан как уже существующий log на дату; не считать повтор идемпотентным. |
+| Undo | `POST /habits/{habitId}/logs/undo`, optional `targetDate` | Удаляет **все** logs habit/date и возвращает status в in-progress; preview должен назвать именно эту область потери записей. Не универсальное undo всех provider changes. |
+| Delete log | `DELETE /habits/{habitId}/logs/{logId}` | Permanent removal конкретного entry по ID, не эквивалент дневного undo. |
+| План в Note | `GET/POST /habits/{habitId}/notes`; `PUT/DELETE /habits/{habitId}/notes/{noteId}` | Create требует минимум одно из content/moodLevel/photos; update меняет переданные поля. DELETE permanent. План связывается с habit ID и note ID; успешный write требует отдельного read-back. |
+| Archive | `POST /habits/{habitId}/archive` | Скрывает habit из active list и сохраняет данные; `409` — уже archived. Документированного unarchive path или `archived` input у PUT не найдено. Archive не обозначать как обратимую pause. |
+| Areas | list/create/get/update/delete `/areas` и `/areas/{areaId}` | Delete снимает привязку habits, а не удаляет их. Не входит в автоматическую гигиену экспериментов. |
+
+Источник таблицы: [HABITIFY-OPENAPI](../sources.md), публичная проверка 2026-10-06. GET habit возвращает description, но это другое поле, чем отдельные Note: план в заметке не считать записанным после обновления description.
+
+Историческая запись досье 2026-09-13 отдельно сообщала, что Help Center описывает **ручной Unarchive в приложении**. Точный URL и текст первичной страницы в этой записи не сохранены, UI-действие не проверено повторно. Это квалифицированное историческое сведение о ручном восстановлении, не доказательство текущего REST/MCP unarchive или автоматической pause/resume. Отсутствие unarchive path в просмотренном OpenAPI не отменяет того исторического UI-сведения. [HABITIFY-UI-UNARCHIVE-HISTORICAL](../sources.md)
+
+### Schema traps, сохранённые из проверки 2026-08-29 и сверенные 2026-10-06
+
+- Habit occurrence weekdays: `0 = Sunday … 6 = Saturday`; reminder occurrenceFilter weekdays: `1 = Sunday … 7 = Saturday`. Не переносить числовой enum из одного поля в другое.
+- Log status string — `inprogress`, а не `in-progress`; календарные `date`/`targetDate` — `YYYY-MM-DD`, не timestamp с offset.
+- Notes называются paginated, но `limit`/`offset` в GET notes не описаны. Полнота списка и надёжный поиск уже созданной заметки требуют runtime-проверки.
+- Area response включает required `description`, отсутствующее в properties. Streak/successPeriods endCondition response содержит `periodType`, input этого поля не описывает. Это рассинхронизация схемы, не разрешение изобретать input.
+- Goals/reminders/stacks/endCondition — nested Habit fields; отдельного CRUD и безопасного очищения nested field не описано. Не считать omission, null и пустой объект взаимозаменяемыми.
+- В просмотренном OpenAPI не найдены webhook/events, bulk/all logs, export/import, pause, Off Mode или unarchive. Отсутствие в этом документе не доказывает отсутствие функции во всём сервисе.
+
+Источник: [HABITIFY-OPENAPI](../sources.md). Исторические даты наблюдения и HTTP headers не обновляются сегодняшней датой.
+
+## Почему MCP не выбран: обещания против переданного inventory
+
+Официальный MCP endpoint — `https://mcp.habitify.me/mcp`; Others описывает Streamable HTTP, OAuth 2.0 с dynamic client registration и общий с REST лимит. MCP guides обещают create/update/archive/delete habits, notes/areas, statistics/journal и undo. Они не дают точных per-tool schemas или объяснения ограниченного набора Claude Code. Snapshot 2026-10-05 содержит лишь список habits по дате и logs/status; создать habit, изменить его, записать план в Note или архивировать через доступный набор нельзя. Причина расхождения (plan/scopes/client/rollout/version) не установлена. [HABITIFY-MCP-OTHERS](../sources.md), [HABITIFY-DISCOVERY-2026-10-05](../sources.md)
+
+Claude/ChatGPT guides также приводили create/statistics, поэтому гипотеза «CRUD только у ChatGPT» не подтверждалась. Именованных инструкций/acceptance Hermes и Codex в просмотренных четырёх MCP guides 2026-10-05 не было. Generic MCP compatibility не доказывает конкретный host. [HABITIFY-MCP-OVERVIEW](../sources.md), [HABITIFY-MCP-CLAUDE](../sources.md), [HABITIFY-MCP-CHATGPT](../sources.md)
+
+Исторический public discovery 2026-09-13: protected resource `https://mcp.habitify.me`, auth server `https://account.habitify.me`, resource scopes `profile`, `openid`; authorization metadata также `email`, `offline_access`, `all`. Tool mapping из них не следует. Help Center от 2026-03-10 называл URL SSE, MCP docs — Streamable HTTP: датированный drift, не текущий probe. [HABITIFY-OAUTH-RESOURCE](../sources.md), [HABITIFY-OAUTH-SERVER](../sources.md), [HABITIFY-MCP-HELP](../sources.md)
+
+### Переданный inventory 2026-10-05: 12 tools, без исполнения
+
+Это сохранённое свидетельство, не REST contract и не нынешний независимый discovery. Requiredness, outputs, annotations и параметры сессии не переданы полностью. `add-habit-log` имеет `value >= 0`, default unit `rep`, default date today; это не разрешает перенос defaults на остальные tools.
+
+| Tool | Переданные inputs | Что не доказано |
+| --- | --- | --- |
+| `add-habit-log` | `habitId`, `value`, `unit`, `date` | Additive/replace, duplicates, совместимость goal/unit |
+| `remove-habit-log` | `habitId`, `date` | Один или все entries, status effect, undo; REST delete требует logId |
+| `complete-habit`, `fail-habit`, `skip-habit` | `habitId`, `date` | Idempotency, status transitions, goal-derived values, streak/reminders |
+| `complete-habits`, `fail-habits`, `skip-habits` | `bulks: [{habitId, date}]` | Предел, порядок, mixed dates, atomicity/rollback, per-item errors |
+| `complete-all-habits` | `status: completed\|failed\|skipped`, `date` | Несмотря на имя доступны три status; что означает all, неизвестно |
+| `fail-all-habits`, `skip-all-habits` | `date` | Состав all: active/scheduled/archived, effects |
+| `list-habits-by-date` | `date` | Output IDs/goals/history, filtering, completeness/pagination |
+
+Переданный unit enum: `m`, `kM`, `ft`, `yd`, `mi`, `floor`, `L`, `mL`, `fl oz`, `cup`, `sec`, `min`, `hr`, `ms`, `kg`, `g`, `mg`, `oz`, `lb`, `mcg`, `J`, `kJ`, `kCal`, `cal`, `rep`, `step`. Регистр и пробелы — часть schema strings, не нормализовать `kM` в `km`. [HABITIFY-DISCOVERY-2026-10-05](../sources.md)
+
+## Pause, Off Mode и хранение плана
+
+Help Center описывает account-wide Time Off со start/end dates, отключением reminders и защитой streaks. Для одного дня рекомендует manual skip с тем же эффектом на progress; это не равенство notifications и состояния всего аккаунта. Нативной Off Mode операции в просмотренном REST OpenAPI и переданном MCP наборе нет. У JediKit нет команды `off`, и он не эмулирует её skip/archive/delete. [HABITIFY-OFF-MODE](../sources.md), [HABITIFY-OPENAPI](../sources.md)
+
+Для **pause** нужен runtime-тест на выбранной владельцем тестовой привычке: можно ли согласованно остановить reminders/расписание, сохранить историю и затем восстановить ровно согласованные поля. Пока безопасное очищение nested reminders/schedule и восстановление не подтверждены, нельзя обещать выполненную паузу. Archive сохраняет историю, но не имеет публичного unarchive contract, поэтому не подменяет pause.
+
+План эксперимента по CONTEXT.md — человекочитаемый текст в Note Habitify: цель, поведение, триггер, минимум/замена, if–then, дата обзора, stop-rule. Связка habit ID ↔ note ID и read-back плана остаётся отдельной runtime-проверкой. Native memory хранит только настройки и выбранные IDs, а не альтернативную копию состояния эксперимента ([ADR0006](../../docs/adr/0006-memory-holds-settings-only.md)). Старые design options «текущий разговор / host memory / ручной UI / другой provider» не являются актуальной архитектурой.
+
+## Открытые вопросы и будущая приёмка
+
+Фактических REST reads/writes, авторизации и provider mutations в этой работе нет. Fresh Hermes evidence требуется по [решению #1](https://github.com/ibelyasov/jedikit/issues/1); исторические alpha artifacts не доказывают пересборку.
+
+| Вопрос | Что требуется в разрешённом тесте владельца |
+| --- | --- |
+| Доступ и read contract | Paid account/key без раскрытия секрета, выбранные habit IDs, pagination, journal/date/timezone и полнота notes |
+| Note binding | Создать/прочитать/изменить план в Note на test habit; проверить сохранённые habit ID/note ID и отсутствие дубля после неизвестного результата |
+| Pause/resume | Согласованные исходные reminders/occurrence, точное изменение, read-back и обратное восстановление; не угадывать null/empty semantics |
+| Log/status/undo | Measurement units, goal-derived values, transitions, 409, day-boundary; дневной undo проверять отдельно от delete log |
+| Ошибки | Auth expiry, 400/401/403/404/409/422/429, timeout с неизвестным исходом; для 403 сверить v2 URL/инструкции по [HABITIFY-API-403](../sources.md), не менять ключ автоматически и не повторять write без проверки состояния |
+| Archive | Active/archived visibility и сохранность данных; не обещать автоматическое unarchive |
+
+Явную одиночную команду пользователя можно выполнить сразу; предложенное агентом изменение выполняется после точного Preview и подтверждения. Группа операций требует единого Preview и подтверждения, выполняется последовательно и останавливается на первой ошибке. После записи нужен Read-back. Фоновые проверки только читают ([ADR0003](../../docs/adr/0003-no-unattended-writes.md)). Cleanup тоже mutation, permanent delete не является default. Нельзя нагрузочно вызывать 429 или менять auth/scopes/тариф ради исследования. Неизвестные pause и Note binding — runtime-границы, а не повод возвращаться к MCP или собственному коду.

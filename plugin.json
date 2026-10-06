@@ -1,0 +1,26 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "jedikit",
+  "version": "0.2.0",
+  "description": "Два русскоязычных Agent Skill: задачи в SingularityApp и поведенческие эксперименты в Habitify.",
+  "author": {
+    "name": "Igor Belyasov",
+    "url": "https://github.com/ibelyasov"
+  },
+  "homepage": "https://github.com/ibelyasov/jedikit",
+  "repository": "https://github.com/ibelyasov/jedikit",
+  "license": "MIT",
+  "keywords": ["singularityapp", "habitify", "agent-skill"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "JediKit",
+        "shortDescription": "Задачи и поведенческие эксперименты",
+        "defaultPrompt": [
+          "Помоги провести Daily open в SingularityApp.",
+          "Помоги составить план эксперимента в Habitify."
+        ]
+      }
+    }
+  }
+}

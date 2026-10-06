@@ -1,19 +1,11 @@
-## What
+## Изменение
 
-<!-- One paragraph: what this change does, in the reader's terms. -->
+<!-- По-русски: конкретная проблема и получившееся поведение. Ссылка на issue; используй термины CONTEXT.md. -->
 
-## Why
+## Проверки
 
-<!-- The problem or need. Link the issue if one exists. -->
+<!-- Команды, результаты и ссылки на читаемый вывод. Различай статические проверки, поведение с mocks и runtime-приёмку. -->
 
-## How
+## Ограничения и риски
 
-<!-- The approach, and any decision a reviewer would want to question. -->
-
-## Testing
-
-<!-- What was run, and what proved it works. "Tests pass" needs the command. -->
-
-## Notes for the reviewer
-
-<!-- Anything that saves the reviewer time: where to start, what to skip. -->
+<!-- Непроверенные слои и существенные решения для reviewer. Для каждого коммита обязательна строка Co-Authored-By: Codex <noreply@openai.com>. -->

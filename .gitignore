@@ -1,6 +1,2 @@
-__pycache__/
-*.py[cod]
-.lycheecache
 .work/
-/build/
-evals/current/
+.codegraph/

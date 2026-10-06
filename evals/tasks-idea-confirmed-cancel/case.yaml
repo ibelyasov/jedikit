@@ -1,0 +1,79 @@
+schema_version: "1.1"
+name: tasks-idea-confirmed-cancel
+description: После ручного переноса и точного подтверждения выполняется только отмена и Read-back.
+tags: [tasks, triage, idea, write]
+plugins: ["../.."]
+execution:
+  max_turns: 14
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Я уже вручную перенёс идею в свою заметку. Подтверждаю ровно этот Preview:
+    отменить исходный Inbox item T-IDEA «Идея: сделать клуб настольных игр»;
+    он уйдёт из Inbox и останется восстановимым. Других изменений нет.
+    Перед выполнением перечитай исходный item в списке Inbox.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?jedikit-tasks"'
+  - name: inbox-before-cancel
+    type: tool_order
+    before: mcp__plugin_jedikit_singularity__task_list_inbox
+    after: mcp__plugin_jedikit_singularity__task_cancel
+  - name: one-cancel
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_cancel
+    input_match: '"id"\s*:\s*"T-IDEA"'
+    min: 1
+    max: 1
+  - name: read-back-after-cancel
+    type: tool_order
+    before: mcp__plugin_jedikit_singularity__task_cancel
+    after:
+      tool: mcp__plugin_jedikit_singularity__task_get
+      input_match: '"id"\s*:\s*"T-IDEA"'
+  - name: never-task-create
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_create
+    min: 0
+    max: 0
+  - name: never-task-update
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_update
+    min: 0
+    max: 0
+  - name: never-task-move
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_move
+    min: 0
+    max: 0
+  - name: never-project-create
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__project_create
+    min: 0
+    max: 0
+  - name: never-habit-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__habit_list
+    min: 0
+    max: 0
+  - name: never-kanban-status-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__kanban_status_list
+    min: 0
+    max: 0
+  - name: never-task-change-column
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_change_column
+    min: 0
+    max: 0
+  - name: verified-cancel
+    type: llm
+    focus: trace
+    criteria: |
+      PASS: исходный item найден во Inbox; выполнена только одна подтверждённая отмена
+      T-IDEA, отдельное чтение показывает cancelled=true. Ответ сообщает подтверждённую
+      отмену и сохранение восстановимости, не запрашивает второе согласие на неизменный Preview.
+      FAIL: успех только по исчезновению из активного списка, complete/delete,
+      неизвестный ID либо подтверждение ещё не выполненной отмены.
