@@ -24,7 +24,7 @@ description: Используй для проектирования экспер
 | `adjust` | [experiments.md](references/experiments.md) и [coaching.md](references/coaching.md): изменить одну вещь в плане |
 | `pause`, `archive` | [review.md](references/review.md): пауза или архив выбранной привычки |
 | Явное удаление привычки или заметки | [review.md](references/review.md) и [operation-policy.md](references/operation-policy.md): последствия, Preview и обязательное подтверждение |
-| `areas` | [areas.md](references/areas.md): документ поставит следующая задача; пока он отсутствует, продуктовый сценарий не определён — сообщи ограничение. Технический контракт — [habitify-tools.md](references/habitify-tools.md) |
+| `areas`, наблюдаемая потребность в группировке при setup/status/review | [areas.md](references/areas.md): существующая область прежде новой, одно небольшое предложение, назначения и Read-back |
 | `status` | [setup.md](references/setup.md): выбранный эксперимент или запрошенный обзор привычек за день |
 | `help` | Объясни команды и правила из этого файла; не обращайся к аккаунту |
 
