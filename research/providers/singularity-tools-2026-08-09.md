@@ -2,7 +2,9 @@
 
 **Отчётный срез:** 2026-08-08. **Фактический live probe:** 2026-08-09 (Europe/Moscow). **Режим:** только `initialize` и `tools/list`; `tools/call`, resources, prompts и чтение пользовательских данных не выполнялись.
 
-> **Публичная revalidation 2026-09-13:** этот файл остаётся неизменяемым историческим snapshot и не является текущим `tools/list`. Официальная [MCP Wiki](https://singularity-app.com/wiki/mcp/) теперь документирует `system` как отдельный Batch toolset, выключенный по умолчанию, с пределом до 20 операций. Она не публикует точное имя или JSON Schema Batch tool. Поэтому отсутствие `batch` среди 48 имён ниже описывает только probe 2026-08-09 и не опровергает текущую публичную capability; текущий точный каталог без нового авторизованного `tools/list` неизвестен.
+> **Публичная revalidation 2026-09-13:** этот файл остаётся неизменяемым историческим snapshot и не является текущим `tools/list`. Официальная [SINGULARITY-MCP](../sources.md) теперь документирует `system` как отдельный Batch toolset, выключенный по умолчанию, с пределом до 20 операций. Она не публикует точное имя или JSON Schema Batch tool. Поэтому отсутствие `batch` среди 48 имён ниже описывает только probe 2026-08-09 и не опровергает текущую публичную capability; текущий точный каталог без нового авторизованного `tools/list` неизвестен.
+
+Редакционная граница пересборки 2026-10-06: exact JSON objects ниже сохранены без изменения. Annotation сентября и прежние рекомендации описывают свои даты. Нынешний scope — [основное досье](singularity.md), issue #1 и ADR: `tasks,projects,meta,tags`, без Batch/kanban/habits/time-stat и собственного кода.
 
 ## Вопрос, маршрут чтения и уровни доказательства
 
@@ -11,9 +13,9 @@ Singularity MCP 2026-08-09, включая names, input schemas и annotations?
 
 Сначала читайте сводную capability matrix и различие 35/48, затем ограничения и
 полный JSONL. Для текущей публичной картины и связи REST/MCP вернитесь в
-[основной provider report](singularity-mcp.md); для первого `mcp:read` опыта — в
-[least-privilege probe](singularity-mcp-live-probe.md). Product scope находится
-в [product decisions](product-decisions.md), а не выводится из этого каталога.
+[основной provider report](singularity.md); для первого `mcp:read` опыта — в
+[least-privilege probe](singularity.md#историческая-least-privilege-проверка-2026-08-09). Product scope находится
+в [product decisions](https://github.com/ibelyasov/jedikit/issues/1), а не выводится из этого каталога.
 
 Все tool objects ниже — **observed runtime evidence 2026-08-09**. Ссылки на MCP
 spec объясняют форму ответа. Revalidation annotation выше — **current docs
@@ -22,7 +24,7 @@ evidence 2026-09-13**. Product recommendations в JSONL или server instructio
 
 ## Результат
 
-Официальный endpoint [`https://mcp.singularity-app.com/mcp`](https://mcp.singularity-app.com/mcp) в live `tools/list` вернул **48 tools**, одну страницу (`nextCursor: null`, `meta: null`). MCP-спецификация определяет `tools/list` как discovery с необязательным cursor; каждый Tool содержит `name`, `title`, `description`, `inputSchema` и необязательные annotations ([официальная спецификация MCP tools/list](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/server/tools.mdx)). Полный машиночитаемый snapshot всех 48 объектов находится ниже, по одному JSON-объекту на строку.
+Официальный endpoint [SINGULARITY-MCP-ENDPOINT](../sources.md) в live `tools/list` вернул **48 tools**, одну страницу (`nextCursor: null`, `meta: null`). MCP-спецификация определяет `tools/list` как discovery с необязательным cursor; Tool требует `name` и `inputSchema`; `title`, `description` и annotations опциональны по спецификации ([MCP-SPEC-TOOLS](../sources.md)). Полный машиночитаемый snapshot всех 48 объектов находится ниже, по одному JSON-объекту на строку.
 
 | Поле | Live observation |
 | --- | --- |

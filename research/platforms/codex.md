@@ -1,9 +1,8 @@
 # Codex: актуальный контракт для JediKit
 
-Дата проверки и доступа ко всем внешним источникам: **2026-10-05**.
+Дата исходного исследования: **2026-10-05**, консолидация — **2026-10-06**. Даты доступа отдельных источников указаны в [реестре](../sources.md).
 Это исследование платформы, а не подтверждение runtime-совместимости JediKit.
-Обязательная продуктовая приёмка остаётся на Hermes на Nix-сервере; Codex —
-заявленная дополнительная платформа. В этой работе не выполнялись установка
+По [issue #1](https://github.com/ibelyasov/jedikit/issues/1) и [ADR 0005](../../docs/adr/0005-one-source-host-connections.md) обязательная приёмка — Hermes на Nix-сервере владельца; Codex поддерживается без обязательного runtime-гейта. В этой работе не выполнялись установка
 плагина, OAuth, вызовы моделей или операции с данными провайдеров.
 
 ## Версии и границы доказательства
@@ -13,17 +12,17 @@
 Для проверки реализации скачан официальный tag `rust-v0.160.0`, разрешённый в
 commit `a956835d020762cb2b570053af06f643a11c0ecc`; дата release tag —
 2026-10-01. Справка не доказывает загрузку конкретного пакета.
-[Официальный release](https://github.com/openai/codex/releases/tag/rust-v0.160.0) (доступ 2026-10-05),
-[исходники версии](https://github.com/openai/codex/tree/a956835d020762cb2b570053af06f643a11c0ecc) (доступ 2026-10-05).
+[PL-O-8](../sources.md),
+[PL-O-9](../sources.md).
 
 Текущая документация OpenAI не привязана к установленной версии. Дополнительно
 прочитаны CLI command definitions и portable manifest parser текущего upstream
 на commit `7c2ce90716335c889a5076ded9a630459f9c9899`: в этих ограниченных областях
 не обнаружен отдельный CLI validator/eval, portable parser совпадает с 0.160.0.
 Это не проверка всего upstream и не обещание для будущих релизов.
-[CLI upstream](https://github.com/openai/codex/blob/7c2ce90716335c889a5076ded9a630459f9c9899/codex-rs/cli/src/main.rs) (доступ 2026-10-05),
-[plugin commands](https://github.com/openai/codex/blob/7c2ce90716335c889a5076ded9a630459f9c9899/codex-rs/cli/src/plugin_cmd.rs) (доступ 2026-10-05),
-[portable parser](https://github.com/openai/codex/blob/7c2ce90716335c889a5076ded9a630459f9c9899/codex-rs/core-plugins/src/agent_plugin_manifest.rs) (доступ 2026-10-05).
+[PL-O-18](../sources.md),
+[PL-O-19](../sources.md),
+[PL-O-20](../sources.md).
 
 ## Skills: единый источник и discovery
 
@@ -32,7 +31,7 @@ commit `a956835d020762cb2b570053af06f643a11c0ecc`; дата release tag —
 Имя и description служат первоначальному выбору, полные инструкции читаются
 после выбора. В CLI/IDE явный вызов — `$skill` или `/skills`; в ChatGPT — `@`.
 Неявный выбор зависит от description, а не от гарантированного dispatch.
-[Build skills](https://developers.openai.com/codex/skills) (доступ 2026-10-05).
+[PL-O-1](../sources.md).
 
 Standalone repository discovery сканирует `.agents/skills` от cwd до repo root,
 user discovery — `~/.agents/skills`, admin — `/etc/codex/skills`; имеются
@@ -42,18 +41,18 @@ user discovery — `~/.agents/skills`, admin — `/etc/codex/skills`; имеют
 редактируемого дерева `skills/`; копировать его в каталоги каждого хоста или
 генерировать варианты инструкций не требуется. Последнее — вывод для проекта,
 основанный на контракте discovery и упаковки, не отдельная гарантия всех хостов.
-[Local discovery](https://developers.openai.com/codex/skills#where-to-save-skills) (доступ 2026-10-05),
-[plugin structure](https://developers.openai.com/plugins/build/plugins#plugin-structure) (доступ 2026-10-05).
+[PL-O-1](../sources.md),
+[PL-O-2](../sources.md).
 
 Одинаковые имена skills не объединяются и могут появляться в selectors
 несколько раз. Initial skills list ограничен 2% окна модели либо 8000 символами
 при неизвестном окне; сначала сокращаются descriptions, затем возможны omission
 и warning. Это ограничение списка, а не размера полного `SKILL.md`.
-[Skills documentation](https://developers.openai.com/codex/skills) (доступ 2026-10-05).
+[PL-O-1](../sources.md).
 
-## `agents/openai.yaml`
+## Optional metadata платформы
 
-Файл находится **внутри каждой папки skill**:
+JediKit не поставляет agents metadata по [ADR 0005](../../docs/adr/0005-one-source-host-connections.md). Следующие сведения описывают возможности платформы, а не требования к пакету. Optional файл находится **внутри каждой папки skill**:
 `skills/<name>/agents/openai.yaml`, рядом с уровнем `SKILL.md`, а не в
 plugin-level `agents/`. Документированные optional fields:
 
@@ -67,9 +66,9 @@ plugin-level `agents/`. Документированные optional fields:
 в portable `mcp.json` — `streamable-http`: это разные schema, нельзя механически
 унифицировать написание. Dependency не является доказательством OAuth, прав
 или успешного tool call. Эти свойства требуют отдельной runtime-проверки.
-[Optional metadata](https://developers.openai.com/codex/skills#optional-metadata) (доступ 2026-10-05),
-[MCP dependency](https://developers.openai.com/plugins/build/skills#connect-skills-to-mcp-tools) (доступ 2026-10-05),
-[portable MCP example](https://developers.openai.com/plugins/build/plugins#bundled-mcp-servers-and-lifecycle-hooks) (доступ 2026-10-05).
+[PL-O-1](../sources.md),
+[PL-O-4](../sources.md),
+[PL-O-2](../sources.md).
 
 Исходники 0.160.0 также хранят dependency `command`, `oauth_callback_port` и
 policy `products`; в `SkillPolicy` есть TODO о неполном enforcement product
@@ -77,8 +76,8 @@ gating. Поэтому undocumented поля и `products` не следует �
 обязательную защиту или portable контракт JediKit. Иконки standalone skill
 разрешаются относительно skill под `assets/`; plugin skills могут ссылаться на
 общие plugin assets с проверкой границы каталога.
-[Metadata model](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/skills/src/model.rs) (доступ 2026-10-05),
-[asset path resolver](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/skills/src/interface.rs) (доступ 2026-10-05).
+[PL-O-10](../sources.md),
+[PL-O-11](../sources.md).
 
 ## Portable manifest и Codex overlay
 
@@ -89,7 +88,7 @@ Portable identity (`name`, `version`, `description` и другие metadata) о
 в `extensions.com.openai`. `.codex-plugin/plugin.json` поддерживается как
 compatibility manifest. Наличие старого scaffold в документации не делает его
 единственным допустимым форматом.
-[Package your plugin](https://developers.openai.com/plugins/build/plugins) (доступ 2026-10-05).
+[PL-O-2](../sources.md).
 
 В проверенной реализации выбор portable root зависит от распознаваемого Agent
 Plugins `$schema`. Нерелевантный root manifest позволяет legacy fallback;
@@ -98,14 +97,14 @@ schema из Agent Plugins namespace с неподдержанным номеро
 Legacy порядок — `.codex-plugin/plugin.json`, `.claude-plugin/plugin.json`,
 `.cursor-plugin/plugin.json`. Это поведение Codex, не утверждение о parsers
 Claude/Hermes.
-[Manifest selection](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/utils/plugins/src/plugin_namespace.rs) (доступ 2026-10-05).
+[PL-O-12](../sources.md).
 
 Если `extensions.com.openai` — объект, он **целиком заменяет** compatibility
 overlay: значения из двух объектов не сливаются. Если inline object отсутствует,
 overlay может предоставить OpenAI settings. Portable root identity и fixed
 components при этом остаются canonical.
-[Документированный приоритет](https://developers.openai.com/plugins/build/plugins#add-an-openai-and-codex-overlay) (доступ 2026-10-05),
-[реализация](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/core-plugins/src/agent_plugin_manifest.rs) (доступ 2026-10-05).
+[PL-O-2](../sources.md),
+[PL-O-13](../sources.md).
 
 Практически важная граница 0.160.0: portable parser задаёт фиксированные
 `./skills` и `./mcp.json`; из OpenAI extension/overlay переносит только
@@ -115,8 +114,8 @@ MCP inventory; указание `mcpServers: "./.mcp.json"` в extension не з
 Legacy compatibility manifest имеет собственный механизм paths.
 Следовательно, единую MCP декларацию для нескольких хостов нужно проверять
 по всем их schema; нельзя обещать portable Codex redirect на `.mcp.json`.
-[Portable parser](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/core-plugins/src/agent_plugin_manifest.rs) (доступ 2026-10-05),
-[MCP loader](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/core-plugins/src/loader.rs) (доступ 2026-10-05).
+[PL-O-13](../sources.md),
+[PL-O-14](../sources.md).
 
 ## Локальный marketplace и разработка
 
@@ -125,7 +124,7 @@ marketplace root, не от каталога `.agents/plugins/`. Путь нач
 остаётся внутри root. Каталог может указывать непосредственно на один plugin
 root с общим `skills/`; пример документации с копированием в `plugins/` не
 является обязательным layout.
-[Marketplace metadata](https://developers.openai.com/plugins/build/plugins#marketplace-metadata) (доступ 2026-10-05).
+[PL-O-2](../sources.md).
 
 Минимальная документированная форма каталога (пример, не установленная запись):
 
@@ -149,9 +148,9 @@ root с общим `skills/`; пример документации с копи�
 направляет local install/test в desktop app, поэтому наличие CLI add проверено
 отдельно. Local plugin install использует cache, а не обязательно живое дерево;
 после правок нужно проверять фактический installed revision.
-[CLI authoring](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli) (доступ 2026-10-05),
-[CLI implementation](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/cli/src/plugin_cmd.rs) (доступ 2026-10-05),
-[local marketplaces](https://developers.openai.com/plugins/build/plugins#how-local-marketplaces-work) (доступ 2026-10-05).
+[PL-O-2](../sources.md),
+[PL-O-17](../sources.md),
+[PL-O-2](../sources.md).
 
 ## MCP и ограничения проекта
 
@@ -160,14 +159,13 @@ Codex host поддерживает STDIO и Streamable HTTP, bearer/OAuth. Host
 hosted plugin tools могут иметь другой контракт. `agents/openai.yaml`, plugin
 MCP descriptor и подключённый аккаунт — отдельные уровни, не взаимозаменяемые
 доказательства доступа.
-[Codex MCP](https://developers.openai.com/codex/mcp) (доступ 2026-10-05).
+[PL-O-3](../sources.md).
 
-Для JediKit продуктовая граница — только официальные hosted MCP провайдеров,
-без собственного server/proxy/runtime и без секретов в пакете. Portable MCP
+Для Codex SingularityApp MCP подключается на хосте, Habitify использует официальный REST v2 по [ADR 0001](../../docs/adr/0001-habitify-via-rest.md). Уточнённый [ADR 0005](../../docs/adr/0005-one-source-host-connections.md) сохраняет корневой `.mcp.json` только для Claude Code: один публичный SingularityApp endpoint без секретов, OAuth средствами Claude Code. Codex и Hermes его не читают; это исключение не добавляет MCP declarations в их portable пакет и не переносит аккаунты между хостами. Источник уточнения — локальный commit `149ce0d`; runtime не проверялся. [JEDIKIT-ADR0005-149CE0D](../sources.md). Portable MCP
 документация показывает root `mcp.json`, Agent Plugins MCP schema и
 `type: "streamable-http"`. Не достаточно переименовать `.mcp.json`: нужен
 соответствующий schema/transport. В этом исследовании endpoints не подключались.
-[Bundled MCP](https://developers.openai.com/plugins/build/plugins#bundled-mcp-servers-and-lifecycle-hooks) (доступ 2026-10-05).
+[PL-O-2](../sources.md).
 
 ## Официальные проверки и eval
 
@@ -178,9 +176,9 @@ MCP descriptor и подключённый аккаунт — отдельные
 **app-server protocol**, а не валидатор plugin package. Это ограниченный вывод
 по установленной справке, CLI source и protocol definitions, не утверждение,
 что OpenAI вообще не имеет других проверок.
-[CLI command tree](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/cli/src/main.rs) (доступ 2026-10-05),
-[plugin commands](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/cli/src/plugin_cmd.rs) (доступ 2026-10-05),
-[app-server command definitions](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/cli/src/main.rs#L621) (доступ 2026-10-05).
+[PL-O-21](../sources.md),
+[PL-O-17](../sources.md),
+[PL-O-21](../sources.md).
 
 Официальный bundled `skill-creator` содержит `scripts/quick_validate.py`:
 минимальная проверка frontmatter, naming, unfinished placeholders. Он не
@@ -190,8 +188,8 @@ MCP descriptor и подключённый аккаунт — отдельные
 helper: например, может получить имя из каталога при отсутствующем `name`.
 Следует сохранять документированный authoring contract, а не считать parser
 leniency разрешением убрать обязательные metadata.
-[Bundled validator](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/skills/src/assets/samples/skill-creator/scripts/quick_validate.py) (доступ 2026-10-05),
-[skill parser](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/skills/src/parser.rs) (доступ 2026-10-05).
+[PL-O-22](../sources.md),
+[PL-O-23](../sources.md).
 
 Официальная документация рекомендует тестировать прямые и косвенные triggers,
 неполный ввод, non-triggers и edge cases, оценивая activation и output.
@@ -200,27 +198,27 @@ Bundled creator описывает независимую поведенческ
 детерминированный CLI runner. В будущем отдельно нужны parser/load smoke и
 поведенческие сценарии на pinned host/model, с preview/approval/read-back для
 разрешённых действий. Ни schema validity, ни список skill names этого не доказывают.
-[Test the skill](https://developers.openai.com/plugins/build/skills#test-the-skill) (доступ 2026-10-05),
-[creator workflow](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/skills/src/assets/samples/skill-creator/SKILL.md) (доступ 2026-10-05).
+[PL-O-4](../sources.md),
+[PL-O-24](../sources.md).
 
 ## Evidence и открытые вопросы
 
-Локальные read-only evidence находятся в `.work/research-platforms/codex/`:
-CLI version/help, docs snapshots, annotated tag metadata, upstream commit
-metadata и скачанные pinned sources. CodeGraph был вызван первым; команда
-сообщила отсутствие доступного index в этом worktree, после чего использованы
-прямые чтения. Это инструментальный результат, не доказательство качества кода.
+Историческое исследование 2026-10-05 ссылалось на локальные CLI/docs/pinned source artifacts. В этом worktree они отсутствуют; их путь не является воспроизводимым evidence этой консолидации. На 2026-10-06 повторно прочитан `codex --version`: 0.160.0. Остальные source факты сохранены с датой исходной проверки; полного повторного source audit не выполнялось.
 
 Не проверены: загрузка текущего JediKit в новой сессии Codex, installed cache
 identity, реальный implicit routing, OAuth и права официальных MCP, execution
-и read-back, desktop/web availability в конкретном аккаунте. Совместимость общего
-MCP descriptor с Claude/Hermes требует их независимой проверки. Внешние
+и read-back, desktop/web availability в конкретном аккаунте. По уточнённому [ADR 0005](../../docs/adr/0005-one-source-host-connections.md) поставляется Claude-only `.mcp.json`; Codex его не читает, а portable `mcp.json` не добавляется. [JEDIKIT-ADR0005-149CE0D](../sources.md). Внешние
 community anecdotes не использованы; vendor documentation и source inspection
-отделены от локальных наблюдений. Исторический отчёт `research/platform-codex.md`
-прочитан как контекст, не использован вместо свежей проверки.
+отделены от локальных наблюдений. Исторические данные 2026-09-13 (`codex-cli 0.154.0`, чтение version/marketplace/MCP help без мутаций) сохранены как наблюдения прежней среды, не доказательство нынешней совместимости.
 
-Предлагаемый минимальный общий layout и CI описаны в [исследовании Hermes](hermes.md)
-как основной вывод для проекта. В отдельной статической проверке lead подтвердил,
-что native validator Claude принимает explicit `mcpServers: "./mcp.json"` с
-portable `$schema` и `streamable-http` без доступа к аккаунту. Это подтверждение
-формата fixture; runtime загрузка и доступ к провайдерам остаются непроверенными.
+Принятый root layout и границы проверок — в [Hermes](hermes.md); детали Claude native eval — в [Claude Code](claude.md). По [ADR 0006](../../docs/adr/0006-memory-holds-settings-only.md) native memory хранит только настройки, не состояние обзоров. Наличие host memory и plugin identity не обеспечивает перенос этих настроек между платформами.
+
+## Scheduled tasks и публичная публикация
+
+Официальная документация разделяет scheduled task management в ChatGPT/Codex chat и CLI/IDE, где Scheduled management interface отсутствует. Local Desktop tasks требуют работающей машины/app; web run не получает локальную папку. Event triggers web/mobile не образуют универсальный scheduler API CLI/Desktop. Availability зависит от поверхности и workspace policy. По [ADR 0003](../../docs/adr/0003-no-unattended-writes.md) JediKit фоновые обзоры только читают; это продуктовый контракт, не автоматическая гарантия хоста. Здесь task creation, permissions и delivery не проверялись. [PL-O-15](../sources.md)
+
+Публичная submission принимает skills-only и MCP packages, требует Apps Management Write, verified organization identity, listing/support/privacy/terms и positive/negative cases. Submit, review и publish — разные стадии; URL стороннего provider не даёт права подтверждать его домен. JediKit не публикуется этой работой, listing не доказывает runtime. Requirements необходимо перепроверять перед реальной submission. [PL-O-16](../sources.md)
+
+## Как оценивать совместимость
+
+Версия/help, источник/revision, parser inventory, доступность skills в новой session, host connection/schema, наблюдаемое поведение и разрешённые writes/read-back — разные уровни. `$jedikit-habits` в selector не доказывает safety refusal; loaded instructions плюс корректный ответ подтверждают конкретный сценарий на конкретном host/model. После изменения instructions старый trace остаётся историческим. Installed cache нужно сопоставлять с исходниками, не удалять его непроверенными командами. `@jedikit` обозначает OpenAI plugin scoping, а не router skill; `$jedikit` не является portable тегом. [PL-O-1](../sources.md), [PL-O-2](../sources.md)

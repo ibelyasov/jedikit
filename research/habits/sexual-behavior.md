@@ -29,12 +29,10 @@ WHO CDDR указывает, что CSBD требует устойчивого �
 тоже недостаточен. Формулировка `sex addiction` не является названием диагноза
 ICD-11.
 
-- **Источник/объём чтения:** WHO. *Clinical Descriptions and Diagnostic Requirements
-  for ICD-11 Mental, Behavioural and Neurodevelopmental Disorders* (2024),
-  [official publication](https://www.who.int/publications/i/item/9789240077263);
-  [ICD-11 MMS releases](https://icd.who.int/browse/releases/mms/en). Проверены
-  официальная запись CSBD и список выпусков; актуальный на дату среза выпуск MMS —
-  2026-01. Весь справочник постранично не заявляется прочитанным.
+- **Источник/объём чтения:** [WHO-CDDR-2024](../sources.md),
+  [WHO-MMS-2026](../sources.md). Исторически проверены официальная запись CSBD
+  и список выпусков, срез MMS 2026-01; 2026-10-06 открыта publication page CDDR,
+  не полный справочник и не повторная проверка всей актуальной классификации.
 
 ### Моральное несоответствие
 
@@ -44,15 +42,12 @@ Grubbs et al. обобщили данные для модели, в которо
 Оно не превращает ценности в «ошибку» и не исключает одновременную потерю контроля
 или нарушение функционирования.
 
-- **Источник/объём чтения:** Grubbs JB et al. *Pornography Problems Due to Moral
-  Incongruence: An Integrative Model with a Systematic Review and Meta-Analysis*.
-  [PMID 30076491](https://pubmed.ncbi.nlm.nih.gov/30076491/),
-  [doi:10.1007/s10508-018-1248-x](https://doi.org/10.1007/s10508-018-1248-x).
+- **Источник/объём чтения:** [Grubbs-2019](../sources.md).
   Проверены запись и аннотация PubMed; причинный вывод для индивида не заявляется.
 
 ## 2. Выбранный эксперимент и клиническое утверждение — разные вещи
 
-В [Q14 принятых решений](../habits-grill-decisions.md) владелец выбрал **два
+В [принятых решениях #1](https://github.com/ibelyasov/jedikit/issues/1) владелец выбрал **два
 отдельных эксперимента с воздержанием** с его точными названиями: для порно и для
 мастурбации. Намеренное действие считается событием; случайный контент, мысли,
 возбуждение и партнёрский секс не входят в событие по умолчанию.
@@ -73,7 +68,7 @@ Grubbs et al. обобщили данные для модели, в которо
 
 **Пример, интерпретация:** если человек выбирает четыре недели без порно, исход
 может включать соблюдение заранее заданного поведения и влияние на сон, работу и
-контроль. Это наблюдение N-of-1. Улучшение в тот же период не доказывает, что его
+контроль. Это личное самонаблюдение, не N-of-1 trial. Улучшение в тот же период не доказывает, что его
 вызвало воздержание; отсутствие улучшения не доказывает расстройство или «слабую
 волю».
 
@@ -121,30 +116,17 @@ RCT. Он всё ещё не устанавливает универсальну
 компонент, пользу для целей только по мастурбации или действие механик Habitify.
 
 - **Источники/объём чтения:**
-  - Antons S et al. *Treatments and interventions for compulsive sexual behavior
-    disorder with a focus on problematic pornography use: a preregistered systematic
-    review*. [PMC9872540](https://pmc.ncbi.nlm.nih.gov/articles/PMC9872540/),
-    [doi:10.1556/2006.2022.00061](https://doi.org/10.1556/2006.2022.00061).
+  - [Antons-2022](../sources.md).
     Проверены доступные в PMC аннотация, сводка методов/результатов и ограничения.
-  - Roza TH et al. *Treatment Approaches for Problematic Pornography Use: A
-    Systematic Review*. [PMID 37880509](https://pubmed.ncbi.nlm.nih.gov/37880509/),
-    [doi:10.1007/s10508-023-02699-z](https://doi.org/10.1007/s10508-023-02699-z).
+  - [Roza-2024](../sources.md).
     Проверена аннотация PubMed; платный полный текст не заявляется прочитанным.
-  - López-Pinar C et al. *Psychotherapy for problematic pornography use: A
-    comprehensive meta-analysis*. [PMID 40126561](https://pubmed.ncbi.nlm.nih.gov/40126561/),
-    [PMC12231474](https://pmc.ncbi.nlm.nih.gov/articles/PMC12231474/),
-    [doi:10.1556/2006.2025.00018](https://doi.org/10.1556/2006.2025.00018).
+  - [Lopez-Pinar-2025](../sources.md).
     Проверены доступные в PMC аннотация, характеристики исследований, результаты
     и ограничения.
-  - Karaahmet E, Bilgiç S, Karakaş S. *Non-pharmacologic treatments for
-    problematic pornography use: a meta-analysis of randomized controlled trials*.
-    [doi:10.1080/14681994.2025.2608897](https://doi.org/10.1080/14681994.2025.2608897).
+  - [Karaahmet-2026](../sources.md).
     Проверены аннотация и metadata издателя; платный полный текст не заявляется
     прочитанным.
-  - Zwielewski G et al. *Cognitive behavioral therapy-based interventions for
-    problematic pornography use: a scoping review*.
-    [PMID 42044011](https://pubmed.ncbi.nlm.nih.gov/42044011/),
-    [doi:10.1093/sxmrev/qeag027](https://doi.org/10.1093/sxmrev/qeag027).
+  - [Zwielewski-2026](../sources.md).
     Проверена аннотация PubMed; полный текст не заявляется прочитанным.
 
 ### 3.2 Клинические руководства
@@ -161,14 +143,10 @@ pornography use disorder, психообразовательную online-сам
 не имеет формального показания для CSBD. Эти рекомендации относятся к оценке
 клиницистом; из них нельзя получать советы по самолечению.
 
-- **Источники/объём чтения:** Stark R et al. *Guideline on the Treatment of
-  Pornography Use Disorder*. [doi:10.1024/0939-5911/a000916](https://doi.org/10.1024/0939-5911/a000916),
+- **Источники/объём чтения:** [Stark-2025](../sources.md),
   проверена только аннотация издателя; платное полное руководство не заявляется
   прочитанным.
-  Turner D et al. *The World Federation of Societies of Biological Psychiatry
-  guidelines on the assessment and pharmacological treatment of compulsive sexual
-  behaviour disorder*. [PMID 37522807](https://pubmed.ncbi.nlm.nih.gov/37522807/),
-  [doi:10.1080/19585969.2022.2134739](https://doi.org/10.1080/19585969.2022.2134739).
+  [Turner-2022](../sources.md).
   Проверены аннотация PubMed и доступные сводка/разделы руководства; документ не
   заявляется прочитанным от начала до конца.
 
@@ -185,15 +163,8 @@ Crosby & Twohig (2016) рандомизировали 28 мужчин в ACT-в�
 Это данные о выполнимости и предварительном эффекте; вклад компонентов и
 устойчивость эффекта не изолированы.
 
-- **Источники/объём чтения:** Crosby JM, Twohig MP. *Acceptance and Commitment
-  Therapy for Problematic Internet Pornography Use: A Randomized Trial*.
-  [PMID 27157029](https://pubmed.ncbi.nlm.nih.gov/27157029/),
-  [doi:10.1016/j.beth.2016.02.001](https://doi.org/10.1016/j.beth.2016.02.001),
-  аннотация PubMed. Bőthe B et al. *Hands-off: Feasibility and preliminary
-  results of a two-armed randomized controlled trial of a web-based self-help
-  tool to reduce problematic pornography use*.
-  [PMID 34727088](https://pubmed.ncbi.nlm.nih.gov/34727088/),
-  [PMC8987418](https://pmc.ncbi.nlm.nih.gov/articles/PMC8987418/). Проверены trial
+- **Источники/объём чтения:** [Crosby-Twohig-2016](../sources.md),
+  аннотация PubMed; [Bothe-2021](../sources.md), Hands-off. Проверены trial
   abstract и доступные в PMC разделы о dropout/результатах.
 
 ## 4. Воздержание, withdrawal-like симптомы и сексуальное благополучие
@@ -212,20 +183,13 @@ T2 n=114. Между участниками NNN и неучастниками и
 sexual flexibility. Отсутствие рандомизации и большая потеря участников не
 позволяют утверждать эквивалентность, долгосрочную безопасность или пользу.
 
-- **Источники/объём чтения:** Fernandez DP et al. *Effects of a 7-Day Pornography
-  Abstinence Period on Withdrawal-Related Symptoms
-  in Regular Pornography Users: A Randomized Controlled Study*.
-  [PMID 36652136](https://pubmed.ncbi.nlm.nih.gov/36652136/),
-  [doi:10.1007/s10508-022-02519-w](https://doi.org/10.1007/s10508-022-02519-w).
-  Проверена аннотация PubMed. Garas A, Levang S, Pukall C. *Abstaining from masturbation?
-  No Nut November participants and nonparticipants during a month-long challenge*.
-  [Journal article](https://academic.oup.com/jsm/article/22/9/1649/8215410),
-  [doi:10.1093/jsxmed/qdaf165](https://doi.org/10.1093/jsxmed/qdaf165).
+- **Источники/объём чтения:** [Fernandez-2023](../sources.md),
+  проверена аннотация PubMed; [Garas-2025](../sources.md).
   Проверены доступные разделы результатов и обсуждения.
 
 ## 5. Блокировщики, трекинг и перенос общих методов прекращения
 
-Hart-Derrick et al. проанализировали содержание 170 smartphone apps, которые
+Henry et al. проанализировали содержание 170 smartphone apps, которые
 позиционировались для управления использованием порнографии. Это анализ содержания,
 а не испытание эффективности. Он описывает функции и проблемы, включая обходы,
 ложные срабатывания и риск для приватности; он не показывает, что блокировщик
@@ -245,10 +209,7 @@ accountability подробно рассмотрены в [исследован�
 обратимым экспериментом, выбранным пользователем. Их ценность нужно оценивать в
 этом эксперименте; их нельзя представлять как доказанное лечение.
 
-- **Источник/объём чтения:** Hart-Derrick G et al. *Smartphone Applications to
-  Support Recovery From Compulsive Sexual Behavior and Problematic Pornography
-  Use: Content Analysis*. [PMID 36227634](https://pubmed.ncbi.nlm.nih.gov/36227634/),
-  [полная статья JMIR](https://formative.jmir.org/2022/10/e39869). Проверены
+- **Источник/объём чтения:** [Henry-2022](../sources.md). Проверены
   аннотация, методы, результаты и ограничения доступного полного текста.
 
 ## 6. Тестостерон, задержка семени и «перезагрузка дофамина»
@@ -271,13 +232,8 @@ Exton et al. изучили десять мужчин и сравнили ост
 что ни один человек не заметит изменения: малые исследования острой физиологии
 просто не проверяли соответствующие клинические исходы.
 
-- **Источники/объём чтения:** Exton MS et al. *Endocrine response to
-  masturbation-induced orgasm in healthy men following a 3-week sexual abstinence*.
-  [PMID 11760788](https://pubmed.ncbi.nlm.nih.gov/11760788/),
-  [doi:10.1007/s003450100222](https://doi.org/10.1007/s003450100222); Isenmann E
-  et al. [PMID 34937544](https://pubmed.ncbi.nlm.nih.gov/34937544/),
-  [doi:10.1186/s12610-021-00148-2](https://doi.org/10.1186/s12610-021-00148-2);
-  Jiang et al. retracted record [PMID 12659241](https://pubmed.ncbi.nlm.nih.gov/12659241/).
+- **Источники/объём чтения:** [Exton-2001](../sources.md),
+  [Isenmann-2021](../sources.md), [Jiang-2003-retracted](../sources.md).
   Проверены аннотации/записи PubMed и статус отзыва; для платных физиологических
   статей полный текст не заявляется прочитанным.
 
@@ -320,4 +276,4 @@ Exton et al. изучили десять мужчин и сравнили ост
 
 Эти пробелы означают `нет прямых данных для вопроса`, а не доказательство нулевого
 эффекта. Runtime-решения о безопасности и записи остаются в policy skill и принятых
-[продуктовых решениях](../product-decisions.md).
+[решениях #1](https://github.com/ibelyasov/jedikit/issues/1).
