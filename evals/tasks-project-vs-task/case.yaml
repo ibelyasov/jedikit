@@ -1,0 +1,75 @@
+schema_version: "1.1"
+name: tasks-project-vs-task
+description: Многошаговый результат становится предложением Проекта с одним следующим шагом.
+tags: [tasks, triage, project, preview]
+plugins: ["../.."]
+execution:
+  max_turns: 14
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Разберём Inbox item T-INBOX. Под ним я имел в виду замену окна, а не отправку сметы.
+    Нужно измерить проём, выбрать окно и заказать установку. Результат:
+    новое окно установлено и принято. Место — Работа P-AREA.
+    Сейчас могу только измерить проём; признак готовности — размер записан.
+    Предложи преобразование, записи пока не подтверждаю.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?jedikit-tasks"'
+  - name: source-read
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_get
+    input_match: '"id"\s*:\s*"T-INBOX"'
+  - name: never-task-create
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_create
+    min: 0
+    max: 0
+  - name: never-task-update
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_update
+    min: 0
+    max: 0
+  - name: never-task-move
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_move
+    min: 0
+    max: 0
+  - name: never-task-cancel
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_cancel
+    min: 0
+    max: 0
+  - name: never-project-create
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__project_create
+    min: 0
+    max: 0
+  - name: never-habit-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__habit_list
+    min: 0
+    max: 0
+  - name: never-kanban-status-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__kanban_status_list
+    min: 0
+    max: 0
+  - name: never-task-change-column
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_change_column
+    min: 0
+    max: 0
+  - name: project-preview
+    type: llm
+    focus: last_message
+    criteria: |
+      PASS: многошаговое дело признано Проектом с указанным результатом; один Preview
+      предлагает создание «Заменить окно» под P-AREA и преобразование исходного T-INBOX
+      в «Измерить проём; размер записан» с переносом в ID из ответа создания.
+      Нет копии исходного item и обещанного полного плана будущих задач.
+      Требуется подтверждение группы до записей.
+      FAIL: всё названо одной Задачей/чек-листом, ID будущего проекта придуман,
+      создано несколько следующих шагов без выбора либо объявлено исполнение.
