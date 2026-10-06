@@ -1,0 +1,43 @@
+schema_version: "1.1"
+name: tasks-capture
+description: Явная одиночная запись исходной мысли без Triage и с Read-back.
+tags: [tasks, capture, write]
+plugins: ["../.."]
+execution:
+  max_turns: 12
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Запиши во Inbox: В пятницу подумать про новый стол, бюджет 20 тысяч
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?jedikit-tasks"'
+  - name: one-create
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_create
+    min: 1
+    max: 1
+    input_match: '"title"\s*:\s*"В пятницу подумать про новый стол, бюджет 20 тысяч"'
+  - name: no-added-fields
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_create
+    input_match: '"(?:projectId|start|deadline|priority|timeLength|note|tags|group|parent)"\s*:'
+    min: 0
+    max: 0
+  - name: read-back-after-create
+    type: tool_order
+    before: mcp__plugin_jedikit_singularity__task_create
+    after:
+      tool: mcp__plugin_jedikit_singularity__task_get
+      input_match: '"id"\s*:\s*"T-CAPTURE"'
+  - name: outcome
+    type: llm
+    focus: trace
+    criteria: |
+      PASS: одна явная команда исполнена без повторного подтверждения; исходный текст
+      сохранён, «в пятницу» остаётся текстом; независимый task_get подтверждает тот же
+      ID T-CAPTURE и Inbox; ответ по-русски сообщает ID и место. Нет Triage,
+      назначения даты/приоритета или обращения к habits/kanban.
+      FAIL: повторное согласие вместо выполнения, лишние записи либо успех без Read-back.

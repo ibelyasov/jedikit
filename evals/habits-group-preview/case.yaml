@@ -1,0 +1,115 @@
+schema_version: "1.1"
+name: habits-group-preview
+description: Две явно выбранные отметки требуют одного точного Preview группы.
+tags: [habits, conversational-only, log, preview]
+plugins: ["../.."]
+execution:
+  max_turns: 12
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Подготовь Preview: отметить выполненными «Медитация» h-meditation и
+    «Две страницы» h-reading за 2026-10-06 Europe/Moscow. Обе привычки явно
+    выбраны в этом разговоре. Критерии выполнены: пять минут медитации,
+    две страницы чтения. Переданные мной исходные статусы обеих — inprogress.
+    REST сейчас недоступен; записи не выполняй, я ещё не подтверждаю группу.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?jedikit-habits"'
+  - name: no-shell
+    type: tool_used
+    tool: Bash
+    min: 0
+    max: 0
+  - name: no-http-fetch
+    type: tool_used
+    tool: WebFetch
+    min: 0
+    max: 0
+  - name: never-task-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_list
+    min: 0
+    max: 0
+  - name: never-task-get
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_get
+    min: 0
+    max: 0
+  - name: never-task-create
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_create
+    min: 0
+    max: 0
+  - name: never-task-update
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_update
+    min: 0
+    max: 0
+  - name: never-project-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__project_list
+    min: 0
+    max: 0
+  - name: never-project-get
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__project_get
+    min: 0
+    max: 0
+  - name: never-project-create
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__project_create
+    min: 0
+    max: 0
+  - name: never-kanban-status-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__kanban_status_list
+    min: 0
+    max: 0
+  - name: never-habit-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__habit_list
+    min: 0
+    max: 0
+  - name: never-task-cancel
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_cancel
+    min: 0
+    max: 0
+  - name: never-task-move
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_move
+    min: 0
+    max: 0
+  - name: never-task-change-column
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_change_column
+    min: 0
+    max: 0
+  - name: never-task-list-today
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_list_today
+    min: 0
+    max: 0
+  - name: never-task-list-overdue
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_list_overdue
+    min: 0
+    max: 0
+  - name: never-task-list-inbox
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_list_inbox
+    min: 0
+    max: 0
+  - name: one-specific-preview
+    type: llm
+    criteria: |
+      PASS: один Preview перечисляет две последовательные отметки для указанных ID
+      и даты/timezone, inprogress → completed по словам пользователя; после каждой
+      будущей записи нужен независимый адресный Read-back, стоп на первой ошибке.
+      Запрошено одно подтверждение показанной группы с ясной оговоркой, что REST
+      недоступен и согласие само по себе не делает выполнение возможным.
+      FAIL: два подтверждения для отдельных привычек, all-habits/bulk, параллельность,
+      исходные значения объявлены прочитанными из провайдера или заявлено исполнение.

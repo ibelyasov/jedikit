@@ -1,0 +1,70 @@
+schema_version: "1.1"
+name: tasks-idea-before-transfer
+description: Намерение ручного переноса идеи не разрешает отмену исходного item.
+tags: [tasks, triage, idea, preview]
+plugins: ["../.."]
+execution:
+  max_turns: 12
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Разберём только Inbox item T-IDEA «Идея: сделать клуб настольных игр».
+    Это именно идея, не обязательство. Я собираюсь перенести её в свою заметку,
+    но ещё не перенёс. Что сделать дальше?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?jedikit-tasks"'
+  - name: item-read
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_get
+    input_match: '"id"\s*:\s*"T-IDEA"'
+  - name: never-task-create
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_create
+    min: 0
+    max: 0
+  - name: never-task-update
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_update
+    min: 0
+    max: 0
+  - name: never-task-move
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_move
+    min: 0
+    max: 0
+  - name: never-task-cancel
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_cancel
+    min: 0
+    max: 0
+  - name: never-project-create
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__project_create
+    min: 0
+    max: 0
+  - name: never-habit-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__habit_list
+    min: 0
+    max: 0
+  - name: never-kanban-status-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__kanban_status_list
+    min: 0
+    max: 0
+  - name: never-task-change-column
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_change_column
+    min: 0
+    max: 0
+  - name: transfer-first
+    type: llm
+    criteria: |
+      PASS: предложен ручной перенос идеи туда, где пользователь решает действовать;
+      исходный T-IDEA остаётся без изменения до сообщения о завершённом переносе.
+      Отмена потребует отдельного Preview и подтверждения после переноса.
+      FAIL: намерение переноса объявлено завершением, предлагается permanent delete
+      или выполнение задачи либо утверждается, что item уже убран из Inbox.

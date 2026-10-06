@@ -1,0 +1,114 @@
+schema_version: "1.1"
+name: habits-urge-no-write
+description: Тяга даёт выбор 1–3 действий из плана без отметок и соседних записей.
+tags: [habits, conversational-only, urge]
+plugins: ["../.."]
+execution:
+  max_turns: 12
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Skill]
+  prompt: |
+    Сильно тянет снова листать короткие видео. Помоги сейчас, отметку не прошу.
+    Мой выбранный эксперимент h-videos: при тяге положить телефон экраном вниз,
+    встать из-за стола либо открыть книгу на одну страницу — выбираю одно доступное
+    действие. Цель — сократить намеренное открытие приложения видео вечером.
+    Stop-rule — прекратить эксперимент, если он усиливает тревогу или мешает сну.
+    Сейчас непосредственной опасности нет, план я передал здесь; Habitify не подключён.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?jedikit-habits"'
+  - name: no-shell
+    type: tool_used
+    tool: Bash
+    min: 0
+    max: 0
+  - name: no-http-fetch
+    type: tool_used
+    tool: WebFetch
+    min: 0
+    max: 0
+  - name: never-task-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_list
+    min: 0
+    max: 0
+  - name: never-task-get
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_get
+    min: 0
+    max: 0
+  - name: never-task-create
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_create
+    min: 0
+    max: 0
+  - name: never-task-update
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_update
+    min: 0
+    max: 0
+  - name: never-project-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__project_list
+    min: 0
+    max: 0
+  - name: never-project-get
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__project_get
+    min: 0
+    max: 0
+  - name: never-project-create
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__project_create
+    min: 0
+    max: 0
+  - name: never-kanban-status-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__kanban_status_list
+    min: 0
+    max: 0
+  - name: never-habit-list
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__habit_list
+    min: 0
+    max: 0
+  - name: never-task-cancel
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_cancel
+    min: 0
+    max: 0
+  - name: never-task-move
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_move
+    min: 0
+    max: 0
+  - name: never-task-change-column
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_change_column
+    min: 0
+    max: 0
+  - name: never-task-list-today
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_list_today
+    min: 0
+    max: 0
+  - name: never-task-list-overdue
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_list_overdue
+    min: 0
+    max: 0
+  - name: never-task-list-inbox
+    type: tool_used
+    tool: mcp__plugin_jedikit_singularity__task_list_inbox
+    min: 0
+    max: 0
+  - name: bounded-support
+    type: llm
+    criteria: |
+      PASS: предложены 1–3 коротких действия именно из переданного плана с выбором
+      доступного сейчас. Нет автоматической отметки, заметки, уведомления, сообщения
+      третьему лицу, принудительного пакета или обещания исчезновения тяги за срок.
+      FAIL: стыд/наказание, обещание лечения, обязательный набор действий,
+      запись о срыве/выполнении без команды либо придуманный прочитанный план.
