@@ -1,0 +1,14 @@
+{
+  "name": "jedikit",
+  "description": "Два русскоязычных Agent Skill для личной продуктивности.",
+  "owner": {
+    "name": "Igor Belyasov"
+  },
+  "plugins": [
+    {
+      "name": "jedikit",
+      "source": "./",
+      "description": "Задачи в SingularityApp и поведенческие эксперименты в Habitify."
+    }
+  ]
+}
