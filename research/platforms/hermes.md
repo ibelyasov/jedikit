@@ -1,6 +1,6 @@
 # Hermes Agent: текущий контракт и общий layout JediKit
 
-Дата исходного исследования: **2026-10-05**, консолидация — **2026-10-06**. Модель изменена в 0.3.0: плагин содержит только скиллы и контракт ожидаемых инструментов; подключения предоставляет хост ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)). Старые snapshots остаются историческим контекстом и не подтверждают runtime нового пакета.
+Дата исходного исследования: **2026-10-05**, консолидация — **2026-10-06**. Плагин содержит только скиллы и контракт ожидаемых инструментов; подключения предоставляет хост ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)). Датированные snapshots не подтверждают runtime текущего пакета.
 
 ## Версия и типы доказательств
 
@@ -97,7 +97,7 @@ Natural-language выбор по descriptions — целевой UX; explicit fa
 
 Исследование **2026-09-13** наблюдало Hermes **0.20.6 (2026.8.27)**, public checkout `b4b7727ea07681b40402de411ddd000bb3c439fc`; тогда latest release был 0.21.2 / `v2026.9.11`. Parser и doctor прежнего skills-only пакета обнаружили оба skills. Habit identifier `agent-plugin-jedikit-805a716c:jedikit-habits` разрешался через `skill_view`; bare name и `jedikit:jedikit-habits` — нет. Это старое наблюдение, а не текущий identifier или runtime новых исходников. Срез 2026-08-08 относился к 0.20.0 / `v2026.8.3` и прежнему имени проекта; его catalog commands и channel list не являются нынешним контрактом. [PL-H-35](../sources.md)
 
-YAML skill bundle — runtime alias уже доступных skills, tap — источник одиночных skills; это не эквивалент portable plugin install двух skills. Каждый skill остаётся самодостаточным: router не нужен для package identity, mixed request делится на два workflow с отдельными группами подтверждаемых операций. Это принято в [issue #1](https://github.com/ibelyasov/jedikit/issues/1), а не vendor guarantee inter-skill dispatch. [PL-H-4](../sources.md)
+YAML skill bundle — runtime alias уже доступных skills, tap — источник одиночных skills; это не эквивалент portable plugin install двух skills. Каждый skill остаётся самодостаточным: router не нужен для package identity, mixed request делится на два workflow с отдельными группами подтверждаемых операций. Это правило [jedikit-tasks](../../skills/jedikit-tasks/SKILL.md) и [jedikit-habits](../../skills/jedikit-habits/SKILL.md); vendor guarantee inter-skill dispatch из него не следует. [PL-H-4](../sources.md)
 
 ## Фильтры MCP и локальное исполнение
 
@@ -125,4 +125,4 @@ Source `b4b7727e` отказывал в доступе без основания
 
 Исторический обзор **2026-09-13** сравнивал публичные коллекции: `openai/plugins` разделял marketplace и plugin, `anthropics/skills` группировал skills в Claude plugin, `anthropics/claude-plugins-official` представлял каталог отдельных sources/refs, `vercel-labs/agent-skills` использовал grouping metadata, `obra/superpowers` имел разные harness integration paths. Это примеры организации, не стандарты. Их полный текущий состав повторно не проверен; доступный repo не доказывает install/OAuth/runtime JediKit. [PL-X-1](../sources.md), [PL-X-2](../sources.md), [PL-X-3](../sources.md), [PL-X-4](../sources.md), [PL-X-5](../sources.md)
 
-Package identity и router skill решают разные задачи. Router был бы полезен для явной классификации запроса или реально координирующего workflow с описанным отсутствием дочернего skill; широкий implicit description может конкурировать с domain skills, дублировать процедуры и создавать ложное впечатление dependency manager. В принятом JediKit два самостоятельных skills обходятся без router. Skills стандарт задаёт каталог/frontmatter/relative resources, Agent Plugins — package manifest; ни один не гарантирует одинаковую host authentication или dispatch между skills. [PL-H-15](../sources.md), [issue #1](https://github.com/ibelyasov/jedikit/issues/1)
+Package identity и router skill решают разные задачи. Router был бы полезен для явной классификации запроса или реально координирующего workflow с описанным отсутствием дочернего skill; широкий implicit description может конкурировать с domain skills, дублировать процедуры и создавать ложное впечатление dependency manager. В JediKit два самостоятельных скилла — [jedikit-tasks](../../skills/jedikit-tasks/SKILL.md) и [jedikit-habits](../../skills/jedikit-habits/SKILL.md) — обходятся без router. Skills стандарт задаёт каталог/frontmatter/relative resources, Agent Plugins — package manifest; ни один не гарантирует одинаковую host authentication или dispatch между skills. [PL-H-15](../sources.md)

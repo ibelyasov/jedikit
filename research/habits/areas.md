@@ -129,7 +129,7 @@ Vendor также представляет Area Overviews как способ у
 и изменение одной вещи сохраняются; наличие нескольких привычек в аккаунте
 этому не противоречит. Основания проекта:
 [CONTEXT](../../CONTEXT.md), [experiments.md](../../skills/jedikit-habits/references/experiments.md),
-[согласованный scope #1](https://github.com/ibelyasov/jedikit/issues/1),
+[areas.md](../../skills/jedikit-habits/references/areas.md),
 прочитаны 2026-10-06.
 
 ## 4. Риски и границы операций
@@ -140,13 +140,13 @@ Vendor также представляет Area Overviews как способ у
 | Замена `areaIds` | При добавлении области передача только нового ID может убрать прежние назначения. Нужны свежий GET выбранной привычки, точный полный будущий набор и сверка `areas[].id` после записи. Очищение через `[]` следует из replacement и допустимости пустого массива по схеме, но отдельное обещание очищения и runtime не проверены; `null` не объявлен допустимым. [OpenAPI](https://api-docs.habitify.me/openapi/v2/openapi-bundled.yaml), доступ 2026-10-06; защитные действия — вывод проекта. |
 | Неполный список / смешение объектов | GET habits пагинируется и отдельно фильтрует archived и timeOfDay. Один дневной список не доказывает полноту назначений. Область Habitify не наследует дерево, режимы и проекты SingularityApp из CONTEXT. [OpenAPI](https://api-docs.habitify.me/openapi/v2/openapi-bundled.yaml) и [CONTEXT](../../CONTEXT.md), прочитаны 2026-10-06. |
 | Приватность названий | Custom Area names видны в приложении. **Вывод именно Area names в уведомлениях не документирован в проверенных источниках; неизвестен.** Это не гарантия их скрытия. При чувствительном содержании предложить нейтральное имя по предпочтению пользователя; не выводить диагноз или приватный смысл из привычек. [Journal](https://intercom.help/habitify-app/en/articles/12520095-understanding-your-journal-view-ios-android-apps), [Areas](https://intercom.help/habitify-app/en/articles/6113636-create-manage-custom-areas), [Reminders](https://intercom.help/habitify-app/en/articles/12396874-good-habit-setting-reminders), доступ 2026-10-06. |
-| Проактивность превращается в нагрузку | Предложение не разрешает запись. Дополнительная классификация не должна вытеснять план эксперимента; при отсутствии пользы или после отказа её откладывают. Внешние уведомления хоста содержат количества без названий, если отдельное согласие на названия не дано. Это политика проекта, а не результат испытания Areas. [Scope #1](https://github.com/ibelyasov/jedikit/issues/1), [ADR 0003](../../docs/adr/0003-no-unattended-writes.md), прочитаны 2026-10-06. |
+| Проактивность превращается в нагрузку | Предложение не разрешает запись. Дополнительная классификация не должна вытеснять план эксперимента; при отсутствии пользы или после отказа её откладывают. Внешние уведомления хоста содержат количества без названий, если отдельное согласие на названия не дано. Это политика проекта, а не результат испытания Areas. [areas.md](../../skills/jedikit-habits/references/areas.md), [ADR 0003](../../docs/adr/0003-no-unattended-writes.md), прочитаны 2026-10-06. |
 
 Публичное описание PUT заявляет сохранение непереданных полей: это vendor statement,
 а не проверенное поведение адаптера. В
 [habitify-tools.md](../../skills/jedikit-habits/references/habitify-tools.md)
 сохранён guard полной writable-конфигурации и её Read-back после записи.
-В 0.3.0 обязательного ручного runtime-гейта нет
+Обязательного ручного runtime-гейта нет
 ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)).
 [OpenAPI](https://api-docs.habitify.me/openapi/v2/openapi-bundled.yaml), строки
 3185–3186; доступ 2026-10-06.
@@ -172,7 +172,7 @@ Vendor также представляет Area Overviews как способ у
   балансе ролей, когнитивном вмешательстве и мониторинге; отдельно искались
   Habitify Areas и сравнительные данные группировки. YAML получен
   публичным curl-чтением документа без credentials. Это история получения
-  источника, а не доступ агента к аккаунту; в 0.3.0 операции доступны только
+  источника, а не доступ агента к аккаунту; операции доступны только
   через хост ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)).
 
 **Pin публичного источника:** OpenAPI 3.0.3, info.version 2.0.0,
@@ -181,16 +181,16 @@ SHA256 `3991ce49ba72d9522d389744dfad5207e0d0ef5e27517bc645340675f62226e9`.
 HTTP 200, Content-Length 189727, ETag `"6a0a7ee9-2e51f"`,
 Last-Modified `Mon, 18 May 2026 02:52:25 GMT` прочитаны при текущем доступе.
 [HABITIFY-OPENAPI](https://api-docs.habitify.me/openapi/v2/openapi-bundled.yaml).
-Локальные snapshot и отчёт — `.work/w-areas/`; они не поставляются в Git.
+Локальные snapshot и отчёт сохранены вне поставляемого Git tree.
 Декларация vendor, локальное чтение документа и runtime — разные результаты.
 
 ## Рекомендации для скилла
 
-Ниже **правила проекта, предложенные в исходном исследовании** и перенесённые
-в [сценарий скилла](../../skills/jedikit-habits/references/areas.md), а не научная доза.
+Ниже **правила проекта** из
+[сценария скилла](../../skills/jedikit-habits/references/areas.md), а не научная доза.
 Основания — §1–4 (первичные ссылки, доступ 2026-10-06),
 [CONTEXT](../../CONTEXT.md), [operation-policy.md](../../skills/jedikit-habits/references/operation-policy.md)
-и [scope #1](https://github.com/ibelyasov/jedikit/issues/1), прочитаны 2026-10-06.
+и [experiments.md](../../skills/jedikit-habits/references/experiments.md), прочитаны 2026-10-06.
 
 1. **Объясняй назначение одним предложением:** область помогает видеть выбранные
    привычки вместе. Не обещай ускоренное формирование, снижение нагрузки,

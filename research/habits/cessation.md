@@ -9,7 +9,8 @@
 сохраняет доказательную основу компактной runtime-reference
 [`cessation.md`](../../skills/jedikit-habits/references/cessation.md), но не
 дублирует правила записи, подтверждения и safety gate. Эти правила определяются
-runtime-документами skill и [решениями #1](https://github.com/ibelyasov/jedikit/issues/1).
+[operation-policy.md](../../skills/jedikit-habits/references/operation-policy.md)
+и [safety.md](../../skills/jedikit-habits/references/safety.md).
 
 ## 1. Исследовательский вопрос и единицы анализа
 

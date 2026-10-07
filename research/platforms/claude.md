@@ -1,6 +1,6 @@
 # Claude Code: актуальный контракт JediKit
 
-Дата исходного исследования: **2026-10-05**, консолидация — **2026-10-06**. Модель изменена в 0.3.0: плагин не объявляет подключения и секреты ни для одного хоста ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)). Это исследование совместимости, а не подтверждение runtime.
+Дата исходного исследования: **2026-10-05**, консолидация — **2026-10-06**. Плагин не объявляет подключения и секреты ни для одного хоста ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)). Это исследование совместимости, а не подтверждение runtime.
 
 ## Что является доказательством
 
@@ -43,7 +43,7 @@ env CLAUDE_CONFIG_DIR=/private/tmp/jedikit-platform-research-claude-static \
   claude plugin validate . --strict --json
 ```
 
-Exit `0`, `success: true`, target — текущий `.claude-plugin/plugin.json`, errors/warnings пусты. В report `contents: []`; это не inventory проверенных файлов. Исторически, до изменения модели в 0.3.0 ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)), проверена временная декларативная fixture с portable root `plugin.json`, Claude manifest с `skills: "./skills"`, `mcpServers: "./mcp.json"` и MCP-файлом с portable `$schema` + `type: streamable-http`: strict validation прошла. После удаления skill description и подстановки неизвестного MCP transport эта же fixture дала exit `1`, warning по frontmatter и error по MCP type. Тем самым проверено, что validator действительно проверяет компоненты, а portable MCP JSON принимается статически. Runtime loading этим не доказан. [PL-C-1](../sources.md), [PL-C-6](../sources.md), [PL-C-8](../sources.md)
+Exit `0`, `success: true`, target — `.claude-plugin/plugin.json` на дату проверки, errors/warnings пусты. В report `contents: []`; это не inventory проверенных файлов. В той же проверке 2026-10-05 использована временная декларативная fixture с portable root `plugin.json`, Claude manifest с `skills: "./skills"`, `mcpServers: "./mcp.json"` и MCP-файлом с portable `$schema` + `type: streamable-http`: strict validation прошла. После удаления skill description и подстановки неизвестного MCP transport эта же fixture дала exit `1`, warning по frontmatter и error по MCP type. Тем самым проверено, что validator действительно проверяет компоненты, а portable MCP JSON принимается статически. Fixture исследует возможности валидатора; плагин JediKit не объявляет MCP ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)). Runtime loading этим не доказан. [PL-C-1](../sources.md), [PL-C-6](../sources.md), [PL-C-8](../sources.md)
 
 Изолированная config directory не содержала аккаунта; модель и MCP не запускались. Исследованный validator пригоден для статического CI без пользовательского аккаунта; packet tracing отсутствия сети не выполнялся. Временная fixture использовала только `https://example.com/mcp`, без обращения к адресу или provider data. Команда и смысл report соответствуют [PL-C-6](../sources.md).
 
