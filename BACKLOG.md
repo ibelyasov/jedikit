@@ -18,6 +18,7 @@
 - Чтение рабочего Outlook-календаря в сквозной вид дня.
 - Планирование недели и обзор календаря на две недели.
 - Подготовка к встрече и follow-up.
+- Именованная легенда Категорий цвета в интерфейсе Google через labels Google (`eventLabelId`, `eventLabelVersion`, `Calendars.labelProperties.eventLabels`; 24 стандартных и до 200 своих цветов) — при поддержке в выбранном MCP; `@cocal/google-calendar-mcp` 2.7.0 их не предоставляет ([ADR 0015](docs/adr/0015-event-color-by-activity-meaning.md)).
 
 ## Расширенное планирование проектов
 

@@ -19,6 +19,7 @@ SingularityApp, `jedikit-habits` для экспериментов и ритуа
 | Что известно о последовательностях привычек и ритуалах? | [Ритуалы](habits/rituals.md) |
 | Что известно о планировании времени и календаре из исследований? | [Научные основания календаря](calendar/academic.md) |
 | Как авторы методов и пользователи работают с календарём? | [Методы и практики](calendar/methods-and-practices.md) |
+| Как окрашивать записи календаря? | [Цвет записей календаря](calendar/event-colors.md) |
 | Какие контракты доступны провайдерам? | [SingularityApp](providers/singularity.md), [Habitify](providers/habitify.md), [Google Calendar](providers/google-calendar.md) |
 | Когда и как уточнять запрос? | [Доспрос](agents/clarification.md) |
 | Как связывать скиллы и находить нужный сценарий? | [Композиция скиллов](agents/skill-composition.md) |
@@ -34,8 +35,8 @@ SingularityApp, `jedikit-habits` для экспериментов и ритуа
 | --- | --- |
 | `jedikit-tasks` | [авторский метод](tasks/author-method.md), [практики](tasks/community-practices.md), [академические основания](tasks/academic.md), [структура](tasks/structure.md), [SingularityApp](providers/singularity.md) |
 | `jedikit-habits` | [привычки](habits/README.md) и досье раздела, [ритуалы](habits/rituals.md), [Habitify](providers/habitify.md) |
-| `jedikit-calendar` | [наука календаря](calendar/academic.md), [методы и практики](calendar/methods-and-practices.md), [Google Calendar](providers/google-calendar.md) |
-| `jedikit-planning` | [наука календаря](calendar/academic.md), [методы и практики](calendar/methods-and-practices.md), [академические основания задач](tasks/academic.md) |
+| `jedikit-calendar` | [наука календаря](calendar/academic.md), [методы и практики](calendar/methods-and-practices.md), [цвет записей](calendar/event-colors.md), [Google Calendar](providers/google-calendar.md) |
+| `jedikit-planning` | [наука календаря](calendar/academic.md), [методы и практики](calendar/methods-and-practices.md), [цвет записей](calendar/event-colors.md), [академические основания задач](tasks/academic.md) |
 | `jedikit` | [композиция скиллов](agents/skill-composition.md) |
 | Все скиллы | [доспрос](agents/clarification.md), [композиция скиллов](agents/skill-composition.md), [хост Hermes](platforms/hermes.md) |
 
