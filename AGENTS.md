@@ -1,6 +1,6 @@
 # Контракт разработки JediKit
 
-JediKit содержит два русскоязычных Agent Skill: `jedikit-tasks` для SingularityApp и `jedikit-habits` для Habitify. Пользовательские инструкции, обсуждения, коммиты и PR пишем по-русски; identifiers, команды и API сохраняем оригинальными.
+JediKit содержит пять русскоязычных Agent Skill: `jedikit-tasks` для SingularityApp, `jedikit-habits` для Habitify и ритуалов, `jedikit-calendar` для Google Calendar, `jedikit-planning` для Плана дня и `jedikit` для навигации по запросу. Пользовательские инструкции, обсуждения, коммиты и PR пишем по-русски; identifiers, команды и API сохраняем оригинальными.
 
 Claude Code (с 2.1.277, режим по умолчанию `claude-md-or-agents-md`) читает этот `AGENTS.md`, если в проекте нет CLAUDE-файлов; при их наличии он выбирает их вместо `AGENTS.md`. Не создавай `CLAUDE.md`. Подробности — в `research/platforms/claude.md`.
 
@@ -10,8 +10,8 @@ Claude Code (с 2.1.277, режим по умолчанию `claude-md-or-agents
 
 | Путь | Назначение |
 | --- | --- |
-| `skills/jedikit-tasks/`, `skills/jedikit-habits/` | Единственный источник инструкций и справочных материалов скиллов |
-| `skills/*/tools.json` | Машиночитаемый контракт инструментов, которые скилл ожидает от хоста |
+| `skills/jedikit-*/`, `skills/jedikit/` | Единственный источник инструкций и справочных материалов пяти скиллов |
+| `skills/*/tools.json` | Машиночитаемый контракт инструментов провайдерных скиллов; у `jedikit-planning` и `jedikit` его нет |
 | `plugin.json`, `.claude-plugin/plugin.json` | Portable manifest для Hermes/Codex и manifest Claude Code |
 | `.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json` | Каталоги Claude Code и Codex, указывающие на корневой пакет |
 | `README.md` | Назначение, установка и требования к инструментам хоста |
@@ -28,13 +28,15 @@ Claude Code (с 2.1.277, режим по умолчанию `claude-md-or-agents
 
 ## Авторинг и границы
 
-- В каждом `SKILL.md` обязателен YAML frontmatter с `name` (kebab-case, совпадает с каталогом) и `description` (когда выбирать скилл, без пересказа процедуры). Основной текст даёт наблюдаемый результат; подробности выносятся в локальные `references/`.
+- В каждом `SKILL.md` обязателен YAML frontmatter с `name` (kebab-case, совпадает с каталогом) и `description` (когда выбирать скилл, без пересказа процедуры). Файл — не более 7000 байт UTF-8: Codex может обрезать его до 8000. Основной текст даёт наблюдаемый результат; подробности выносятся в локальные `references/`.
 - Один корневой `skills/` для всех хостов; без generated copies, `packages/jedikit` и `agents/openai.yaml` ([ADR 0005](docs/adr/0005-one-source-host-connections.md)).
+- Скиллы устанавливаются отдельно: не ссылаются относительными путями на `docs/`, `CONTEXT.md`, `research/` или другие скиллы. Другой скилл называют по имени; правила записи владельца читают перед операциями с его провайдером. Связи и явные передачи — по [ADR 0012](docs/adr/0012-skill-composition.md).
 - Только инструкции, декларативные manifests, `tools.json` и документы. `tools.json` — декларативные данные, а не код. Не добавляй собственный код, скрипты, генераторы, MCP/proxy/runtime, MCP-декларации или инфраструктуру модельных проверок. Пробел в штатной проверке сообщай владельцу; новый код требует отдельного решения ([ADR 0004](docs/adr/0004-no-custom-code.md)).
-- Подключения даёт хост. SingularityApp — официальный hosted MCP; Habitify — операции хоста по бизнес-контракту REST/OpenAPI v2, с ключом только у доверенного адаптера хоста ([ADR 0001](docs/adr/0001-habitify-via-rest.md)). Официальный Habitify MCP не используется. Плагин не объявляет MCP и секреты ни для одного хоста. На Hermes владельца подключения настраивает clanwright.
-- `skills/*/tools.json` (`version: 2`) задаёт у каждого инструмента сервер, базовое имя без префикса хоста и `access: read | write`; у Habitify ещё `required`. Habitify: чтения — сервер `habitify_read`, записи — `habitify`. Имена — внешний контракт с хостом: меняй их только вместе со скиллом и отмечай изменение в release notes. При нехватке инструментов скилл называет недостающие базовые имена и рекомендует подключить их средствами хоста; сам ничего не устанавливает и не настраивает.
-- Записи: явная одиночная команда — сразу, кроме необратимых операций Habitify, которым всегда нужны Preview и подтверждение (`skills/jedikit-habits/references/operation-policy.md`); предложение агента — после Preview и подтверждения; группа операций — последовательно, стоп на первой ошибке, отчёт applied/unapplied, без автоматического отката; после записи Read-back. Фоновые запуски только читают ([ADR 0003](docs/adr/0003-no-unattended-writes.md)).
-- Native memory хранит только настройки ([ADR 0006](docs/adr/0006-memory-holds-settings-only.md)). Kanban исключён ([ADR 0007](docs/adr/0007-no-kanban.md)). После ручного переноса идеи, справки или встречи исходный Inbox item отменяется через `task_cancel` с подтверждением ([ADR 0008](docs/adr/0008-cancel-instead-of-delete.md)). Off Mode отсутствует в API Habitify: только инструкция для приложения, команды `off` нет.
+- Подключения даёт хост. SingularityApp — официальный hosted MCP; Habitify — операции хоста по бизнес-контракту REST/OpenAPI v2, с ключом только у доверенного адаптера хоста ([ADR 0001](docs/adr/0001-habitify-via-rest.md)); Google Calendar — инструменты сервера `google_calendar` ([ADR 0009](docs/adr/0009-separate-calendar-skill.md)). Официальный Habitify MCP не используется. Плагин не объявляет MCP и секреты ни для одного хоста. На Hermes владельца подключения настраивает clanwright.
+- `skills/*/tools.json` (`version: 2`) у провайдерных скиллов задаёт у каждого инструмента сервер, базовое имя без префикса хоста и `access: read | write`; у Habitify и Google Calendar ещё `required`. Habitify: чтения — сервер `habitify_read`, записи — `habitify`; Google Calendar — `google_calendar`. Имена — внешний контракт с хостом: меняй их только вместе со скиллом и отмечай изменение в release notes. При нехватке инструментов скилл называет недостающие базовые имена и рекомендует подключить их средствами хоста; сам ничего не устанавливает и не настраивает.
+- Все блокирующие пробелы полей собираются одним сообщением; известное, необязательное и относительные даты не переспрашиваются. Глубокое уточнение намерения — через внешний скилл `grill-me`, требуемый от хоста. Если он недоступен, назови его и рекомендуй установить средствами хоста, без собственного интервью ([ADR 0013](docs/adr/0013-clarification.md)).
+- Записи: полная явная команда, в том числе несколько названных записей на разных провайдерах, — сразу; одиночное предложение агента — одна строка и «да», собранный агентом набор — один общий Preview и подтверждение. Безвозвратная потеря данных Habitify (удаление привычки, области, удаление/отмена отметок) всегда требует однострочного подтверждения. Однозначное удаление События — сразу; в отчёте укажи 30 дней в корзине Google и восстановление только в интерфейсе. Группа — последовательно, стоп на первой ошибке, отчёт applied/unapplied, без автоматического отката; после каждой записи Read-back ([ADR 0014](docs/adr/0014-confirmations.md)). Фоновые запуски только читают ([ADR 0003](docs/adr/0003-no-unattended-writes.md)).
+- Native memory хранит только настройки ([ADR 0006](docs/adr/0006-memory-holds-settings-only.md)). Kanban исключён ([ADR 0007](docs/adr/0007-no-kanban.md)). После переноса идеи, справки или встречи команда «перенёс, отмени» отменяет исходный Inbox item через `task_cancel` сразу; одно «перенёс» вызывает предложение отменить. При передаче встречи `jedikit-calendar` отмена возможна только после успешного создания и Read-back События ([ADR 0008](docs/adr/0008-cancel-instead-of-delete.md)). Off Mode отсутствует в API Habitify: только инструкция для приложения, команды `off` нет.
 - Сохраняй чужие изменения. Не включай в файлы или логи секреты и личные данные провайдеров. Provider, DNS, ACME, deploy, backup-writer, restore, prune, credential и secret mutations требуют явного разрешения владельца.
 
 ## Проверки и доказательства
@@ -50,7 +52,7 @@ git diff --check
 ```
 
 - Claude strict проверяет декларации. Directory validation выбирает marketplace первым и при соседнем plugin manifest проверяет и его компоненты; direct command даёт отдельный отчёт plugin.
-- Hermes validate включает security scanner, doctor проверяет discovery/load/registration. Exit `0` сам по себе не доказывает точный inventory обоих скиллов или отсутствие component diagnostics: читай reports и warnings.
+- Hermes validate включает security scanner, doctor проверяет discovery/load/registration. Exit `0` сам по себе не доказывает точный inventory пяти скиллов или отсутствие component diagnostics: читай reports и warnings.
 - Отдельного native validator у Codex нет; не заменяй его Python helper или собственной assertion logic.
 - CI использует официальные инструменты с версиями и SHA из `.github/workflows/check.yml`, без моделей и provider accounts. Hermes Action закреплён на commit с исправлением установки; при выходе Hermes release с этим исправлением переведи pin на release tag. Action не экспортирует CLI, поэтому `doctor` выполняется локально.
 - У scanner Hermes нет ignore для `.work/`: локальный scan читает и её, а чистый checkout в CI её не содержит. Не удаляй логи ради зелёного verdict; отделяй warnings рабочего каталога от проверки поставляемого Git tree.

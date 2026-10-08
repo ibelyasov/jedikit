@@ -1,7 +1,7 @@
 {
   "name": "jedikit",
   "version": "0.3.0-alpha.2",
-  "description": "Два русскоязычных Agent Skill: задачи в SingularityApp и поведенческие эксперименты в Habitify.",
+  "description": "Пять русскоязычных Agent Skill: задачи в SingularityApp, привычки и ритуалы в Habitify, Google Calendar, План дня и навигатор.",
   "author": {
     "name": "Igor Belyasov",
     "url": "https://github.com/ibelyasov"
@@ -9,6 +9,6 @@
   "homepage": "https://github.com/ibelyasov/jedikit",
   "repository": "https://github.com/ibelyasov/jedikit",
   "license": "MIT",
-  "keywords": ["singularityapp", "habitify", "agent-skill"],
+  "keywords": ["singularityapp", "habitify", "google-calendar", "agent-skill"],
   "skills": "./skills/"
 }
