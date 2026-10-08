@@ -28,7 +28,8 @@ description: Ведёт задачи и проекты в SingularityApp по «
 | `daily close`, «закроем день» | Остатки, затронутые Проекты, Гвоздодёр | [daily.md](references/daily.md#daily-close) |
 | `weekly`, «еженедельный обзор» | Inbox, все Проекты, Следующие шаги, структура | [weekly.md](references/weekly.md) |
 | «Пересмотрим когда-нибудь» | Месячный обзор поддеревьев Когда-нибудь | [someday.md](references/someday.md) |
-| «Напоминай о weekly», запуск с маркером `[расписание jedikit]` | Приглашение без записи | [schedule.md](references/schedule.md) |
+| «Напоминай о weekly» | Приглашение в планировщике хоста по правилам записи | [schedule.md](references/schedule.md) |
+| Запуск с маркером `[расписание jedikit]` | Только чтение и приглашение, без записи | [schedule.md](references/schedule.md) |
 | `help` | Короткий список команд этой таблицы и предложение сценария | этот файл |
 
 ## Уточнение
