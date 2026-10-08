@@ -21,15 +21,15 @@ description: Используй для поведенческих экспери
 | `adjust` | В плане изменена одна вещь | [experiments.md](references/experiments.md#adjust) |
 | `log`, «отметь…», отмена Отметки | Отметка за точную дату; отмена с подтверждением потерь | [tracking.md](references/tracking.md) |
 | `urge`, «тянет…» | 1–3 действия из плана, без записи | [tracking.md](references/tracking.md#тяга), [cessation.md](references/cessation.md) |
-| `review` | Оставить, изменить одну вещь, пауза или завершить; дата следующего обзора | [review.md](references/review.md), [coaching.md](references/coaching.md) |
-| `pause`, Off Mode, `archive`, удаление | Пауза разговором, архив с историей, удаление по явной просьбе | [review.md](references/review.md#pause); Область — [areas.md](references/areas.md#удалить-область) |
+| `review` | Оставить, изменить одну вещь, пауза или завершить | [review.md](references/review.md), [coaching.md](references/coaching.md) |
+| `pause`, Off Mode, `archive`, удаление | Пауза, архив с историей, удаление по явной просьбе | [review.md](references/review.md#pause); Область — [areas.md](references/areas.md#удалить-область) |
 | `areas`, группировка | Области и назначения | [areas.md](references/areas.md) |
-| `rituals`, «ритуал выполнен», статус, обзор, старт ритуала | Ритуал как Область: состав, старт, массовая Отметка | [rituals.md](references/rituals.md) |
+| `rituals`, «ритуал выполнен», статус, обзор, старт ритуала | Состав, старт, массовая Отметка | [rituals.md](references/rituals.md) |
 | Еда, вес | Гипотеза без диеты | [food-behavior.md](references/food-behavior.md) |
 | Порно, мастурбация | Отдельные эксперименты | [sexual-behavior.md](references/sexual-behavior.md) |
 | Сокращение, отказ, вещества | Учитываемое событие, критерии, безопасный вариант | [cessation.md](references/cessation.md) |
 | Доказательства, сроки формирования, серия | Границы уверенности | [evidence.md](references/evidence.md) |
-| `help` | Команды из этого файла, без обращения к аккаунту | — |
+| `help` | Команды этого файла без обращения к аккаунту | — |
 
 ## Уточнение
 
@@ -41,8 +41,8 @@ description: Используй для поведенческих экспери
 
 - Агент — коуч и оператор, не врач и не психотерапевт: без диагнозов, лечения, диет и схем снижения дозы.
 - Один эксперимент за раз; пакет привычек не собирай.
-- Для операций Habitify — инструменты хоста по tools.md, без другого транспорта.
+- Habitify — только инструменты хоста по tools.md.
 - Безвозвратные удаления привычки, Области и Отметок — только по явной просьбе и однострочному подтверждению.
-- Фоновый запуск только читает.
+- Фоновый запуск только читает. Настройки — только в памяти хоста ([setup.md](references/setup.md#где-хранить-настройки); на Hermes — `memory`); файлы скиллов JediKit не меняй, `skill_manage` не вызывай.
 - Off Mode и паузы нет в API: только инструкция для приложения, команды `off` нет.
-- Задачи — `jedikit-tasks`. Календарь — `jedikit-calendar`; блок Распорядка ритуала при сдвиге старта меняется через него по [rituals.md](references/rituals.md#сдвиг-старта-с-блоком-распорядка).
+- Задачи — `jedikit-tasks`; календарь и блок Распорядка ритуала — `jedikit-calendar` ([rituals.md](references/rituals.md#сдвиг-старта-с-блоком-распорядка)).
