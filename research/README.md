@@ -1,7 +1,9 @@
 # Исследовательская библиотека JediKit
 
-Основания двух русскоязычных Agent Skill: `jedikit-tasks` для задач в
-SingularityApp и `jedikit-habits` для поведенческих экспериментов в Habitify.
+Основания пяти русскоязычных Agent Skill: `jedikit-tasks` для задач в
+SingularityApp, `jedikit-habits` для экспериментов и ритуалов в Habitify,
+`jedikit-calendar` для Google Calendar, `jedikit-planning` для Плана дня
+и `jedikit` для навигации по запросу.
 Действующие правила находятся в [`skills/`](../skills/), термины — в
 [CONTEXT.md](../CONTEXT.md), решения — в [ADR](../docs/adr/).
 
@@ -14,7 +16,12 @@ SingularityApp и `jedikit-habits` для поведенческих экспе�
 | Что известно из исследований задач? | [Академические основания](tasks/academic.md) |
 | Как использовать области, папки, проекты, разделы и теги? | [Структура задач](tasks/structure.md) |
 | Как формировать, изменять и прекращать поведение? | [Привычки](habits/README.md) |
-| Какие контракты доступны провайдерам? | [SingularityApp](providers/singularity.md), [Habitify](providers/habitify.md) |
+| Что известно о последовательностях привычек и ритуалах? | [Ритуалы](habits/rituals.md) |
+| Что известно о планировании времени и календаре из исследований? | [Научные основания календаря](calendar/academic.md) |
+| Как авторы методов и пользователи работают с календарём? | [Методы и практики](calendar/methods-and-practices.md) |
+| Какие контракты доступны провайдерам? | [SingularityApp](providers/singularity.md), [Habitify](providers/habitify.md), [Google Calendar](providers/google-calendar.md) |
+| Когда и как уточнять запрос? | [Доспрос](agents/clarification.md) |
+| Как связывать скиллы и находить нужный сценарий? | [Композиция скиллов](agents/skill-composition.md) |
 | Что известно о хостах скиллов? | [Hermes](platforms/hermes.md), [Claude Code](platforms/claude.md), [Codex](platforms/codex.md) |
 | Какие ограничения есть у заимствований и атрибуции? | [Право и атрибуция](legal-and-attribution.md) |
 | Где найти цитату, URL/DOI, объём чтения и дату доступа? | [Единый реестр источников](sources.md) |
