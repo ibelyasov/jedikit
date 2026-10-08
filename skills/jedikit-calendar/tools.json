@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "tools": [
+    {
+      "server": "google_calendar",
+      "name": "list-calendars",
+      "access": "read",
+      "required": []
+    },
+    {
+      "server": "google_calendar",
+      "name": "list-events",
+      "access": "read",
+      "required": ["calendarId"]
+    },
+    {
+      "server": "google_calendar",
+      "name": "get-event",
+      "access": "read",
+      "required": ["calendarId", "eventId"]
+    },
+    {
+      "server": "google_calendar",
+      "name": "get-current-time",
+      "access": "read",
+      "required": []
+    },
+    {
+      "server": "google_calendar",
+      "name": "create-event",
+      "access": "write",
+      "required": ["calendarId", "summary", "start", "end"]
+    },
+    {
+      "server": "google_calendar",
+      "name": "update-event",
+      "access": "write",
+      "required": ["calendarId", "eventId"]
+    },
+    {
+      "server": "google_calendar",
+      "name": "delete-event",
+      "access": "write",
+      "required": ["calendarId", "eventId"]
+    }
+  ]
+}
