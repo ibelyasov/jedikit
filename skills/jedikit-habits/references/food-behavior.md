@@ -39,3 +39,5 @@
 Краткосрочное изменение потребления не доказывает устойчивое изменение веса; low-carb и fasting не имеют установленного универсального превосходства.
 Общие границы выводов смотри в [evidence-and-safety.md](evidence-and-safety.md).
 Операции выполняй по [operation-policy.md](operation-policy.md).
+
+Для сопровождающих: исследовательская база — `research/habits/food-behavior.md`.

@@ -33,3 +33,5 @@
 Ограничения доказательств объясняй по [evidence-and-safety.md](evidence-and-safety.md).
 При сигналах вреда используй [safety.md](safety.md).
 Операции выполняй по [operation-policy.md](operation-policy.md).
+
+Для сопровождающих: исследовательская база — `research/habits/habit-method.md`.

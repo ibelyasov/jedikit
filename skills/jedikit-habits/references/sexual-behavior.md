@@ -39,3 +39,5 @@
 
 Предпочтение точных или нейтральных названий обрабатывай по [setup.md](setup.md), приватность — по [safety.md](safety.md).
 Операции выполняй по [operation-policy.md](operation-policy.md).
+
+Для сопровождающих: исследовательская база — `research/habits/sexual-behavior.md`.
