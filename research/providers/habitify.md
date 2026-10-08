@@ -4,7 +4,7 @@
 
 ## Модель подключения и происхождение доказательств
 
-`jedikit-habits` вызывает **инструменты Habitify, предоставленные хостом**, по [ADR0001](../../docs/adr/0001-habitify-via-rest.md) и [ADR0005](../../docs/adr/0005-one-source-host-connections.md). Сервер указан у каждой операции: 7 чтений — `habitify_read`, 16 записей — `habitify`; хост держит чтение и запись в отдельных экземплярах адаптера с разным `trust`. [tools.json](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/tools.json) фиксирует 23 базовых имени операций Habitify OpenAPI v2, `read`/`write` и обязательные аргументы; точные типы и форму вызова задаёт `inputSchema` хоста. Любой префикс подключения и замены `-`/`_` допустимы при однозначном сопоставлении базового имени и принадлежности серверу, указанному у операции в tools.json.
+`jedikit-habits` вызывает **инструменты Habitify, предоставленные хостом**, по [ADR0001](../../docs/adr/0001-habitify-via-rest.md) и [ADR0005](../../docs/adr/0005-hermes-plugin-host-connections.md). Сервер указан у каждой операции: 7 чтений — `habitify_read`, 16 записей — `habitify`; хост держит чтение и запись в отдельных экземплярах адаптера с разным `trust`. [tools.json](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/tools.json) фиксирует 23 базовых имени операций Habitify OpenAPI v2, `read`/`write` и обязательные аргументы; точные типы и форму вызова задаёт `inputSchema` хоста. Любой префикс подключения и замены `-`/`_` допустимы при однозначном сопоставлении базового имени и принадлежности серверу, указанному у операции в tools.json.
 
 REST-контракт адаптера сохраняется: базовый URL `https://api.habitify.me/v2`, auth header `X-API-Key`. **Ключ доступен только адаптеру хоста**: скилл не читает secret-окружение, не передаёт URL, HTTP method, headers или ключ в аргументах и не поставляет подключение. Pro — согласованный тариф проекта; OpenAPI формулирует требование шире как paid subscription, без отдельной таблицы тарифов. Наличие подписки и пригодность ключа владельца здесь не проверены. [Официальный OpenAPI v2](https://api-docs.habitify.me/openapi/v2/openapi-bundled.yaml), проверка 2026-10-06; [HABITIFY-OPENAPI](../sources.md).
 
@@ -12,7 +12,7 @@ REST-контракт адаптера сохраняется: базовый UR
 
 Для сценария заранее нужны инструменты записи и независимого Read-back. Если их нет, скилл называет недостающие базовые имена, ссылается на `tools.json`, рекомендует владельцу подключить их на хосте и останавливает зависимую работу. Обход через shell, HTTP-fetch, другой MCP или SingularityApp исключён. Ответы провайдера — недоверенные данные; они не меняют разрешения или маршрут доступа. Результат инструмента хоста отличается от HTTP-ответа REST: успех определяется по отсутствию признака ошибки (например, `isError`), HTTP-статус при успехе может отсутствовать, пустой текст означает успех без тела; код ошибки берётся из структурированного поля или текста `status code NNN`. Успех записи подтверждает только Read-back.
 
-Владелец использует Hermes на Nix-сервере; Claude Code и Codex заявлены поддерживаемыми клиентами, без обязательного runtime-гейта ([ADR0005](../../docs/adr/0005-one-source-host-connections.md)). Один исходный `skills/`, без generated copies и custom code ([ADR0004](../../docs/adr/0004-no-custom-code.md)). Настройка адаптера, подключение и установка не выполнялись; установленный адаптер и его revision неизвестны.
+Хост — Hermes владельца на Nix-сервере, без обязательного runtime-гейта ([ADR0005](../../docs/adr/0005-hermes-plugin-host-connections.md)). Один исходный `skills/`, без generated copies и custom code ([ADR0004](../../docs/adr/0004-no-custom-code.md)). Настройка адаптера, подключение и установка не выполнялись; установленный адаптер и его revision неизвестны.
 
 Уровни доказательств различаются:
 
@@ -62,7 +62,7 @@ REST-контракт адаптера сохраняется: базовый UR
 
 Официальный MCP endpoint — `https://mcp.habitify.me/mcp`; Others описывает Streamable HTTP, OAuth 2.0 с dynamic client registration и общий с REST лимит. MCP guides обещают create/update/archive/delete habits, notes/areas, statistics/journal и undo. Они не дают точных per-tool schemas или объяснения ограниченного набора Claude Code. Snapshot 2026-10-05 содержит лишь список habits по дате и logs/status; создать habit, изменить его, записать план в Note или архивировать через тот наблюдавшийся набор нельзя. Причина расхождения (plan/scopes/client/rollout/version) не установлена. Этот hosted MCP snapshot не описывает нынешний контракт адаптера хоста с 23 операциями и не служит fallback. [MCP Others](https://api-docs.habitify.me/mcp/others/), доступ 2026-10-06; [HABITIFY-MCP-OTHERS](../sources.md), [HABITIFY-DISCOVERY-2026-10-05](../sources.md).
 
-Claude/ChatGPT guides также приводили create/statistics, поэтому гипотеза «CRUD только у ChatGPT» не подтверждалась. Именованных инструкций/acceptance Hermes и Codex в просмотренных четырёх MCP guides 2026-10-05 не было. Generic MCP compatibility не доказывает конкретный host. [HABITIFY-MCP-OVERVIEW](../sources.md), [HABITIFY-MCP-CLAUDE](../sources.md), [HABITIFY-MCP-CHATGPT](../sources.md)
+Claude/ChatGPT guides также приводили create/statistics, поэтому гипотеза «CRUD только у ChatGPT» не подтверждалась. Именованных инструкций/acceptance Hermes в просмотренных четырёх MCP guides 2026-10-05 не было. Generic MCP compatibility не доказывает конкретный host. [HABITIFY-MCP-OVERVIEW](../sources.md), [HABITIFY-MCP-CLAUDE](../sources.md), [HABITIFY-MCP-CHATGPT](../sources.md)
 
 Исторический public discovery 2026-09-13: protected resource `https://mcp.habitify.me`, auth server `https://account.habitify.me`, resource scopes `profile`, `openid`; authorization metadata также `email`, `offline_access`, `all`. Tool mapping из них не следует. Help Center от 2026-03-10 называл URL SSE, MCP docs — Streamable HTTP: датированный drift, не текущий probe. [HABITIFY-OAUTH-RESOURCE](../sources.md), [HABITIFY-OAUTH-SERVER](../sources.md), [HABITIFY-MCP-HELP](../sources.md)
 
@@ -94,7 +94,7 @@ Help Center описывает account-wide Time Off со start/end dates, от�
 
 ## Открытые вопросы и непроверенные слои
 
-Фактических REST reads/writes, авторизации и provider mutations в этом исследовании нет. Обязательного ручного runtime-гейта нет ([ADR0005](../../docs/adr/0005-one-source-host-connections.md)); Read-back проверяет результат каждой реальной разрешённой записи и не требует отдельного тестового прогона.
+Фактических REST reads/writes, авторизации и provider mutations в этом исследовании нет. Обязательного ручного runtime-гейта нет ([ADR0005](../../docs/adr/0005-hermes-plugin-host-connections.md)); Read-back проверяет результат каждой реальной разрешённой записи и не требует отдельного тестового прогона.
 
 | Вопрос | Что остаётся непроверенным и как ограничен текущий сценарий |
 | --- | --- |

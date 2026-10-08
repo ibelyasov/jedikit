@@ -1,6 +1,6 @@
 # JediKit
 
-Пять русскоязычных Agent Skill для личной продуктивности: `jedikit-tasks` ведёт задачи в SingularityApp по методу «Джедайских техник» Максима Дорофеева, `jedikit-habits` — поведенческие эксперименты и ритуалы в Habitify, `jedikit-calendar` — личный Google Calendar, `jedikit-planning` — План дня, `jedikit` — навигацию по запросу. Скиллы опираются на исследования и оставляют решение пользователю.
+Пять русскоязычных Agent Skill для личной продуктивности в Hermes Agent: `jedikit-tasks` ведёт задачи в SingularityApp по методу «Джедайских техник» Максима Дорофеева, `jedikit-habits` — поведенческие эксперименты и ритуалы в Habitify, `jedikit-calendar` — личный Google Calendar, `jedikit-planning` — План дня, `jedikit` — навигацию по запросу. Скиллы опираются на исследования и оставляют решение пользователю.
 
 ## Структура задач
 
@@ -173,19 +173,23 @@ _Avoid_: план, черновик
 _Avoid_: транзакция, batch
 
 **Read-back**:
-Чтение записанного обратно из провайдера через инструмент хоста после каждой записи, чтобы подтвердить изменённые поля и результат. Ответ на запись сам по себе не заменяет Read-back.
+Чтение записанного обратно из провайдера MCP-инструментом чтения после каждой записи, чтобы подтвердить изменённые поля и результат. Ответ на запись сам по себе не заменяет Read-back.
 _Avoid_: проверка
 
 ## Доступ к провайдерам
 
+**Хост**:
+Hermes Agent — единственная среда выполнения JediKit. Он подключает `skills/` закреплённой ревизии через `skills.external_dirs` или как plugin, загружает скиллы и их файлы через `skill_view` и предоставляет MCP-серверы, `clarify`, `memory`, cron и внешний скилл `grill-me`. У владельца Hermes настраивает clanwright.
+_Avoid_: платформа, клиент, runtime JediKit
+
 **Инструменты хоста**:
-Операции провайдера, которые хост предоставляет агенту: SingularityApp через официальный hosted MCP, Habitify через доверенный адаптер, Google Calendar на сервере `google_calendar`. Подключение, OAuth и реализация транспорта принадлежат хосту; скилл использует доступные операции и называет недостающие, если сценарий выполнить нельзя. Для глубокого уточнения намерения хост предоставляет внешний скилл `grill-me`; если его нет, JediKit называет требование и рекомендует установить его средствами хоста, не проводит своё интервью.
+MCP-инструменты провайдеров, которые Hermes предоставляет агенту под именами `mcp__<server>__<base_name>`, где любой символ вне `[A-Za-z0-9_]` заменён на `_`: SingularityApp — официальный hosted MCP на сервере `singularity`, Habitify — адаптер хоста на `habitify_read` и `habitify`, Google Calendar — `google_calendar`. При включённом Tool Search schemas отложены: отсутствие инструмента в видимом списке не означает его отсутствия, путь — `tool_search` → `tool_describe` → `tool_call`. Подключение, OAuth и транспорт принадлежат Hermes; скилл использует доступные операции и называет недостающие, если сценарий выполнить нельзя. Для глубокого уточнения намерения нужен внешний скилл `grill-me`; если его нет, JediKit называет требование и рекомендует установить его в Hermes, не проводит своё интервью.
 _Avoid_: плагинный сервер, встроенное подключение
 
 **Контракт инструментов**:
-Декларативные списки `skills/jedikit-tasks/tools.json`, `skills/jedikit-habits/tools.json` и `skills/jedikit-calendar/tools.json` (`version: 2`): сервер у каждого инструмента, базовое имя без префикса хоста и доступ `read`/`write`; у Habitify и Google Calendar ещё обязательные аргументы `required`. Habitify читает через `habitify_read`, пишет через `habitify`; Google Calendar использует `google_calendar`. У `jedikit-planning` и `jedikit` своего `tools.json` нет. JediKit задаёт ожидания, хост реализует их. Имена — внешний контракт, изменение которого отмечается в release notes вместе с изменением скилла.
+Декларативные списки `skills/jedikit-tasks/tools.json`, `skills/jedikit-habits/tools.json` и `skills/jedikit-calendar/tools.json` (`version: 2`): сервер у каждого инструмента, базовое имя без префикса `mcp__<server>__` и доступ `read`/`write`; у Habitify и Google Calendar ещё обязательные аргументы `required`. Habitify читает через `habitify_read`, пишет через `habitify`; Google Calendar использует `google_calendar`. У `jedikit-planning` и `jedikit` своего `tools.json` нет. JediKit задаёт ожидания, хост реализует их. Имена — внешний контракт, изменение которого отмечается в release notes вместе с изменением скилла.
 _Avoid_: конфигурация подключения, runtime
 
 **Адаптер хоста**:
-Доверенный компонент хоста, предоставляющий операции Habitify по бизнес-контракту REST/OpenAPI v2. Ключ находится только у адаптера; агент получает операции. SingularityApp доступен через официальный hosted MCP, Google Calendar — через инструменты сервера `google_calendar`; OAuth проводит хост ([ADR 0001](docs/adr/0001-habitify-via-rest.md), [ADR 0005](docs/adr/0005-one-source-host-connections.md), [ADR 0009](docs/adr/0009-separate-calendar-skill.md)).
+Доверенный MCP-адаптер, который Hermes подключает на серверах `habitify_read` (чтения) и `habitify` (записи) и который предоставляет операции Habitify по бизнес-контракту REST/OpenAPI v2. Ключ находится только у адаптера; агент получает операции. SingularityApp доступен через официальный hosted MCP, Google Calendar — через инструменты сервера `google_calendar`; OAuth проводит Hermes ([ADR 0001](docs/adr/0001-habitify-via-rest.md), [ADR 0005](docs/adr/0005-hermes-plugin-host-connections.md), [ADR 0009](docs/adr/0009-separate-calendar-skill.md)).
 _Avoid_: ключ агента, сервер JediKit

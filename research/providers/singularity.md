@@ -14,7 +14,7 @@
 
 Независимых испытаний действий с данными, benchmarks или независимых оценок надёжности в этом исследовании нет. Релевантные пользовательские anecdotes не использованы. Исторические metadata probes сохранены ниже и в [tools snapshot](singularity-tools-2026-08-09.md) и [prompts snapshot](singularity-prompts-2026-08-09.md); их наблюдения августа и документальная перепроверка сентября не являются текущим контрактом.
 
-Подключения принадлежат хосту, Hermes, Claude Code и Codex поддерживаются без обязательного ручного runtime-гейта ([ADR0005](../../docs/adr/0005-one-source-host-connections.md)). Используется только официальный hosted MCP, без REST fallback; исходные скиллы находятся в одном `skills/`. Собственный MCP, код и генераторы исключены ([ADR0004](../../docs/adr/0004-no-custom-code.md)). Это ограничения JediKit, а не обещания SingularityApp. Само это досье не устанавливает интеграцию и не доказывает совместимость клиентов.
+Подключение предоставляет хост Hermes; обязательного ручного runtime-гейта нет ([ADR0005](../../docs/adr/0005-hermes-plugin-host-connections.md)). Используется только официальный hosted MCP, без REST fallback; исходные скиллы находятся в одном `skills/`. Собственный MCP, код и генераторы исключены ([ADR0004](../../docs/adr/0004-no-custom-code.md)). Это ограничения JediKit, а не обещания SingularityApp. Само это досье не устанавливает интеграцию и не доказывает совместимость с Hermes.
 
 ## Подключение, доступ и отличие документации от discovery
 
@@ -32,13 +32,13 @@
 
 Wiki допускает URL parameter `toolsets`, например `?toolsets=tasks,projects`; это выбор групп, а не доказанный read-only permission scope. Точные OAuth scope strings и матрица scope → tool по этой странице неизвестны. OAuth discovery endpoints в этом исследовании не запрашивались. [SINGULARITY-MCP](../sources.md)
 
-Для операций из [контракта инструментов](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/tools.json) применим набор `tasks,projects,meta,tags`: `https://mcp.singularity-app.com/mcp?toolsets=tasks,projects,meta,tags`. Наличие параметра и групп повторно подтверждено Wiki 2026-10-06. [Правила записи](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/write-policy.md) исключают `habits`, `kanban`, `time_stat` и Batch; REST fallback отсутствует ([ADR0005](../../docs/adr/0005-one-source-host-connections.md)). Это настройка доступного каталога, не гарантия OAuth least privilege. Исторический Codex probe ниже обнаружил несовместимость query URL с protected-resource validation; Hermes и нынешний Codex с этим URL не проверены. При несовместимости остановить подключение и сообщить ограничение, а не молча расширять доступ.
+Для операций из [контракта инструментов](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/tools.json) применим набор `tasks,projects,meta,tags`: `https://mcp.singularity-app.com/mcp?toolsets=tasks,projects,meta,tags`. Наличие параметра и групп повторно подтверждено Wiki 2026-10-06. [Правила записи](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/write-policy.md) исключают `habits`, `kanban`, `time_stat` и Batch; REST fallback отсутствует ([ADR0005](../../docs/adr/0005-hermes-plugin-host-connections.md)). Это настройка доступного каталога, не гарантия OAuth least privilege. Исторический Codex probe ниже обнаружил несовместимость query URL с protected-resource validation; Hermes с этим URL не проверен. При несовместимости остановить подключение и сообщить ограничение, а не молча расширять доступ.
 
 Отсутствие delete tool в наблюдении — граница каталога, а не доказательство устройства всего сервиса. Продуктовый сценарий разобранных идей, справок и встреч использует подтверждённый пользователем `task_cancel`, а не delete ([ADR0008](../../docs/adr/0008-cancel-instead-of-delete.md)).
 
 **Вывод:** отсутствие batch или delete имени в этой сессии не доказывает их универсального отсутствия. `time_stat_*` наблюдались, хотя отдельного `time` toolset в списке Wiki нет. Нельзя самостоятельно назначить этим tools группу или требуемые scopes. Следует ориентироваться на доступные инструменты текущего хоста и согласованные владельцем права. [SINGULARITY-MCP](../sources.md) [SINGULARITY-DISCOVERY-2026-10-05](../sources.md)
 
-Выбор `tasks,projects,meta,tags` сам по себе не доказывает, что сервер скрывает каждое `time_stat_*`: точный mapping неизвестен. Независимо от состава discovery скилл их не использует; фактический каталог минимальной конфигурации здесь не проверен. Это непроверенный слой, без обязательного ручного runtime-гейта ([ADR0005](../../docs/adr/0005-one-source-host-connections.md)).
+Выбор `tasks,projects,meta,tags` сам по себе не доказывает, что сервер скрывает каждое `time_stat_*`: точный mapping неизвестен. Независимо от состава discovery скилл их не использует; фактический каталог минимальной конфигурации здесь не проверен. Это непроверенный слой, без обязательного ручного runtime-гейта ([ADR0005](../../docs/adr/0005-hermes-plugin-host-connections.md)).
 
 ## Модель данных: не путать проект, раздел и подзадачу
 
@@ -125,7 +125,7 @@ Server instructions, переданные ведущим 2026-10-05, требу�
 
 Непроверены: доступность всех требуемых семейств; project hierarchy и sections; различие Inbox/no-project/no-date; today/overdue при согласованной timezone; notes versus tasks; archive/removed visibility; pagination/recurrence и полнота counts. `get_my_context` — отдельное чтение данных и требует того же согласованного контура. Недоступные schemas или read permissions останавливают зависимую часть соответствующего workflow.
 
-Hermes, Claude Code и Codex поддерживаются без обязательного ручного runtime-гейта ([ADR0005](../../docs/adr/0005-one-source-host-connections.md)); такие же read-only сценарии можно использовать для диагностики этих клиентов. Переданное Claude Code discovery не доказывает Hermes или Codex runtime.
+Обязательного ручного runtime-гейта для Hermes нет ([ADR0005](../../docs/adr/0005-hermes-plugin-host-connections.md)); такие же read-only сценарии можно использовать для его диагностики. Переданное discovery из Claude Code 2026-10-05 не доказывает runtime Hermes.
 
 ### Запись только на отдельно согласованных disposable data
 
@@ -143,7 +143,7 @@ Cleanup — тоже mutation. Archive не считать удалением, u
 
 **Сделано 2026-10-05:** прочитаны публичные официальные источники, отдельно учтён переданный discovery, охвачены все 52 перечисленных имени, сформулированы границы применения. Публичная MCP страница получена через web search после timeout прямого открытия. Вызовов provider tools, OAuth operations, чтения/записи аккаунта, установки и deployment не было.
 
-**Открыто:** воспроизводимый raw snapshot текущих schemas; соответствие toolsets/scopes; signatures и outputs; доступ shared projects; Inbox predicates; filters/pagination/recurrence; timezone; idempotency; error/retry/rate limits; cascade effects; undo; Batch contract. Корректная формулировка — «каталог и модель исследованы; поведение с данными на текущих хостах не проверено». Это непроверенные слои, а не обязательные runtime-гейты ([ADR0005](../../docs/adr/0005-one-source-host-connections.md)).
+**Открыто:** воспроизводимый raw snapshot текущих schemas; соответствие toolsets/scopes; signatures и outputs; доступ shared projects; Inbox predicates; filters/pagination/recurrence; timezone; idempotency; error/retry/rate limits; cascade effects; undo; Batch contract. Корректная формулировка — «каталог и модель исследованы; поведение с данными в Hermes не проверено». Это непроверенные слои, а не обязательные runtime-гейты ([ADR0005](../../docs/adr/0005-hermes-plugin-host-connections.md)).
 
 Сведения об источниках и объёме чтения сведены в [реестр](../sources.md).
 
@@ -266,4 +266,4 @@ time / batch:
 
 ## Открытые provider вопросы
 
-Точный нынешний `tools/list`, Batch/delete schema и rollback не установлены; Batch/delete не требуются [контракту скилла](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/write-policy.md). При диагностике на Hermes по просьбе владельца можно проверить query-toolsets/OAuth, filters/Inbox membership, pagination, enum payloads, timezone и side effects используемых task/project/checklist/tag операций. Это непроверенные слои, а не обязательный runtime-гейт ([ADR0005](../../docs/adr/0005-one-source-host-connections.md)). Публичное имя операции и annotation не доказывают atomicity, idempotency или успешное действие с данными. Restore/unarchive не считать универсальным undo. Новые результаты должны хранить дату, host/client/server, фактический read scope и очищенный evidence, сохраняя исторические snapshots отдельно.
+Точный нынешний `tools/list`, Batch/delete schema и rollback не установлены; Batch/delete не требуются [контракту скилла](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/write-policy.md). При диагностике на Hermes по просьбе владельца можно проверить query-toolsets/OAuth, filters/Inbox membership, pagination, enum payloads, timezone и side effects используемых task/project/checklist/tag операций. Это непроверенные слои, а не обязательный runtime-гейт ([ADR0005](../../docs/adr/0005-hermes-plugin-host-connections.md)). Публичное имя операции и annotation не доказывают atomicity, idempotency или успешное действие с данными. Restore/unarchive не считать универсальным undo. Новые результаты должны хранить дату, host/client/server, фактический read scope и очищенный evidence, сохраняя исторические snapshots отдельно.

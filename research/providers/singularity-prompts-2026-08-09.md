@@ -4,7 +4,7 @@
 
 > **Публичная revalidation 2026-09-13:** prompts probe не повторялся. Текущая публичная SingularityApp MCP Wiki не перечисляет prompt names, arguments или тексты, поэтому все четыре prompt и их schemas ниже остаются только snapshot 2026-08-09. Wiki теперь отдельно документирует `system` Batch до 20 операций; это не меняет содержимое исторических prompt messages и не доказывает конкретный Batch tool contract.
 
-Редакционная граница: exact prompt messages и metadata сохранены. Последующий анализ — рекомендации по датированному наблюдению, не текущий runtime-контракт. Собственного MCP или кода нет ([ADR0004](../../docs/adr/0004-no-custom-code.md)); упомянутый ниже safety/method wrapper означает инструкции скилла. Актуальные сценарии — в [скилле](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md), модель подключения — в [ADR0005](../../docs/adr/0005-one-source-host-connections.md).
+Редакционная граница: exact prompt messages и metadata сохранены. Последующий анализ — рекомендации по датированному наблюдению, не текущий runtime-контракт. Собственного MCP или кода нет ([ADR0004](../../docs/adr/0004-no-custom-code.md)); упомянутый ниже safety/method wrapper означает инструкции скилла. Актуальные сценарии — в [скилле](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md), модель подключения — в [ADR0005](../../docs/adr/0005-hermes-plugin-host-connections.md).
 
 ## Вопрос, маршрут чтения и уровни доказательства
 

@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "jedikit",
   "version": "0.4.0",
-  "description": "Пять русскоязычных Agent Skill: задачи в SingularityApp, привычки и ритуалы в Habitify, Google Calendar, План дня и навигатор.",
+  "description": "Пять русскоязычных Agent Skill для Hermes Agent: задачи в SingularityApp, привычки и ритуалы в Habitify, Google Calendar, План дня и навигатор.",
   "author": {
     "name": "Igor Belyasov",
     "url": "https://github.com/ibelyasov"
@@ -10,18 +10,5 @@
   "homepage": "https://github.com/ibelyasov/jedikit",
   "repository": "https://github.com/ibelyasov/jedikit",
   "license": "MIT",
-  "keywords": ["singularityapp", "habitify", "google-calendar", "agent-skill"],
-  "extensions": {
-    "com.openai": {
-      "interface": {
-        "displayName": "JediKit",
-        "shortDescription": "Задачи, привычки, календарь и План дня",
-        "defaultPrompt": [
-          "Помоги провести Daily open в SingularityApp.",
-          "Помоги составить план эксперимента в Habitify.",
-          "Спланируй мне день."
-        ]
-      }
-    }
-  }
+  "keywords": ["hermes-agent", "singularityapp", "habitify", "google-calendar", "agent-skill"]
 }

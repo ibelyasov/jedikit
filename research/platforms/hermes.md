@@ -1,130 +1,130 @@
-# Hermes Agent: текущий контракт и общий layout JediKit
+# Hermes Agent: хост JediKit
 
-Дата исходного исследования: **2026-10-05**, консолидация — **2026-10-06**. Плагин содержит только скиллы и контракт ожидаемых инструментов; подключения предоставляет хост ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)). Датированные snapshots не подтверждают runtime текущего пакета.
+Досье описывает, как Hermes Agent подключает и исполняет пять скиллов JediKit: `jedikit-tasks`, `jedikit-habits`, `jedikit-calendar`, `jedikit-planning` и навигатор `jedikit`. Принятые решения — [ADR 0005](../../docs/adr/0005-hermes-plugin-host-connections.md), [ADR 0003](../../docs/adr/0003-no-unattended-writes.md), [ADR 0006](../../docs/adr/0006-memory-holds-settings-only.md), [ADR 0013](../../docs/adr/0013-clarification.md) и [ADR 0014](../../docs/adr/0014-confirmations.md); здесь — их основания.
 
 ## Версия и типы доказательств
 
-В проверке 2026-10-05 последний stable release официального GitHub API — **0.21.5 / `v2026.9.24`**, опубликован 2026-09-24, commit **`f97608f178d1ffeca59860195ab7da295f7c8e5f`**. Source facts ниже закреплены этим commit. Latest release повторно не аттестован 2026-10-06; текущие web docs могут описывать более новый `main`. [PL-H-1](../sources.md), [PL-H-2](../sources.md)
+Последний stable release на 2026-10-08 — **0.21.5 / `v2026.9.24`**, опубликован 2026-09-24, commit **`f97608f178d1ffeca59860195ab7da295f7c8e5f`**. Source facts ниже закреплены этим commit; чтения 2026-10-05 и 2026-10-08 различаются в реестре. [PL-H-1](../sources.md), [PL-H-2](../sources.md)
 
-- **Независимо исследовано:** public release metadata и pinned source, включая parser, discovery, scanner, loader и validators. Это чтение реализации, а не runtime test.
-- **Vendor claims:** текущие официальные docs о skills, memory, cron и plugins; их следует сверять с фактическим deployment. [PL-H-3](../sources.md), [PL-H-4](../sources.md), [PL-H-5](../sources.md), [PL-H-6](../sources.md)
-- **Anecdote:** отзывы и старые пользовательские сессии не использованы как доказательство.
+- **Чтение source:** parser, discovery, loader, validators, skills, MCP, Tool Search, `clarify`, `memory`, cron на pin. Это чтение реализации, не runtime test.
+- **Vendor docs:** текущие официальные страницы о skills, plugins, MCP, memory, cron и Nix; они могут описывать более новый `main`. [PL-H-3](../sources.md), [PL-H-4](../sources.md), [PL-H-5](../sources.md), [PL-H-6](../sources.md), [PL-H-7](../sources.md), [PL-H-18](../sources.md)
+- **Конфигурация владельца:** чтение clanwright HEAD `6641f66`; декларативная конфигурация, не подтверждение deployment. [PL-H-66](../sources.md)
+- **Live-наблюдение:** одно сообщение clanwright о setup `jedikit-calendar` ниже. [CLANWRIGHT-SETUP-2026-10-08](../sources.md)
 
-В исследовании 2026-10-05 Hermes локально не был установлен. Установка, validators Hermes, OAuth, MCP calls, memory writes, cron jobs при консолидации не выполнялись. Ни исходники, ни проверка package schema не подтверждают работающую авторизацию провайдеров.
+Hermes на машине исследования не установлен. Установка, validators, OAuth, MCP calls, записи `memory`, задания cron и поведение модели здесь не выполнялись.
 
-## Root install и границы пакета
+## Два способа установки
 
-Portable package может находиться в repo root: `plugin.json`, `skills/<name>/SKILL.md`. Discovery пропускает foreign harness manifest directories `.claude-plugin/` и `.codex-plugin/`; parser выбирает portable root manifest. Это подтверждение реализации 0.21.5, не выполненная установка финального JediKit. По [ADR 0005](../../docs/adr/0005-one-source-host-connections.md) плагин не объявляет MCP и секреты ни для одного хоста. На Hermes владельца подключения предоставляет clanwright. [PL-H-8](../sources.md), [PL-H-9](../sources.md)
-
-Installer принимает `owner/repo`, `owner/repo/path/to/plugin`, Git URLs и subdirectory fragment. `--ref` принимает полный 40-character commit SHA; branch, tag и abbreviated SHA не удовлетворяют проверенному exact-ref контракту. Subdirectory install использует sparse checkout. Пример будущей установки ниже; SHA должен принадлежать JediKit, не Hermes. [PL-H-10](../sources.md), [PL-H-3](../sources.md)
-
-```sh
-hermes plugins install ibelyasov/jedikit --ref <FULL_JEDIKIT_COMMIT_SHA> --enable
-```
-
-Skills Hub — другой механизм установки отдельного skill, например из `owner/repo/skills/name`. Он получает default-branch tree и revision для согласованного чтения bundle; его нельзя приравнивать к `plugins install --ref`. Plugin install предпочтительнее для общей package identity двух skills. Последнее — проектный вывод. [PL-H-11](../sources.md), [PL-H-4](../sources.md)
-
-Symlink из plugin subdirectory наружу к корневому `skills/` нарушает containment: resolved path выходит за plugin root, parser его отклоняет, scanner выдаёт critical `symlink_escape`. Поэтому принят root install с настоящим `skills/`, без таких ссылок и копий. [PL-H-9](../sources.md), [PL-H-12](../sources.md)
-
-## Discovery и scanner — разные проверки
-
-Security scanner рекурсивно проверяет содержимое выбранного package, включая hidden directories; исключаются конкретные VCS/cache/environment names, например `.git`, `node_modules`, `.venv`. Foreign manifest directories пропускаются discovery, но их содержимое участвует в scanner. Само имя `.claude-plugin/`, `.codex-plugin/` или `.mcp.json` не блокируется; инструкции, scripts, documentation и symlinks могут дать findings. [PL-H-8](../sources.md), [PL-H-12](../sources.md), [PL-H-13](../sources.md)
-
-Install вызывает scanner до swap: `safe` допускается, `caution` требует подтверждения либо `--force`, `dangerous` блокируется даже с `--force`. Следовательно, отсутствие parser incompatibility не гарантирует успешный root install всего repository. Final scanner verdict остаётся открытым; обход scanner не предлагается. [PL-H-10](../sources.md), [PL-H-12](../sources.md)
-
-## mcp.json, .mcp.json и OAuth
-
-Portable loader читает **только `mcp.json`** с точным Agent Plugins schema URI и top-level `$schema`/`mcpServers`. `.mcp.json` не является fallback и не конкурирует по precedence. Если рядом есть native YAML plugin manifest, он имеет приоритет над portable `plugin.json`. [PL-H-9](../sources.md), [PL-H-10](../sources.md)
-
-Remote portable entry допускает `type: streamable-http`, `url`, `headers`; translation сохраняет URL/non-empty headers и добавляет `strict_redirect_headers: true`. **`auth: oauth` теперь нельзя описывать как просто потерянное поле:** unknown `auth` даёт diagnostic `unknown remote field`, и entry пропускается. В native host MCP configuration `auth: oauth` поддерживается отдельно. Portable specification тоже оставляет authentication клиенту и не определяет такое поле. [PL-H-9](../sources.md), [PL-H-14](../sources.md), [PL-H-15](../sources.md)
-
-Plugin MCP server names не получают длинный skill namespace. Duplicate plugin server names пропускаются с warning; native configuration имеет приоритет по naming contract. Поэтому plugin inventory, effective native config и работающая OAuth connection — отдельные утверждения. Хост предоставляет SingularityApp MCP и операции Habitify с бизнес-контрактом REST/OpenAPI v2 по [ADR 0001](../../docs/adr/0001-habitify-via-rest.md). Подключения предоставляет хост; здесь connections не создавались. [PL-H-16](../sources.md), [PL-H-17](../sources.md), [PL-H-18](../sources.md)
-
-## Naming, explicit invocation и native features
-
-Portable namespace вычисляется как `agent-plugin-<slug>-<sha256(key)[:8]>`; полное имя skill следует получать из текущего discovery. Нельзя обещать стабильный identifier `jedikit:jedikit-habits`: изменение registry key может изменить namespace. [PL-H-16](../sources.md)
-
-Plugin skills доступны в `skills_list` и разрешаются по qualified name в `skill_view`, не копируются в `~/.hermes/skills` и не включаются в system prompt `<available_skills>`. Slash-command scanner обходит physical project/local/external directories, а не plugin registry: нельзя обещать автоматический `/namespace:skill` для portable plugin. Проверенный explicit preload — `hermes chat --skills '<EXACT_QUALIFIED_SKILL_NAME>'`; parser передаёт identifier в `skill_view`. Эти source contracts не проверены выполнением с моделью. [PL-H-28](../sources.md), [PL-H-29](../sources.md), [PL-H-30](../sources.md)
-
-Cron поддерживает attached skills через повторяемый `--skill`; проверенный identifier нужно получать из discovery, а не угадывать namespace. Source принимает `skills` list/string и legacy `skill`, загружает через `skill_view`, добавляет text в prompt перед injection scan. Missing skill логируется и пропускается: успешная job не доказывает загрузку нужного skill. Сам Markdown skill не предоставляет capabilities: native tools доступны по effective host configuration/toolsets. [PL-H-4](../sources.md), [PL-H-5](../sources.md), [PL-H-32](../sources.md)
-
-Native memory хранится в Hermes profile и доступна через `memory`; она не становится общим хранилищем Claude/Codex. Source tool schema: target `memory|user`, actions `add|replace|remove`, `content` для add/replace, `old_text` для replace/remove; есть atomic `operations` array. Dynamic schema может сузить targets по host config. По [ADR 0006](../../docs/adr/0006-memory-holds-settings-only.md) JediKit сохраняет только настройки: timezone, рабочие дни, окна обзоров, режимы поддеревьев и ID выбранных привычек. Состояния обзоров и даты их завершения не сохраняются. Наличие native memory/cron не подтверждает inference, persistence, timezone или delivery на сервере владельца. [PL-H-5](../sources.md), [PL-H-6](../sources.md), [PL-H-31](../sources.md)
-
-Описание инструмента `memory` в Hermes 0.21.5 направляет предпочтения пользователя «для этого вида работы» в скилл через `skill_manage`, а память оставляет для фактов, нужных в каждой сессии; лимиты store — 2 200 символов для `memory` и 1 375 для `user`. Запись при включённом `memory.write_approval` ставится в очередь (`staged`, `pending_id`, `/memory pending`). На хосте владельца setup `jedikit-calendar` по этой подсказке создал ожидающие изменения файлов скилла вместо записи в память, хотя скиллы подключены из `/nix/store` только для чтения. Поэтому скиллы JediKit явно называют инструмент `memory` и запрещают `skill_manage` для настроек ([ADR 0006](../../docs/adr/0006-memory-holds-settings-only.md)). [PL-H-31](../sources.md), [PL-H-MEMORY-0.21.5](../sources.md), [CLANWRIGHT-SETUP-2026-10-08](../sources.md)
-
-Вне plugin install возможен `skills.external_dirs`, указывающий на canonical source без копирования. Docs предупреждают: агент может изменять external directories при наличии filesystem write permissions. Это отдельный deployment path, который не устанавливает portable MCP package автоматически. Для выбранного package root этот обход не нужен. [PL-H-4](../sources.md)
-
-## Официальные validators и CI
-
-В source 0.21.5 подтверждены commands:
-
-```sh
-hermes plugins doctor . --ci
-hermes plugins validate . --json
-```
-
-Doctor копирует package во временный `HERMES_HOME`, выполняет discovery/load/registration и блокирует Python socket connects. Portable loader не импортирует Python entrypoint. Для декларативного package эта проверка не нуждается в provider accounts; установка самого Hermes/dependencies может требовать сети. Это source-derived вывод, команды здесь не запускались. Doctor не является OS sandbox для произвольного native plugin code. [PL-H-19](../sources.md), [PL-H-17](../sources.md)
-
-`--ci` даёт exit `1` при `report.ok == false`, но doctor не вызывает install scanner. `plugins validate` включает scanner и portable validation. Его parser имеет `--json` и `--install-deps`, но не `--ci`, `--strict` или `--fail-on-warnings`; doctor имеет `--ci`, но не `--json`. **Оба инструмента имеют предел:** portable loader продолжает работу после component diagnostics, а validator превращает portable diagnostics в warnings. Поэтому exit `0` сам по себе не доказывает присутствие обоих skills и необходимых инструментов хоста. [PL-H-10](../sources.md), [PL-H-21](../sources.md), [PL-H-17](../sources.md), [PL-H-33](../sources.md)
-
-Официальный GitHub Action имеет inputs только `path` и `hermes-ref`, устанавливает Hermes и запускает `plugins validate`; default `hermes-ref` — `main`, для release checks нужно явно pin revision. `fail-on-warnings` input отсутствует. Этот action не выполнялся. Отдельный строгий native flag «zero component diagnostics + exact expected inventory» в исследованных ветвях отсутствует. JSON report предоставляет `ok`, `checks`, `warnings`; warnings не меняют exit code. [PL-H-22](../sources.md), [PL-H-21](../sources.md), [PL-H-33](../sources.md), [PL-H-21](../sources.md)
-
-## Принятый layout и область поддержки
-
-По [ADR 0005](../../docs/adr/0005-one-source-host-connections.md) корневой `plugin.json` обслуживает Hermes/Codex, `.claude-plugin/plugin.json` — Claude Code, а настоящий корневой `skills/` содержит два независимых скилла. Router skill, generated copies, MCP declarations, agents metadata и собственный runtime не входят в пакет. Каждая operational reference остаётся внутри соответствующего skill.
-
-Natural-language выбор по descriptions — целевой UX; explicit fallback Hermes использует identifier из discovery. Установка плагина не подключает провайдеры ни на одном хосте. `tools.json` задаёт базовые имена без host prefix, серверы `singularity`/`habitify`, доступ `read`/`write` и `required` у Habitify. При отсутствии tools агент называет недостающие операции и рекомендует подключить их на хосте; ничего не устанавливает. SingularityApp использует официальный hosted MCP; Habitify — REST/OpenAPI v2 как бизнес-контракт, с OpenAPI→MCP-адаптером хоста или эквивалентом с теми же именами. Ключ находится только у адаптера. Официальный Habitify MCP отвергнут из-за неполноты операций. Подробнее: [Claude Code](claude.md), [Codex](codex.md), [ADR 0001](../../docs/adr/0001-habitify-via-rest.md).
-
-## Что CI может проверить без custom scripts
-
-| Проверка | Native/official средство | Accounts и предел |
+| | `skills.external_dirs` | `hermes plugins install` |
 | --- | --- | --- |
-| Hermes package admission/security findings | `hermes plugins validate . --json` или официальный action с pinned Hermes | Provider accounts не нужны для portable declarations; diagnostics могут остаться warnings [PL-H-21](../sources.md), [PL-H-22](../sources.md) |
-| Hermes discovery/load/registration | `hermes plugins doctor . --ci` | Без provider accounts; socket-blocked test, не authentication и не exact inventory gate [PL-H-19](../sources.md), [PL-H-10](../sources.md) |
-| Claude manifest/skill frontmatter | `claude plugin validate . --strict --json` | Проверено без аккаунта; не подключает сервисы и не оценивает поведение; [PL-C-6](../sources.md), детали в [claude.md](claude.md) |
-| Codex package/skill deterministic validation | Отдельный native CLI validator в 0.160.0 не найден | См. [Codex](codex.md); runtime здесь не проверяется |
-| Whitespace diff | `git diff --check` | Не schema/behavior validation |
+| Что подключается | Каталог `skills/` закреплённой ревизии; ревизию задаёт источник каталога (checkout, Nix input) | Репозиторий с portable `plugin.json` в корне, `--ref <FULL_SHA> --enable` |
+| Имена скиллов | Голые: `jedikit-tasks` | `agent-plugin-jedikit-805a716c:jedikit-tasks` |
+| Индекс скиллов в system prompt | Да: имя и первые 57 символов `description` + `...` | Нет |
+| Поиск и загрузка | Индекс, `skills_list`, `skill_view` | `skills_list`, `skill_view`, preload `hermes chat --skills '<имя>'` |
+| Slash `/jedikit-tasks` | Да, scanner обходит физические каталоги | Не гарантирован: scanner не читает plugin registry |
+| Защита от записи | Не даёт Hermes: обеспечивается файловой системой (у владельца — Nix store) | Plugin skills только для чтения |
 
-По [ADR 0004](../../docs/adr/0004-no-custom-code.md) собственные автоматические gates, генераторы и authored assertion scripts не добавляются. Native reports читаются вместе с фактическим inventory: exit code не заменяет проверку обоих skills. Независимое агентное ревью дополняет validators и `git diff --check`; модельные прогоны не входят в проверку проекта.
+Основания: external directories и их приоритет `project → local → skills.create_dir → external_dirs`, предупреждение, что внешний каталог не является границей защиты от записи, и подхват изменений в новой сессии — [PL-H-4](../sources.md) (vendor docs, 2026-10-08). Индекс и усечение description — [PL-H-50](../sources.md), [PL-H-51](../sources.md); `skills_list`/`skill_view` — [PL-H-49](../sources.md), [PL-H-48](../sources.md), [PL-H-28](../sources.md); slash scanner — [PL-H-29](../sources.md); preload — [PL-H-30](../sources.md).
+
+**Plugin install.** Installer принимает `owner/repo`, subdirectory и Git URLs; `--ref` — только полный 40-символьный commit SHA, branch, tag и сокращённый SHA не подходят. Discovery выбирает portable root manifest. Перед установкой выполняется scanner: `safe` проходит, `caution` требует подтверждения или `--force`, `dangerous` блокируется и с `--force`. [PL-H-10](../sources.md), [PL-H-8](../sources.md), [PL-H-12](../sources.md)
+
+Namespace вычисляется как `agent-plugin-<slug(key)>-<sha256(key)[:8]>`, key flat root install — `name` из manifest; для `jedikit` это `agent-plugin-jedikit-805a716c`. Hash не зависит от версии, commit и пути установки; смена key меняет его, поэтому точное имя лучше брать из текущего discovery. [PL-H-16](../sources.md). То же имя `agent-plugin-jedikit-805a716c:jedikit-habits` наблюдалось на Hermes 0.20.6 в 2026-09-13; голое имя тогда через `skill_view` не разрешалось. [PL-H-35](../sources.md)
+
+Symlink из plugin root наружу нарушает containment: parser его отклоняет, scanner даёт critical `symlink_escape`. Поэтому `skills/` — настоящий каталог в корне, без ссылок и копий. [PL-H-9](../sources.md), [PL-H-12](../sources.md)
+
+**Skills Hub** — отдельный механизм, не входящий в штатную установку JediKit. `hermes skills install ibelyasov/jedikit/skills/<скилл>` ставит один скилл за команду, `--ref` и выбора ревизии нет: берётся tree default branch, а при сбое API возможен fallback без ревизии. Пять установок независимы и могут получить разные ревизии; копия в `$HERMES_HOME/skills` изменяема, `hermes skills update` снова следует default branch. Перед копированием выполняются quarantine и security scan. [PL-H-63](../sources.md), [PL-H-64](../sources.md), [PL-H-11](../sources.md)
+
+## Ресурсы скилла и соседние скиллы
+
+`skill_view(name="<скилл>")` возвращает `SKILL.md`; файлы скилла читаются тем же инструментом: `skill_view(name="<скилл>", file_path="references/write-policy.md")`, `file_path="tools.json"`. JSON в корне скилла доступен по явному пути, хотя plugin `linked_files` перечисляет только `references/`, `templates/`, `assets/`, `scripts/`. Markdown-ссылка сама файл не загружает. `..` и выход за корень скилла запрещены, поэтому общий файл вне скилла недоступен: соседний скилл загружается по своему `name`. [PL-H-48](../sources.md), [PL-H-49](../sources.md)
+
+Соседний скилл JediKit берётся с тем же префиксом, что у текущего: голое имя при `external_dirs`, тот же `agent-plugin-…:` при plugin install; plugin `skill_view` добавляет banner с именами соседей. При двух установках нельзя выбирать произвольный одноимённый скилл. У владельца файловые инструменты и terminal выключены, поэтому `skill_view` — единственный путь к ресурсам. [PL-H-48](../sources.md), [PL-H-66](../sources.md)
+
+`skill_view` только загружает текст; выбор и исполнение сценария остаются за моделью. Markdown skill не даёт инструментов: доступны toolsets из конфигурации Hermes. [PL-H-49](../sources.md), [PL-H-4](../sources.md)
+
+## Frontmatter
+
+У JediKit только `name` и `description`. Portable validator требует `name`, совпадающий с каталогом (1–64 символа), и `description` 1–1024 символа. [PL-H-9](../sources.md)
+
+Вложенный `metadata.hermes` portable plugin не принимает: `metadata` допускается только как отображение строка→строка. Ошибка становится diagnostic, скилл пропускается discovery, loader регистрирует только оставшиеся, а `plugins validate` выводит это как warning при exit `0`. Добавленный всем пяти скиллам `metadata.hermes` убрал бы их из plugin install. [PL-H-9](../sources.md), [PL-H-17](../sources.md), [PL-H-21](../sources.md)
+
+При `external_dirs` Hermes читает `metadata.hermes.tags`, `related_skills`, `requires_*`, `fallback_for_*`, но это не нужно JediKit: tags и related skills не попадают в индекс, а `requires_toolsets`/`requires_tools` сравниваются с eager-набором инструментов. При включённом Tool Search отложенные MCP в этот набор не входят, и требование вроде `mcp-singularity` может скрыть исправный скилл из индекса (вывод из source, не воспроизведён). Имена MCP toolsets — `mcp-<server>`. [PL-H-51](../sources.md), [PL-H-50](../sources.md), [PL-H-52](../sources.md), [PL-H-53](../sources.md), [PL-H-54](../sources.md)
+
+Индекс показывает `- имя: описание`, где описание усечено до первых 57 символов и `...`; полный `SKILL.md` не загружается. Поэтому начало `description` должно различать пять скиллов. `skills_list` читает metadata из первых 4000 символов файла. Качество выбора скилла моделью не измерялось. [PL-H-50](../sources.md), [PL-H-51](../sources.md), [PL-H-49](../sources.md)
+
+## MCP-инструменты и Tool Search
+
+Callable name — `mcp__<server>__<tool>`, где любой символ вне `[A-Za-z0-9_]`, включая `-`, заменён на `_`; длинное имя ограничивается 64 символами с hash suffix. Например, `get-event` на `google_calendar` — `mcp__google_calendar__get_event`. Базовые имена в `tools.json` менять не нужно. [PL-H-46](../sources.md)
+
+У сервера с `trust=untrusted` Hermes сам запрашивает approval на вызов инструмента без `readOnlyHint=true`; это может затронуть и чтения без annotation. Host approval не заменяет согласие по правилам JediKit, и наоборот. [PL-H-47](../sources.md)
+
+При включённом Tool Search schemas MCP отложены: отсутствие инструмента в видимом списке не означает его отсутствия. Путь — `tool_search(queries=[...])` → `tool_describe(names=[...])` → `tool_call(calls=[{name, arguments}])`; schemas можно получить группой, но для MCP в `calls` допускается один элемент. Текущая web-страница описывает несколько local calls иначе; pin однозначен. Tool Search сохраняет approvals исходного инструмента. [PL-H-54](../sources.md)
+
+Пакет JediKit MCP не объявляет. Portable loader читает только `mcp.json` с точным schema URI; `.mcp.json` не fallback. Remote entry допускает `type`, `url`, `headers`; поле `auth` даёт diagnostic `unknown remote field`, и entry пропускается, тогда как native конфигурация Hermes поддерживает `auth: oauth`. Plugin inventory, effective native config и рабочая OAuth-сессия — разные утверждения. [PL-H-9](../sources.md), [PL-H-14](../sources.md), [PL-H-15](../sources.md), [PL-H-17](../sources.md), [PL-H-18](../sources.md)
+
+Фильтр `tools.include`/`tools.exclude` (срез 0.20.6, 2026-09-13): include — allowlist имён и globs с приоритетом над exclude; пустой `include: []` не регистрирует инструменты. Denylist или широкий glob могут пропустить будущий write-tool; фильтр хоста не отзывает OAuth scope сервера. [PL-H-36](../sources.md)
+
+## `clarify`
+
+Схема: `questions:[{question, choices?, multi_select?}]`, 1–5 вопросов, до 4 вариантов; первый вариант помечается рекомендованным, UI добавляет «Other». Без `choices` ответ свободный. Ответ — `responses[]`; timeout, skip и недоставка не являются ответом. Timeout по умолчанию 3600 с. В Telegram пакет вопросов приходит отдельными последовательными карточками, полноценного multi-select нет. [PL-H-55](../sources.md)
+
+Отсюда канал JediKit: все блокирующие пробелы — один вопрос без `choices` со всем списком, чтобы сохранить «одним сообщением» ADR 0013; одиночное предложение, общий Preview и подтверждение безвозвратной потери Habitify — одна карточка «Да»/«Нет» после полного текста. Порядок вариантов: «Да», «Нет»; для подтверждения потерь Habitify — «Нет», «Да», чтобы рекомендованным не стало удаление. Это продуктовая интерпретация, не security approval. В cron `clarify` недоступен. [PL-H-55](../sources.md), [PL-H-66](../sources.md)
+
+## `memory`
+
+Схема: `target: memory | user`, `action: add | replace | remove`, `content`, `old_text` для replace/remove; есть атомарный `operations` одного target. `replace` меняет всю запись, `old_text` лишь находит её. Отдельного чтения нет: записи видны в контексте памяти. Лимиты — 2200 символов на `memory` и 1375 на `user`, с разделителями. [PL-H-31](../sources.md), [PL-H-MEMORY-0.21.5](../sources.md)
+
+При `memory.write_approval=true` foreground пытается получить approval сразу, без callback и в фоне запись ставится в очередь: `staged:true`, `pending_id`, `/memory pending`, `/memory approve <id>`. Применённая запись возвращает `done:true` с `usage` и `entry_count`, без содержимого. `done:true` — ответ инструмента о применении, не независимое чтение. [PL-H-56](../sources.md), [PL-H-31](../sources.md)
+
+Описание `memory` в 0.21.5 советует хранить предпочтения «для вида работы» в скилле через `skill_manage`. На хосте владельца setup `jedikit-calendar` по этой подсказке создал ожидающие изменения файлов скилла вместо записи в память, хотя скиллы подключены из `/nix/store`. Поэтому JediKit явно называет `memory` и запрещает `skill_manage` для настроек. В Telegram `/skills` управляет ожидающими записями скиллов, а не каталогом. [PL-H-MEMORY-0.21.5](../sources.md), [CLANWRIGHT-SETUP-2026-10-08](../sources.md), [PL-H-65](../sources.md)
+
+## Cron
+
+Модельный инструмент — `cronjob_manage` (toolset `cronjob`): `action: create | list | update | pause | resume | remove | run`, адресация `job_id`. Create требует `schedule` и `prompt` либо хотя бы один `skills`; среди полей — `name`, `repeat`, `deliver`, `failure_deliver`, `skills`, `enabled_toolsets`. Schedule: `in 30m`, `every 2h`, cron expression, естественные день/время, ISO. Поля timezone нет: время берётся из `HERMES_TIMEZONE`, затем timezone профиля, затем локального времени сервера. [PL-H-57](../sources.md), [PL-H-58](../sources.md), [PL-H-5](../sources.md)
+
+`skills` задания загружаются последовательно через `skill_view`; отсутствующий скилл пропускается с notice, поэтому успешное задание не доказывает загрузку скилла. Имена — голые при `external_dirs`, qualified при plugin install. Доставку выполняет scheduler, по умолчанию в исходный чат. [PL-H-32](../sources.md), [PL-H-58](../sources.md)
+
+Per-job `enabled_toolsets` имеет приоритет над `platform_toolsets.cron`, а без явного выбора к заданию могут добавиться включённые MCP. Поэтому toolsets cron по умолчанию не доказывают read-only любого задания; JediKit не подставляет `enabled_toolsets` сам, а фоновое чтение без записи обеспечивает ADR 0003. [PL-H-58](../sources.md)
+
+Срез 0.20.6 (2026-09-13): ISO без offset трактуется в настроенной зоне, отдельный DST-переход мог пропустить срабатывание; preflight проверял auth, настройку skill и доставку, но не гарантировал готовность; попытка проходила claimed → running → completed/failed/unknown в `executions.db` без автоматического retry. Задание, попытка, ответ модели и доставка — разные наблюдения. Общий денежный или токенный лимит не найден; `approvals.cron_mode: deny` ограничивает опасные команды, не расходы. [PL-H-38](../sources.md), [PL-H-39](../sources.md), [PL-H-40](../sources.md), [PL-H-41](../sources.md)
+
+## Другие инструменты
+
+- `todo_list`: список `{id, content, status}` до 256 элементов, вызов без аргументов читает. Подходит для шагов агента в длинном обзоре, не для задач пользователя. [PL-H-59](../sources.md)
+- `session_search`: поиск и чтение прошлых сессий с ограниченным окном. Найденное — контекст разговора, а не актуальное состояние провайдера. [PL-H-62](../sources.md)
+- `send_message` модели не зарегистрирован; фоновые уведомления — доставка cron. [PL-H-60](../sources.md)
+- `delegate_task` у владельца выключен, а дочерним агентам недоступны `clarify`, `memory` и `cronjob`; соседний скилл JediKit загружается в той же сессии. [PL-H-61](../sources.md), [PL-H-66](../sources.md)
+
+Local terminal (срез 0.20.6) работает от пользователя ОС и не является sandbox; фильтрация окружения terminal, `execute_code` и MCP различается. JediKit не требует terminal. [PL-H-37](../sources.md), [PL-H-39](../sources.md)
+
+## Валидаторы и CI
+
+```sh
+hermes plugins validate . --json
+hermes plugins doctor . --ci
+```
+
+`validate` включает scanner и portable validation; флаги `--json`, `--install-deps`, без `--ci`/`--strict`. `doctor` копирует пакет во временный `HERMES_HOME`, выполняет discovery/load/registration с блокировкой сокетов Python, имеет `--ci` (exit `1` при `report.ok == false`), но не вызывает install scanner. Provider accounts не нужны. [PL-H-10](../sources.md), [PL-H-19](../sources.md), [PL-H-21](../sources.md), [PL-H-33](../sources.md)
+
+**Пределы.** Component diagnostics становятся warnings и не меняют exit, поэтому exit `0` не доказывает присутствие пяти скиллов: отчёт и warnings читаются вместе с ожидаемым inventory. Без `plugin.json`/`plugin.yaml` `validate` завершается ошибкой: штатного валидатора обычной коллекции для `external_dirs` нет. `hermes skills audit` перепроверяет только Hub inventory и при findings завершается `0`; scanner `skills_guard` — Python API, не CLI. Scanner не проверяет frontmatter целиком, ссылки и смысл инструкций. [PL-H-17](../sources.md), [PL-H-21](../sources.md), [PL-H-64](../sources.md), [PL-H-13](../sources.md)
+
+Официальный GitHub Action `plugin-validate` имеет inputs `path` и `hermes-ref` (default `main`) и запускает только `validate`; `fail-on-warnings` нет. [PL-H-22](../sources.md) (Action на pin `f97608f`). CI JediKit закрепляет Action и `hermes-ref` на commit `781334eea4b9225a3e194faf0c241d9afe218634` с исправлением установки ([check.yml](../../.github/workflows/check.yml)); Action не экспортирует CLI, поэтому `doctor` выполняется локально. Шаг `git diff --check "$(git hash-object -t tree /dev/null)" HEAD` проверяет только пробелы, зато во всём дереве HEAD: обычный `git diff --check` в чистом checkout пуст. По [ADR 0004](../../docs/adr/0004-no-custom-code.md) собственные gates и assertion scripts не добавляются.
+
+## Конфигурация владельца
+
+Датированное наблюдение: clanwright HEAD `6641f66d74a1877f4c28f98bf9589af648a85d4c`, прочитан 2026-10-08; JediKit там закреплён на `v0.4.0` (`647b0d1`). Это декларация, не проверка deployment. [PL-H-66](../sources.md)
+
+- JediKit подключён через `skills.external_dirs` из Nix store; plugin registry не используется. Hermes закреплён на том же `f97608f`. Nix-модули Hermes официально имеют уровень поддержки Tier 2 best effort. [PL-H-7](../sources.md)
+- MCP: `singularity` — официальный hosted MCP с OAuth и `trust=untrusted`; `habitify_read`, `habitify`, `google_calendar` — локальные адаптеры с `trust=full`. Sampling, elicitation, resources и prompts выключены. Включены 35 инструментов Singularity, 7 чтений и 16 записей Habitify; allowlist Calendar берётся из `tools.json` JediKit.
+- Toolsets Telegram: `clarify`, `todo`, `memory`, `session_search`, `web`, `search`, `skills`, `mcp-singularity`, `mcp-habitify`, `mcp-habitify_read`, `mcp-google_calendar`, с cron — `cronjob`. Tool Search включён.
+- Фоновые toolsets: `web`, `skills`, `mcp-habitify_read`, `memory` — без Singularity и Calendar, поэтому фоновая утренняя сводка задач и календаря по ним невозможна. Задание сводки и его toolsets заводит владелец Hermes (clanwright); скиллы JediKit его не создают.
+- Cron включён, timezone `Europe/Moscow`; `memory.write_approval=true`, `skills.write_approval=true`, `approvals.mode=manual`. Terminal, file, code execution, delegation, browser выключены.
+- `grill-me` поставляется из официальных optional skills закреплённого Hermes; фактический discovery не проверен.
+
+## Ограничения доступа gateway
+
+Срез 0.20.6: доступ к боту требует pairing, allowlist, явного allow-all или trusted adapter; pairing grants и allowlists объединяются. Admin/user slash policy ограничивает slash-команды, не обычный чат. Доступ к боту, разрешение инструмента и согласие изменить данные — разные границы. [PL-H-42](../sources.md), [PL-H-44](../sources.md), [PL-H-45](../sources.md)
 
 ## Непроверенные слои
 
-Остаются непроверенными установка exact JediKit commit, actual qualified skill names и invocation, host tool discovery/OAuth, memory/cron, scheduler timezone/persistence/delivery. Исходники и статические проверки не подтверждают эти результаты. Accounts и provider data этой работой не затрагивались. [PL-H-4](../sources.md), [PL-H-5](../sources.md), [PL-H-6](../sources.md), [PL-H-14](../sources.md)
-
-## Источники
-
-Полные citations и объём доступа — в [реестре источников](../sources.md). Pinned source inspection 2026-10-05 и повторное чтение документации 2026-10-06 различаются в поле доступа.
-
-## Датированные наблюдения прежней среды
-
-Исследование **2026-09-13** наблюдало Hermes **0.20.6 (2026.8.27)**, public checkout `b4b7727ea07681b40402de411ddd000bb3c439fc`; тогда latest release был 0.21.2 / `v2026.9.11`. Parser и doctor прежнего skills-only пакета обнаружили оба skills. Habit identifier `agent-plugin-jedikit-805a716c:jedikit-habits` разрешался через `skill_view`; bare name и `jedikit:jedikit-habits` — нет. Это старое наблюдение, а не текущий identifier или runtime новых исходников. Срез 2026-08-08 относился к 0.20.0 / `v2026.8.3` и прежнему имени проекта; его catalog commands и channel list не являются нынешним контрактом. [PL-H-35](../sources.md)
-
-YAML skill bundle — runtime alias уже доступных skills, tap — источник одиночных skills; это не эквивалент portable plugin install двух skills. Каждый skill остаётся самодостаточным: router не нужен для package identity, mixed request делится на два workflow с отдельными группами подтверждаемых операций. Это правило [jedikit-tasks](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md) и [jedikit-habits](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/SKILL.md); vendor guarantee inter-skill dispatch из него не следует. [PL-H-4](../sources.md)
-
-## Фильтры MCP и локальное исполнение
-
-Следующие source facts прочитаны **2026-09-13** в public checkout `b4b7727e`; это не live security test. `tools.include` задаёт allowlist имён/globs, `tools.exclude` — исключения; при наличии обоих приоритет у include. Пустой `include: []` не регистрирует tools, отсутствие обоих разрешает все. Denylist может пропустить новый write-tool; широкий glob тоже может охватить будущие имена. Фильтр хоста не отзывает OAuth scope сервера. [PL-H-36](../sources.md)
-
-Local terminal работает от пользователя ОС и не образует изолированную sandbox. Ограничения write_file/patch не ограничивают произвольный terminal process. Environment filtering terminal, execute_code и MCP различается; passthrough может вернуть переменные процессу. Проверенный код намеренно сохраняет общую AWS credential chain: нельзя утверждать, что все секреты хоста скрыты. JediKit не требует выдавать terminal дополнительные полномочия. [PL-H-37](../sources.md), [PL-H-39](../sources.md)
-
-## Cron: preflight, время, стоимость и результаты
-
-В срезе `b4b7727e` cron поддерживал per-job provider/model и snapshots неприкреплённых параметров. Preflight проверял provider auth, требуемую настройку skill и delivery; обнаруженная проблема могла блокировать inference. Drift guard мог остановить смену неприкреплённых provider/model. Однако некоторые ошибки preflight продолжали запуск, missing skill оставался skip-and-continue; snapshot мог отсутствовать при config error. Старые jobs и явные cron defaults имели исключения, fallback chain менял проверку primary auth. Preflight не гарантирует готовность. [PL-H-38](../sources.md), [PL-H-40](../sources.md)
-
-В исследованном коде не был найден общий денежный/токенный budget cap. `approvals.cron_mode: deny` ограничивает опасные headless commands, а не расходы inference; drift guard тоже не бюджетный лимит. Это ограниченный source finding, не утверждение обо всех версиях. [PL-H-39](../sources.md)
-
-IANA timezone влияет на cron; ISO timestamp без offset трактуется в configured zone. Код сохранял намерение местного времени и пересчитывал offset; определённый DST transition мог пропустить ожидающее срабатывание. «Каждое утро» требует явной зоны и cadence. Успешный разовый запуск не проверяет DST. [PL-H-40](../sources.md)
-
-Попытка записывалась в `executions.db` до dispatch: claimed → running → completed/failed/unknown. Потерянное выполнение могло перейти в unknown без automatic retry; `hermes cron runs` предоставлял историю. Job record, факт попытки, ответ модели и delivery — отдельные наблюдения, которые нужно сопоставить при проверке runtime. `hermes cron run` в старой реализации разрешал exact job ID, затем case-insensitive name; неоднозначное имя требовало ID. Эти команды здесь не запускались. [PL-H-41](../sources.md)
-
-По [ADR 0003](../../docs/adr/0003-no-unattended-writes.md) фоновые проверки JediKit только читают и предлагают изменения для weekly. Наличие host approvals или успешного cron не доказывает соблюдение этого контракта.
-
-## Gateway: исторические границы доступа
-
-Source `b4b7727e` отказывал в доступе без основания: pairing, platform/global allowlist, explicit allow-all или исключение trusted adapter. Pairing grants и allowlists объединялись; allowlist не отменял старый grant. Неизвестные DM с allowlist обычно игнорировались, без списка запускали pairing, email имел default ignore. Проверяется effective access, а не один список. Admin/user slash policy ограничивала slash commands, не обычный chat. Доступ к боту, разрешение tool и согласие изменить данные — разные границы. [PL-H-42](../sources.md), [PL-H-44](../sources.md), [PL-H-45](../sources.md)
-
-## Организация коллекции skills: что переносимо
-
-Исторический обзор **2026-09-13** сравнивал публичные коллекции: `openai/plugins` разделял marketplace и plugin, `anthropics/skills` группировал skills в Claude plugin, `anthropics/claude-plugins-official` представлял каталог отдельных sources/refs, `vercel-labs/agent-skills` использовал grouping metadata, `obra/superpowers` имел разные harness integration paths. Это примеры организации, не стандарты. Их полный текущий состав повторно не проверен; доступный repo не доказывает install/OAuth/runtime JediKit. [PL-X-1](../sources.md), [PL-X-2](../sources.md), [PL-X-3](../sources.md), [PL-X-4](../sources.md), [PL-X-5](../sources.md)
-
-Package identity и router skill решают разные задачи. Router был бы полезен для явной классификации запроса или реально координирующего workflow с описанным отсутствием дочернего skill; широкий implicit description может конкурировать с domain skills, дублировать процедуры и создавать ложное впечатление dependency manager. В JediKit два самостоятельных скилла — [jedikit-tasks](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md) и [jedikit-habits](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/SKILL.md) — обходятся без router. Skills стандарт задаёт каталог/frontmatter/relative resources, Agent Plugins — package manifest; ни один не гарантирует одинаковую host authentication или dispatch между skills. [PL-H-15](../sources.md)
+Не проверены: установка точного commit JediKit любым способом, фактические имена скиллов, индекс и slash, scanner verdict всего репозитория, MCP discovery и OAuth, вызовы Tool Search, карточки `clarify` в Telegram, записи и approval `memory`, задания cron, timezone, запуск и доставка, поведение модели и Read-back. Source и статические проверки эти результаты не подтверждают. Аккаунты и данные провайдеров этой работой не затрагивались.

@@ -75,7 +75,7 @@ JediKit. Прежнее описание «название старого мо�
 English Terms; это не отменяет остальных условий. Нужно отдельно различать
 разрешённый доступ владельца к своим данным, маркетинговое использование
 знаков и публикацию стороннего connector. Текущий JediKit использует hosted
-MCP/OAuth хоста ([ADR 0005](../docs/adr/0005-one-source-host-connections.md)).
+MCP/OAuth хоста ([ADR 0005](../docs/adr/0005-hermes-plugin-host-connections.md)).
 Технические доказательства и ограничения описаны в
 [досье SingularityApp](providers/singularity.md).
 
@@ -99,7 +99,7 @@ Privacy Policy описывает хранение habit names, completions, set
 использует REST/OpenAPI v2 как бизнес-контракт ([ADR 0001](../docs/adr/0001-habitify-via-rest.md),
 [досье Habitify](providers/habitify.md)). Она не является проверкой REST-потока;
 его payload и хранение на выбранном AI-хосте требуют отдельной оценки.
-По [ADR 0005](../docs/adr/0005-one-source-host-connections.md) хост предоставляет
+По [ADR 0005](../docs/adr/0005-hermes-plugin-host-connections.md) хост предоставляет
 операции через OpenAPI→MCP-адаптер или эквивалент с теми же
 именами; ключ остаётся только у адаптера. Агент не устанавливает подключения
 и не получает ключ. Плагин не распространяет реализацию адаптера; его лицензия

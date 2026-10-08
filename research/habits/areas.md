@@ -147,7 +147,7 @@ Vendor также представляет Area Overviews как способ у
 [habitify-tools.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/habitify-tools.md)
 сохранён guard полной writable-конфигурации и её Read-back после записи.
 Обязательного ручного runtime-гейта нет
-([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)).
+([ADR 0005](../../docs/adr/0005-hermes-plugin-host-connections.md)).
 [OpenAPI](https://api-docs.habitify.me/openapi/v2/openapi-bundled.yaml), строки
 3185–3186; доступ 2026-10-06.
 
@@ -173,7 +173,7 @@ Vendor также представляет Area Overviews как способ у
   Habitify Areas и сравнительные данные группировки. YAML получен
   публичным curl-чтением документа без credentials. Это история получения
   источника, а не доступ агента к аккаунту; операции доступны только
-  через хост ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)).
+  через хост ([ADR 0005](../../docs/adr/0005-hermes-plugin-host-connections.md)).
 
 **Pin публичного источника:** OpenAPI 3.0.3, info.version 2.0.0,
 server https://api.habitify.me/v2; доступ 2026-10-06.

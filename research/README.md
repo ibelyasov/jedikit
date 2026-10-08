@@ -22,7 +22,7 @@ SingularityApp, `jedikit-habits` для экспериментов и ритуа
 | Какие контракты доступны провайдерам? | [SingularityApp](providers/singularity.md), [Habitify](providers/habitify.md), [Google Calendar](providers/google-calendar.md) |
 | Когда и как уточнять запрос? | [Доспрос](agents/clarification.md) |
 | Как связывать скиллы и находить нужный сценарий? | [Композиция скиллов](agents/skill-composition.md) |
-| Что известно о хостах скиллов? | [Hermes](platforms/hermes.md), [Claude Code](platforms/claude.md), [Codex](platforms/codex.md) |
+| Что известно о хосте скиллов? | [Hermes](platforms/hermes.md) |
 | Какие ограничения есть у заимствований и атрибуции? | [Право и атрибуция](legal-and-attribution.md) |
 | Где найти цитату, URL/DOI, объём чтения и дату доступа? | [Единый реестр источников](sources.md) |
 
@@ -37,7 +37,7 @@ SingularityApp, `jedikit-habits` для экспериментов и ритуа
 | `jedikit-calendar` | [наука календаря](calendar/academic.md), [методы и практики](calendar/methods-and-practices.md), [Google Calendar](providers/google-calendar.md) |
 | `jedikit-planning` | [наука календаря](calendar/academic.md), [методы и практики](calendar/methods-and-practices.md), [академические основания задач](tasks/academic.md) |
 | `jedikit` | [композиция скиллов](agents/skill-composition.md) |
-| Все скиллы | [доспрос](agents/clarification.md), [композиция скиллов](agents/skill-composition.md), [хосты](platforms/hermes.md) |
+| Все скиллы | [доспрос](agents/clarification.md), [композиция скиллов](agents/skill-composition.md), [хост Hermes](platforms/hermes.md) |
 
 Ссылки досье на текст скиллов закреплены на ревизии, которую досье анализировали.
 
