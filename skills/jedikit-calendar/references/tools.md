@@ -15,13 +15,13 @@ Callable name — `mcp__google_calendar__<name>`, любой символ вне
 | Инструмент | Аргументы |
 | --- | --- |
 | `get-current-time` | `timeZone` — домашний пояс IANA. Вызывай перед любым «сегодня», относительной датой, поиском, созданием или изменением |
-| `list-calendars` | Обязательных нет. `account` — nickname или массив 1–10; без него читаются все подключённые аккаунты |
+| `list-calendars` | Обязательных нет. `account` — nickname или массив 1–10; без него читаются все подключённые аккаунты. В ответе у каждого календаря `defaultReminders` (`method`, `minutes`) |
 | `list-events` | `calendarId` — ID или массив 1–50 ID без повторов; бери ID из `list-calendars`, а не неоднозначное имя. `timeMin`, `timeMax` — ISO 8601 без смещения; `timeZone` — IANA; `fields`; `account` — строка или массив |
 | `get-event` | `calendarId`, `eventId` — строки; `fields`; `account` — строка |
 
 Nickname соответствует `^[a-z0-9_-]{1,64}$`. При нескольких аккаунтах передавай nickname аккаунта календаря: `primary` без него неоднозначен.
 
-По умолчанию list/get возвращают `id`, `summary`, `start`, `end`, `status`, `htmlLink`, `location`, `attendees`. Метка роли и признаки серии в них не входят, поэтому всегда запрашивай `fields: ["description", "recurringEventId", "originalStartTime", "recurrence", "transparency"]`; перед update/delete добавь `organizer`, при необходимости `updated`, `locked`.
+По умолчанию list/get возвращают `id`, `summary`, `start`, `end`, `status`, `htmlLink`, `location`, `attendees`; с переданным `fields` сервер добавляет к ним `reminders` и `recurrence`. Метки роли и остальных признаков серии там нет, поэтому всегда запрашивай `fields: ["description", "recurringEventId", "originalStartTime", "recurrence", "transparency"]`; перед update/delete добавь `organizer`, при необходимости `updated`, `locked`. Для [напоминаний](#напоминания) явно называй `reminders` в `fields`: повтор поля безвреден.
 
 Пагинации нет: `pageToken`, `maxResults`, `singleEvents`, `orderBy` и текстового поиска в схеме нет, не передавай их. Кандидатов отбирай из ответа за диапазон `timeMin`/`timeMax`. Больше 50 календарей читай несколькими запросами. Проверяй ошибки отдельных календарей и признаки усечения: при усечении сужай диапазон, а если это невозможно, честно ограничь охват. Отсутствие объекта в неполной выборке ничего не доказывает; схема входа не гарантирует структуру ответа.
 
@@ -29,11 +29,11 @@ Nickname соответствует `^[a-z0-9_-]{1,64}$`. При несколь�
 
 | Инструмент | Поля |
 | --- | --- |
-| `create-event` | `calendarId`, `summary`, `start`, `end`; по сценарию `timeZone`, `description`, `location`, `recurrence`, `calendarsToCheck`, `allowDuplicates`; `sendUpdates` |
-| `update-event` | `calendarId`, `eventId`; только изменяемые `summary`, `description`, `location`, `start`, `end`, `timeZone`, `recurrence`; для серии `modificationScope`, `originalStartTime`, `futureStartDate`; при смене времени `checkConflicts`, `calendarsToCheck`; `sendUpdates` |
+| `create-event` | `calendarId`, `summary`, `start`, `end`; по сценарию `timeZone`, `description`, `location`, `recurrence`, `reminders`, `calendarsToCheck`, `allowDuplicates`; `sendUpdates` |
+| `update-event` | `calendarId`, `eventId`; только изменяемые `summary`, `description`, `location`, `start`, `end`, `timeZone`, `recurrence`, `reminders`; для серии `modificationScope`, `originalStartTime`, `futureStartDate`; при смене времени `checkConflicts`, `calendarsToCheck`; `sendUpdates` |
 | `delete-event` | `calendarId`, `eventId`, `sendUpdates`. Полей режима серии нет |
 
-`account` у записей — строка. `sendUpdates: "none"` передавай явно во всех трёх: у update/delete default — `all`. Участники, напоминания, конференции, вложения, управление гостями и `extendedProperties` вне скилла.
+`account` у записей — строка. `sendUpdates: "none"` передавай явно во всех трёх: у update/delete default — `all`. Участники, конференции, вложения, управление гостями и `extendedProperties` вне скилла.
 
 ### Даты
 
@@ -62,6 +62,26 @@ Nickname соответствует `^[a-z0-9_-]{1,64}$`. При несколь�
 `calendarsToCheck` — массив ID календарей; при создании и смене времени передавай календари чтения, иначе проверка ограничится календарём записи. У update при смене времени передавай `checkConflicts: true`. Для собственного показа пересечений читай затронутый диапазон; это не защищает от гонок. Конфликт запись не блокирует: create/update выполняются, а рядом с `event` в ответе приходят `conflicts` (событие, календарь, пересечение) и `warnings` при `isError: false`. Поэтому пересечения считай сам по прочитанному диапазону до записи: набор, собранный агентом, показывает их в Preview; полная явная команда выполняется, а конфликты из ответа попадают в отчёт. Другие записи не двигай, проверку ради успеха не отключай.
 
 `create-event` с `allowDuplicates: false` (default) блокирует почти точный дубль с similarity ≥ 0.95: `isError: true` и текст `Duplicate event detected (…% similar). Event "…" already exists…`. Похожее событие с similarity от `duplicateSimilarityThreshold` (default 0.7) создаётся, а в ответе приходят `duplicates` и `warnings` — покажи их в отчёте; порог не ослабляй. При отказе покажи найденное Событие одной строкой; ID дубля, если его нет в ответе, не придумывай. `allowDuplicates: true` передавай только после «создай всё равно» и после того, как результат предыдущего вызова установлен.
+
+## Напоминания
+
+`reminders` — объект `{useDefault, overrides}`. Элемент `overrides` — `{method, minutes}`: `method` — `popup` (default) или `email`, `minutes` — 0–40320 минут до начала; не больше 5 элементов. Набор вне этих пределов не передавай: назови ограничение и уточни набор вместе с прочими блокирующими пробелами. Напоминания приватны: срабатывают только у владельца календаря и гостям не отправляются; отдельного подтверждения сверх [правил записи](write-policy.md) не нужно.
+
+| Значение | `reminders` |
+| --- | --- |
+| Как в календаре | При создании не передавай — действуют умолчания календаря; при изменении — `{"useDefault": true, "overrides": []}` |
+| Свой набор | `{"useDefault": false, "overrides": [{"method": "popup", "minutes": 60}, {"method": "popup", "minutes": 1440}]}` |
+| Без напоминаний | `{"useDefault": false, "overrides": []}` |
+
+**Создание.** Значение берётся из настройки типа записи в записи памяти `JediKit calendar:`: «Напоминания Событий», «Напоминания Броней» или «Напоминания Распорядка»; незаданная — «как в календаре». Явное указание в запросе («напомни за 15 минут») сильнее настройки и задаёт набор этой записи; способ не назван — `popup`.
+
+**Событие на весь день.** `defaultReminders` из `list-calendars` относятся к записям со временем; умолчания all-day задаются в интерфейсе Google и через сервер не видны, а `minutes` у all-day отсчитываются от 00:00 дня. Поэтому настройка «Напоминания Событий» к all-day не применяется: при создании `reminders` не передавай, кроме явной просьбы.
+
+**Изменение** существующей записи — только по явной просьбе: заменить набор, убрать напоминания, «как обычно» (`{"useDefault": true, "overrides": []}`: пустой массив заменяет прежние `overrides`, иначе patch может быть отклонён или сохранить прежние `overrides`) или добавить и убрать отдельные напоминания. При переносе и других изменениях `reminders` не передавай. `update-event` патчит событие, но массив `overrides` заменяется целиком. Поэтому для «добавь ещё за сутки» или «убери то, что за час» сначала прочитай текущие `reminders` через `get-event`; если там `useDefault: true`, действующий набор — `defaultReminders` календаря из `list-calendars`, а у all-day он неизвестен: отдельное напоминание не добавляй и не убирай, назови ограничение и предложи задать полный набор. Передай полный новый набор. У серии режим и его поля — как при других изменениях серии ([«Повтор и режимы серии»](#повтор-и-режимы-серии)).
+
+**Read-back** — `get-event` с `reminders` в `fields`: сверь `useDefault` и набор `overrides` без учёта порядка. Read-back подтверждает конфигурацию, а не доставку уведомления.
+
+Смена настройки уже созданные записи не меняет. `defaultReminders` самого календаря скилл изменить не может: в сервере нет инструмента для настроек календаря. На такую просьбу так и скажи: они меняются в настройках Google Calendar — настройки календаря → «Уведомления о мероприятиях». Изменения не обещай.
 
 ## Метки ролей
 
