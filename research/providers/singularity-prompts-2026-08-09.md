@@ -4,7 +4,7 @@
 
 > **Публичная revalidation 2026-09-13:** prompts probe не повторялся. Текущая публичная SingularityApp MCP Wiki не перечисляет prompt names, arguments или тексты, поэтому все четыре prompt и их schemas ниже остаются только snapshot 2026-08-09. Wiki теперь отдельно документирует `system` Batch до 20 операций; это не меняет содержимое исторических prompt messages и не доказывает конкретный Batch tool contract.
 
-Редакционная граница: exact prompt messages и metadata сохранены. Последующий анализ — рекомендации по датированному наблюдению, не текущий runtime-контракт. Собственного MCP или кода нет ([ADR0004](../../docs/adr/0004-no-custom-code.md)); упомянутый ниже safety/method wrapper означает инструкции скилла. Актуальные сценарии — в [скилле](../../skills/jedikit-tasks/SKILL.md), модель подключения — в [ADR0005](../../docs/adr/0005-one-source-host-connections.md).
+Редакционная граница: exact prompt messages и metadata сохранены. Последующий анализ — рекомендации по датированному наблюдению, не текущий runtime-контракт. Собственного MCP или кода нет ([ADR0004](../../docs/adr/0004-no-custom-code.md)); упомянутый ниже safety/method wrapper означает инструкции скилла. Актуальные сценарии — в [скилле](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md), модель подключения — в [ADR0005](../../docs/adr/0005-one-source-host-connections.md).
 
 ## Вопрос, маршрут чтения и уровни доказательства
 
@@ -16,19 +16,19 @@
 после них — сравнительный анализ и safety boundary. Общий provider contract
 описан в [основном provider досье](singularity.md), tool inventory — в
 [датированном tools snapshot](singularity-tools-2026-08-09.md), а нынешние требования — в
-[скилле](../../skills/jedikit-tasks/SKILL.md) и [правилах записи](../../skills/jedikit-tasks/references/write-policy.md).
+[скилле](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md) и [правилах записи](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/write-policy.md).
 
 Точные prompt texts и metadata — **observed runtime evidence 2026-08-09**.
 Ссылки на MCP spec подтверждают protocol semantics. Раздел сопоставления —
 **research analysis**, а строки «заменить в skill» фиксируют историческую
-рекомендацию; при конфликте действуют [правила записи](../../skills/jedikit-tasks/references/write-policy.md) и [сценарии скилла](../../skills/jedikit-tasks/SKILL.md). Revalidation annotation
+рекомендацию; при конфликте действуют [правила записи](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/write-policy.md) и [сценарии скилла](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md). Revalidation annotation
 выше — **current docs evidence 2026-09-13**, не новый prompt probe.
 
 ## Короткий вывод
 
 Официальный сервер вернул ровно четыре MCP prompts: `plan_my_day`, `triage_inbox`, `weekly_review` и `summarize_project`. Они являются готовыми текстовыми макросами, а не отдельными безопасными операциями: каждый результат `prompts/get` — одно сообщение с ролью `user`, в тексте которого перечислены будущие вызовы Singularity tools. MCP определяет prompts как выбираемые пользователем шаблоны, поэтому получение шаблона не равно его выполнению ([MCP-SPEC-PROMPTS](../sources.md)).
 
-Для `jedikit-tasks` это исследовательский материал, а не зависимость сценариев скилла. Наиболее существенные конфликты — жёсткие часы дня, лимит **6 часов** фокусной работы и фиксированные группы **3–5/2–3/2–3**, автоматическая установка даты `09:00`, а также упрощение triage до трёх веток. [Скилл](../../skills/jedikit-tasks/SKILL.md) использует свои сценарии и не вызывает эти prompts.
+Для `jedikit-tasks` это исследовательский материал, а не зависимость сценариев скилла. Наиболее существенные конфликты — жёсткие часы дня, лимит **6 часов** фокусной работы и фиксированные группы **3–5/2–3/2–3**, автоматическая установка даты `09:00`, а также упрощение triage до трёх веток. [Скилл](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md) использует свои сценарии и не вызывает эти prompts.
 
 ## Граница и воспроизводимость probe
 
@@ -196,7 +196,7 @@ Then produce in the user's language:
 
 ## Историческое сопоставление с авторским методом
 
-Ниже сохранён анализ server templates по состоянию исходного исследования, включая ссылки DT на [авторский метод](../tasks/author-method.md). Он не вводит новых правил реализации. Нынешние сценарии определены в [скилле](../../skills/jedikit-tasks/SKILL.md): разобранные идеи, справки и встречи отменяются через `task_cancel` по [ADR0008](../../docs/adr/0008-cancel-instead-of-delete.md). По [справке обзоров](../../skills/jedikit-tasks/references/reviews.md) Daily open даёт фокус-лист, Weekly охватывает Inbox, дерево и проекты; Daily и Weekly не проверяют календарь.
+Ниже сохранён анализ server templates по состоянию исходного исследования, включая ссылки DT на [авторский метод](../tasks/author-method.md). Он не вводит новых правил реализации. Нынешние сценарии определены в [скилле](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md): разобранные идеи, справки и встречи отменяются через `task_cancel` по [ADR0008](../../docs/adr/0008-cancel-instead-of-delete.md). По [справке обзоров](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/reviews.md) Daily open даёт фокус-лист, Weekly охватывает Inbox, дерево и проекты; Daily и Weekly не проверяют календарь.
 
 ### `plan_my_day`
 
@@ -242,11 +242,11 @@ Then produce in the user's language:
 | Контракт аргументов | Три prompt с `arguments:[]`; `summarize_project` требует `projectId` | Вызов без map `{}` дал `expected object, received undefined`; SDK/server validation не полностью документирована | Всегда отправлять объект `arguments`; валидировать required argument до `prompts/get` |
 | Полный текст | Все четыре `messages` получены; структура — один `user` text message | `description` в get = `null`, хотя list description заполнен | Текст годится для анализа/preview, но не считается политикой skill |
 | Чтение/запись данных | Этот probe не читал задачи/проекты/теги/checklists | Наличие перечисленных в тексте tools не доказывает их schema/доступ | Передать реальные операции отдельному least-privilege tool probe; prompts-only режим остаётся безопасным |
-| Batch | В snapshot prompt нет MCP batch API; лишь циклы «для каждого task» в тексте. Публичная Wiki 2026-09-13 отдельно заявляет `system` Batch до 20 операций | Prompt probe не проверял tool; точные schema, idempotency, atomicity и rollback не опубликованы | [Правила записи](../../skills/jedikit-tasks/references/write-policy.md) исключают Batch: подтверждённые операции выполняются последовательно, с остановкой при ошибке и отчётом, без обещания rollback |
+| Batch | В snapshot prompt нет MCP batch API; лишь циклы «для каждого task» в тексте. Публичная Wiki 2026-09-13 отдельно заявляет `system` Batch до 20 операций | Prompt probe не проверял tool; точные schema, idempotency, atomicity и rollback не опубликованы | [Правила записи](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/write-policy.md) исключают Batch: подтверждённые операции выполняются последовательно, с остановкой при ошибке и отчётом, без обещания rollback |
 | Sandbox/demo/test account | Не найден и не создавался | Проверена существующая Hermes OAuth-сессия, без новых внешних изменений | Диагностика на данных требует согласованной области; собственный mock MCP исключён [ADR0004](../../docs/adr/0004-no-custom-code.md) |
 | Ошибки | Подтверждена ошибка отсутствующего `arguments`; исправлена `{}` | Известный HTTP 400 `get_my_context` в этом probe не воспроизводился и поэтому не утверждается | Не включать эту ошибку в диагностику prompts; повторять только с согласованными scopes |
-| Нужен собственный MCP | Prompts дают четыре полезных read-oriented сценария | Нет доказанного покрытия Jedi capture/entity/next-step/consent и нет sandbox | Собственный MCP исключён [ADR0004](../../docs/adr/0004-no-custom-code.md); сценарии и правила задаёт [скилл](../../skills/jedikit-tasks/SKILL.md) |
+| Нужен собственный MCP | Prompts дают четыре полезных read-oriented сценария | Нет доказанного покрытия Jedi capture/entity/next-step/consent и нет sandbox | Собственный MCP исключён [ADR0004](../../docs/adr/0004-no-custom-code.md); сценарии и правила задаёт [скилл](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md) |
 
 ## Итог исследования 2026-08-09
 
-`jedikit-tasks` не использует и не показывает server prompts. Их точные тексты остаются только evidence для анализа совместимости. Скилл выполняет сценарии фокус-листа, поштучного triage, weekly и обзора проекта по [своим справкам](../../skills/jedikit-tasks/SKILL.md); получение prompts для этого не требуется.
+`jedikit-tasks` не использует и не показывает server prompts. Их точные тексты остаются только evidence для анализа совместимости. Скилл выполняет сценарии фокус-листа, поштучного triage, weekly и обзора проекта по [своим справкам](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md); получение prompts для этого не требуется.

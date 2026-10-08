@@ -26,6 +26,21 @@ SingularityApp, `jedikit-habits` для экспериментов и ритуа
 | Какие ограничения есть у заимствований и атрибуции? | [Право и атрибуция](legal-and-attribution.md) |
 | Где найти цитату, URL/DOI, объём чтения и дату доступа? | [Единый реестр источников](sources.md) |
 
+## Основания скиллов
+
+Скиллы устанавливаются отдельно и не ссылаются на досье; связь держит эта таблица.
+
+| Скилл | Досье |
+| --- | --- |
+| `jedikit-tasks` | [авторский метод](tasks/author-method.md), [практики](tasks/community-practices.md), [академические основания](tasks/academic.md), [структура](tasks/structure.md), [SingularityApp](providers/singularity.md) |
+| `jedikit-habits` | [привычки](habits/README.md) и досье раздела, [ритуалы](habits/rituals.md), [Habitify](providers/habitify.md) |
+| `jedikit-calendar` | [наука календаря](calendar/academic.md), [методы и практики](calendar/methods-and-practices.md), [Google Calendar](providers/google-calendar.md) |
+| `jedikit-planning` | [наука календаря](calendar/academic.md), [методы и практики](calendar/methods-and-practices.md), [академические основания задач](tasks/academic.md) |
+| `jedikit` | [композиция скиллов](agents/skill-composition.md) |
+| Все скиллы | [доспрос](agents/clarification.md), [композиция скиллов](agents/skill-composition.md), [хосты](platforms/hermes.md) |
+
+Ссылки досье на текст скиллов закреплены на ревизии, которую досье анализировали.
+
 Датированные снимки MCP-каталога SingularityApp:
 [tools 2026-08-09](providers/singularity-tools-2026-08-09.md) и
 [prompts 2026-08-09](providers/singularity-prompts-2026-08-09.md).

@@ -38,9 +38,9 @@
 как соглашения и не получают ложного статуса «доказанной дозы».
 
 Исполняемые правила остановки по безопасности находятся в
-[`safety.md`](../../skills/jedikit-habits/references/safety.md), а подтверждения,
+[`safety.md`](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/safety.md), а подтверждения,
 записи и обработка частичных ошибок — в
-[`operation-policy.md`](../../skills/jedikit-habits/references/operation-policy.md).
+[`operation-policy.md`](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/operation-policy.md).
 Эти файлы реализуют политику продукта; исследовательским основанием служат
 первичные источники и обзоры из этой библиотеки. При расхождении научные выводы
 обновляют здесь, а изменение исполняемой политики проходит отдельное

@@ -5,7 +5,7 @@
 обосновать, сохранив одну привычку за раз, эксперимент и Safety?
 
 Это исследовательское основание сценария
-[areas.md](../../skills/jedikit-habits/references/areas.md); исполняемые инструкции
+[areas.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/areas.md); исполняемые инструкции
 находятся в скилле. Различаются **академические выводы**, **заявления Habitify**
 и **вывод проекта**. Целевой поиск первичных публикаций и официальной документации
 не является систематическим обзором. Даты возле ссылок обозначают фактический
@@ -128,8 +128,8 @@ Vendor также представляет Area Overviews как способ у
 менять их планы или добавлять отметки. Одна привычка за раз, одна гипотеза
 и изменение одной вещи сохраняются; наличие нескольких привычек в аккаунте
 этому не противоречит. Основания проекта:
-[CONTEXT](../../CONTEXT.md), [experiments.md](../../skills/jedikit-habits/references/experiments.md),
-[areas.md](../../skills/jedikit-habits/references/areas.md),
+[CONTEXT](../../CONTEXT.md), [experiments.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/experiments.md),
+[areas.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/areas.md),
 прочитаны 2026-10-06.
 
 ## 4. Риски и границы операций
@@ -140,11 +140,11 @@ Vendor также представляет Area Overviews как способ у
 | Замена `areaIds` | При добавлении области передача только нового ID может убрать прежние назначения. Нужны свежий GET выбранной привычки, точный полный будущий набор и сверка `areas[].id` после записи. Очищение через `[]` следует из replacement и допустимости пустого массива по схеме, но отдельное обещание очищения и runtime не проверены; `null` не объявлен допустимым. [OpenAPI](https://api-docs.habitify.me/openapi/v2/openapi-bundled.yaml), доступ 2026-10-06; защитные действия — вывод проекта. |
 | Неполный список / смешение объектов | GET habits пагинируется и отдельно фильтрует archived и timeOfDay. Один дневной список не доказывает полноту назначений. Область Habitify не наследует дерево, режимы и проекты SingularityApp из CONTEXT. [OpenAPI](https://api-docs.habitify.me/openapi/v2/openapi-bundled.yaml) и [CONTEXT](../../CONTEXT.md), прочитаны 2026-10-06. |
 | Приватность названий | Custom Area names видны в приложении. **Вывод именно Area names в уведомлениях не документирован в проверенных источниках; неизвестен.** Это не гарантия их скрытия. При чувствительном содержании предложить нейтральное имя по предпочтению пользователя; не выводить диагноз или приватный смысл из привычек. [Journal](https://intercom.help/habitify-app/en/articles/12520095-understanding-your-journal-view-ios-android-apps), [Areas](https://intercom.help/habitify-app/en/articles/6113636-create-manage-custom-areas), [Reminders](https://intercom.help/habitify-app/en/articles/12396874-good-habit-setting-reminders), доступ 2026-10-06. |
-| Проактивность превращается в нагрузку | Предложение не разрешает запись. Дополнительная классификация не должна вытеснять план эксперимента; при отсутствии пользы или после отказа её откладывают. Внешние уведомления хоста содержат количества без названий, если отдельное согласие на названия не дано. Это политика проекта, а не результат испытания Areas. [areas.md](../../skills/jedikit-habits/references/areas.md), [ADR 0003](../../docs/adr/0003-no-unattended-writes.md), прочитаны 2026-10-06. |
+| Проактивность превращается в нагрузку | Предложение не разрешает запись. Дополнительная классификация не должна вытеснять план эксперимента; при отсутствии пользы или после отказа её откладывают. Внешние уведомления хоста содержат количества без названий, если отдельное согласие на названия не дано. Это политика проекта, а не результат испытания Areas. [areas.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/areas.md), [ADR 0003](../../docs/adr/0003-no-unattended-writes.md), прочитаны 2026-10-06. |
 
 Публичное описание PUT заявляет сохранение непереданных полей: это vendor statement,
 а не проверенное поведение адаптера. В
-[habitify-tools.md](../../skills/jedikit-habits/references/habitify-tools.md)
+[habitify-tools.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/habitify-tools.md)
 сохранён guard полной writable-конфигурации и её Read-back после записи.
 Обязательного ручного runtime-гейта нет
 ([ADR 0005](../../docs/adr/0005-one-source-host-connections.md)).
@@ -187,10 +187,10 @@ Last-Modified `Mon, 18 May 2026 02:52:25 GMT` прочитаны при теку
 ## Рекомендации для скилла
 
 Ниже **правила проекта** из
-[сценария скилла](../../skills/jedikit-habits/references/areas.md), а не научная доза.
+[сценария скилла](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/areas.md), а не научная доза.
 Основания — §1–4 (первичные ссылки, доступ 2026-10-06),
-[CONTEXT](../../CONTEXT.md), [operation-policy.md](../../skills/jedikit-habits/references/operation-policy.md)
-и [experiments.md](../../skills/jedikit-habits/references/experiments.md), прочитаны 2026-10-06.
+[CONTEXT](../../CONTEXT.md), [operation-policy.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/operation-policy.md)
+и [experiments.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/experiments.md), прочитаны 2026-10-06.
 
 1. **Объясняй назначение одним предложением:** область помогает видеть выбранные
    привычки вместе. Не обещай ускоренное формирование, снижение нагрузки,

@@ -8,7 +8,7 @@
 расстройстве компульсивного сексуального поведения (CSBD) от выводов о мастурбации,
 партнёрском сексе и добровольно выбранных экспериментах с привычками. Компактная
 runtime-справка находится в
-[`sexual-behavior.md`](../../skills/jedikit-habits/references/sexual-behavior.md).
+[`sexual-behavior.md`](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/sexual-behavior.md).
 Правила записи, подтверждения и приватности задаются runtime-policy; здесь они не
 повторяются.
 
@@ -51,7 +51,7 @@ Grubbs et al. обобщили данные для модели, в которо
 названиями: для порно и для мастурбации. Намеренное действие считается событием;
 случайный контент, мысли, возбуждение и партнёрский секс не входят в событие по
 умолчанию. Правила определения события — в
-[sexual-behavior.md](../../skills/jedikit-habits/references/sexual-behavior.md).
+[sexual-behavior.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/sexual-behavior.md).
 
 Это продуктовая и личная цель, а не вывод, что:
 
@@ -277,5 +277,5 @@ Exton et al. изучили десять мужчин и сравнили ост
 
 Эти пробелы означают `нет прямых данных для вопроса`, а не доказательство нулевого
 эффекта. Исполняемые правила безопасности и записи заданы в
-[safety.md](../../skills/jedikit-habits/references/safety.md) и
-[operation-policy.md](../../skills/jedikit-habits/references/operation-policy.md).
+[safety.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/safety.md) и
+[operation-policy.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/operation-policy.md).

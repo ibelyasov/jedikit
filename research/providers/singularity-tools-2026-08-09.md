@@ -4,7 +4,7 @@
 
 > **Публичная revalidation 2026-09-13:** этот файл остаётся неизменяемым историческим snapshot и не является текущим `tools/list`. Официальная [SINGULARITY-MCP](../sources.md) теперь документирует `system` как отдельный Batch toolset, выключенный по умолчанию, с пределом до 20 операций. Она не публикует точное имя или JSON Schema Batch tool. Поэтому отсутствие `batch` среди 48 имён ниже описывает только probe 2026-08-09 и не опровергает текущую публичную capability; текущий точный каталог без нового авторизованного `tools/list` неизвестен.
 
-Редакционная граница: exact JSON objects ниже сохранены без изменения. Annotation сентября и рекомендации описывают свои даты. Нынешний контракт инструментов задан в [tools.json](../../skills/jedikit-tasks/tools.json), ограничения — в [правилах записи](../../skills/jedikit-tasks/references/write-policy.md); собственного кода нет ([ADR0004](../../docs/adr/0004-no-custom-code.md)). Сопоставление с публичными toolsets — в [основном досье](singularity.md).
+Редакционная граница: exact JSON objects ниже сохранены без изменения. Annotation сентября и рекомендации описывают свои даты. Нынешний контракт инструментов задан в [tools.json](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/tools.json), ограничения — в [правилах записи](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/write-policy.md); собственного кода нет ([ADR0004](../../docs/adr/0004-no-custom-code.md)). Сопоставление с публичными toolsets — в [основном досье](singularity.md).
 
 ## Вопрос, маршрут чтения и уровни доказательства
 
@@ -15,7 +15,7 @@ Singularity MCP 2026-08-09, включая names, input schemas и annotations?
 полный JSONL. Для текущей публичной картины и связи REST/MCP вернитесь в
 [основной provider report](singularity.md); для первого `mcp:read` опыта — в
 [least-privilege probe](singularity.md#историческая-least-privilege-проверка-2026-08-09). Сценарии определены
-в [скилле](../../skills/jedikit-tasks/SKILL.md), а не выводятся из этого каталога.
+в [скилле](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md), а не выводятся из этого каталога.
 
 Все tool objects ниже — **observed runtime evidence 2026-08-09**. Ссылки на MCP
 spec объясняют форму ответа. Revalidation annotation выше — **current docs
@@ -167,4 +167,4 @@ Initialize сообщил `instructions`, среди которых: enum-пол
 
 `tools/list` подтверждает только discovery metadata и input contract; tool result/output semantics, authorization enforcement per field, side effects, rate limits, idempotency in production и batch behavior не проверялись. Ни один tool не вызывался. `idempotentHint`/`destructiveHint` — annotations сервера по MCP schema, а не тест фактического поведения.
 
-**Итог snapshot:** каталог 2026-08-09 содержал read/list/get, CRUD для tasks/projects/groups/checklists/tags/habits/kanban statuses, lifecycle completion/archive/move и три task views. Применение доступных операций определяется [правилами записи](../../skills/jedikit-tasks/references/write-policy.md). Permanent delete не был обнаружен в snapshot; Batch заявлен публично через `system` на дату перепроверки 2026-09-13, но без опубликованной schema или transaction semantics.
+**Итог snapshot:** каталог 2026-08-09 содержал read/list/get, CRUD для tasks/projects/groups/checklists/tags/habits/kanban statuses, lifecycle completion/archive/move и три task views. Применение доступных операций определяется [правилами записи](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/write-policy.md). Permanent delete не был обнаружен в snapshot; Batch заявлен публично через `system` на дату перепроверки 2026-09-13, но без опубликованной schema или transaction semantics.

@@ -4,7 +4,7 @@
 **Назначение:** самостоятельное исследовательское досье, а не диетическое
 назначение, клиническое руководство или исполняемая политика Habitify.
 Исполняемые правила поведения кратко описаны отдельно в
-[food-behavior.md](../../skills/jedikit-habits/references/food-behavior.md).
+[food-behavior.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/food-behavior.md).
 
 ## Исследовательский вопрос
 

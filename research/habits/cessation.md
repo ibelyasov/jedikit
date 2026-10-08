@@ -7,10 +7,10 @@
 Этот документ разбирает, какие выводы о прекращении или сокращении поведения
 поддержаны прямыми данными, а какие являются переносом из другого домена. Он
 сохраняет доказательную основу компактной runtime-reference
-[`cessation.md`](../../skills/jedikit-habits/references/cessation.md), но не
+[`cessation.md`](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/cessation.md), но не
 дублирует правила записи, подтверждения и safety gate. Эти правила определяются
-[operation-policy.md](../../skills/jedikit-habits/references/operation-policy.md)
-и [safety.md](../../skills/jedikit-habits/references/safety.md).
+[operation-policy.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/operation-policy.md)
+и [safety.md](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/safety.md).
 
 ## 1. Исследовательский вопрос и единицы анализа
 

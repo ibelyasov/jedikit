@@ -20,10 +20,10 @@
 [README привычек](README.md), базовый контракт провайдера —
 в [habitify.md](../providers/habitify.md). Здесь рассматриваются именно связи
 между действиями. Действующие правила находятся в
-[areas](../../skills/jedikit-habits/references/areas.md),
-[habitify-tools](../../skills/jedikit-habits/references/habitify-tools.md),
-[operation-policy](../../skills/jedikit-habits/references/operation-policy.md)
-и [habit-method скилла](../../skills/jedikit-habits/references/habit-method.md).
+[areas](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/areas.md),
+[habitify-tools](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/habitify-tools.md),
+[operation-policy](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/operation-policy.md)
+и [habit-method скилла](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/habit-method.md).
 Изменений этих правил исследование не вносит.
 
 ## 1. Как читать основания
@@ -174,7 +174,7 @@ UI обещает снижение decision fatigue и более быстрое
    только согласованная правка и независимый `get-habit` после записи.
    Проверяются и остальные области, Time of Day, цели, расписание,
    напоминания, endCondition. Promise PUT о сохранении omitted fields —
-   vendor statement, не отмена [guard скилла](../../skills/jedikit-habits/references/habitify-tools.md#конфигурация-привычки-и-архив).
+   vendor statement, не отмена [guard скилла](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/habitify-tools.md#конфигурация-привычки-и-архив).
    Если response/input или clearing нельзя сопоставить без догадки —
    зависимая запись не выполняется, остаётся инструкция для UI.
 4. **Изменение звена затрагивает соседей.**
@@ -184,7 +184,7 @@ UI обещает снижение decision fatigue и более быстрое
    затронуть другой распорядок; при поиске зависимостей нужен полный inventory,
    не только список одной области. Это риски нашей модели, не обещания vendor.
 5. **Группа операций не атомарна.**
-   Действуют [Preview и operation-policy](../../skills/jedikit-habits/references/operation-policy.md):
+   Действуют [Preview и operation-policy](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/operation-policy.md):
    последовательно запись → Read-back, стоп на первой ошибке, отчёт
    applied / unverified / unapplied, без слепого повтора и автоматического
    отката. Конфигурация Read-back не доказывает notification delivery.

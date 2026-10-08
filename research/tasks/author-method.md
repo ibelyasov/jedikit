@@ -2,9 +2,9 @@
 
 **Проверено:** 2026-09-13 (Europe/Moscow)
 
-Дата относится к прежнему чтению источников; при переструктурировании они не открывались заново. Термины JediKit заданы в [CONTEXT](../../CONTEXT.md). Исторические термины автора и интерфейса сохраняются только в описании источников. По [правилам дерева](../../skills/jedikit-tasks/references/tree.md) дерево устроено как область → папка → проект; папка определяется дочерними проектами ([ADR0002](../../docs/adr/0002-folder-is-inferred.md)). Проекту нужен один следующий шаг, два допустимы, если независимы. Ресурс дня — самооценка, фокус-лист не проверяет календарь и вместимость; в памяти только настройки ([ADR0006](../../docs/adr/0006-memory-holds-settings-only.md)). Разделы и теги описаны в [structure.md §6](structure.md#6-операционные-правила-когда-предлагать-изменения), kanban не поддерживается ([ADR0007](../../docs/adr/0007-no-kanban.md)).
+Дата относится к прежнему чтению источников; при переструктурировании они не открывались заново. Термины JediKit заданы в [CONTEXT](../../CONTEXT.md). Исторические термины автора и интерфейса сохраняются только в описании источников. По [правилам дерева](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/tree.md) дерево устроено как область → папка → проект; папка определяется дочерними проектами ([ADR0002](../../docs/adr/0002-folder-is-inferred.md)). Проекту нужен один следующий шаг, два допустимы, если независимы. Ресурс дня — самооценка, фокус-лист не проверяет календарь и вместимость; в памяти только настройки ([ADR0006](../../docs/adr/0006-memory-holds-settings-only.md)). Разделы и теги описаны в [structure.md §6](structure.md#6-операционные-правила-когда-предлагать-изменения), kanban не поддерживается ([ADR0007](../../docs/adr/0007-no-kanban.md)).
 
-Это подробный исследовательский документ. Он фиксирует доступные основания метода, их точную область действия и возможный перевод в интерфейс агента. Он не является `SKILL.md`, не заменяет книги и не меняет согласованный продукт. Текущий контракт JediKit задан в [SKILL](../../skills/jedikit-tasks/SKILL.md).
+Это подробный исследовательский документ. Он фиксирует доступные основания метода, их точную область действия и возможный перевод в интерфейс агента. Он не является `SKILL.md`, не заменяет книги и не меняет согласованный продукт. Текущий контракт JediKit задан в [SKILL](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md).
 
 ## 1. Граница исследования
 
@@ -62,7 +62,7 @@
 8. Поддерживать систему daily/weekly review (`A`: CQ, TPL, R26).
 9. Подбирать практики экспериментально и не обещать универсальный результат (`A`: B2T, R26).
 
-Preview, подтверждения, доступный scope и конкретные инструменты — `O`. Их актуальный контракт задают [правила записи](../../skills/jedikit-tasks/references/write-policy.md). Исторические состояния и timestamps обзоров не являются настройками памяти JediKit ([ADR0006](../../docs/adr/0006-memory-holds-settings-only.md)).
+Preview, подтверждения, доступный scope и конкретные инструменты — `O`. Их актуальный контракт задают [правила записи](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/write-policy.md). Исторические состояния и timestamps обзоров не являются настройками памяти JediKit ([ADR0006](../../docs/adr/0006-memory-holds-settings-only.md)).
 
 ## 3. Восемнадцать практик и их границы
 
@@ -122,14 +122,14 @@ Preview, подтверждения, доступный scope и конкрет�
 - **Триггер:** договорённость содержит время и участников либо ещё не хватает одного поля.
 - **Практика:** недостающее уточнить отдельной задачей; собранную встречу поместить в единый календарь.
 - **Evidence:** `A`, B2 §6.2.3.
-- **Граница:** JediKit календарь не читает и даёт только ручную инструкцию; prep/follow-up автоматически не создаёт (`O`, [Inbox](../../skills/jedikit-tasks/references/inbox.md)).
+- **Граница:** JediKit календарь не читает и даёт только ручную инструкцию; prep/follow-up автоматически не создаёт (`O`, [Inbox](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md)).
 
 ### P08. Не путать оценку с обязательством
 
 - **Триггер:** приблизительный прогноз называют дедлайном или каждой задаче назначают дату.
 - **Практика:** сохранять различие между неизвестным планом и обязательством; ранняя оценка несёт большую неопределённость.
 - **Evidence:** `A`, B1 §§4.1.1–4.1.2.
-- **Граница:** `planned/target/due` — терминология гостевого поста C2825; автор добавил только мысль о start line. JediKit различает плановую дату (`start`) и срок (`deadline`) по [CONTEXT](../../CONTEXT.md) и [Inbox](../../skills/jedikit-tasks/references/inbox.md).
+- **Граница:** `planned/target/due` — терминология гостевого поста C2825; автор добавил только мысль о start line. JediKit различает плановую дату (`start`) и срок (`deadline`) по [CONTEXT](../../CONTEXT.md) и [Inbox](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md).
 
 ### P09. Выбрать день из недельного контекста
 
@@ -220,7 +220,7 @@ Preview, подтверждения, доступный scope и конкрет�
 3. Если данных мало, оставить inbox; если достаточно — перейти к DT-2.
 4. Удаление и внешнее действие требуют отдельных продуктовых разрешений.
 
-Основание A: CQ/TPL/R26. Реализация O: [Capture](../../skills/jedikit-tasks/references/inbox.md).
+Основание A: CQ/TPL/R26. Реализация O: [Capture](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md).
 
 ### DT-2. Классификация сущности
 
@@ -230,27 +230,27 @@ Preview, подтверждения, доступный scope и конкрет�
 4. Только информация → reference.
 5. Место + участники + время + повестка → meeting/calendar; нехватка поля → task уточнения.
 
-Основание A: B2/CQ/C7. Реализация O и ограничения ручного переноса: [Inbox](../../skills/jedikit-tasks/references/inbox.md).
+Основание A: B2/CQ/C7. Реализация O и ограничения ручного переноса: [Inbox](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md).
 
 ### DT-3. Следующий шаг
 
-Проверить глагол, объект, скрытое решение и ресурс. Если путь неизвестен — поставить исследовательский шаг. Если результатов несколько — выделить проект. Видимый признак готовности и один следующий шаг (два независимых допустимы) — `O`, [Проекты](../../skills/jedikit-tasks/references/projects.md).
+Проверить глагол, объект, скрытое решение и ресурс. Если путь неизвестен — поставить исследовательский шаг. Если результатов несколько — выделить проект. Видимый признак готовности и один следующий шаг (два независимых допустимы) — `O`, [Проекты](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/projects.md).
 
 ### DT-4. Даты
 
-Сначала спросить смысл даты. Событие относится к календарю; реальный внешний срок сохраняется как deadline; выбранная дата начала — start; без причины дата пустая. Это O, [Inbox](../../skills/jedikit-tasks/references/inbox.md). Авторское основание ограничено B1 и формулой встречи B2; терминология C2825 не авторская.
+Сначала спросить смысл даты. Событие относится к календарю; реальный внешний срок сохраняется как deadline; выбранная дата начала — start; без причины дата пустая. Это O, [Inbox](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md). Авторское основание ограничено B1 и формулой встречи B2; терминология C2825 не авторская.
 
 ### DT-5. Открытие и закрытие дня
 
-Daily open проходит вчерашние хвосты, ресурс дня и фокус-лист; daily close — остатки и затронутые проекты. Ресурс дня — самооценка, не измерение; календарь и вместимость не проверяются. Режимы поддеревьев — настройки пользователя, а не состояния обзоров. Это `O`, [Обзоры](../../skills/jedikit-tasks/references/reviews.md).
+Daily open проходит вчерашние хвосты, ресурс дня и фокус-лист; daily close — остатки и затронутые проекты. Ресурс дня — самооценка, не измерение; календарь и вместимость не проверяются. Режимы поддеревьев — настройки пользователя, а не состояния обзоров. Это `O`, [Обзоры](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/reviews.md).
 
 ### DT-6. Nail-puller и closure
 
-Обратная прокрутка примерно минуту и запись всплывшего — A/B2. Capture всплывшего и последующий Triage — `O`, [Inbox](../../skills/jedikit-tasks/references/inbox.md). История и timestamps обзоров в памяти не хранятся: [ADR0006](../../docs/adr/0006-memory-holds-settings-only.md).
+Обратная прокрутка примерно минуту и запись всплывшего — A/B2. Capture всплывшего и последующий Triage — `O`, [Inbox](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md). История и timestamps обзоров в памяти не хранятся: [ADR0006](../../docs/adr/0006-memory-holds-settings-only.md).
 
 ### DT-7. Weekly и inbox debt
 
-Weekly проходит Inbox, все проекты, их следующие шаги и структуру. Авторский TPL описывает старые списки после миграции; JediKit переносит 15/10/5 минут на отдельные сессии Inbox debt как продуктовый выбор `O`, [Обзоры](../../skills/jedikit-tasks/references/reviews.md). Пропущенный Weekly не отслеживается в памяти — приглашает расписание хоста ([ADR0006](../../docs/adr/0006-memory-holds-settings-only.md)).
+Weekly проходит Inbox, все проекты, их следующие шаги и структуру. Авторский TPL описывает старые списки после миграции; JediKit переносит 15/10/5 минут на отдельные сессии Inbox debt как продуктовый выбор `O`, [Обзоры](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/reviews.md). Пропущенный Weekly не отслеживается в памяти — приглашает расписание хоста ([ADR0006](../../docs/adr/0006-memory-holds-settings-only.md)).
 
 ### DT-8. Перегруз и отказ
 
@@ -264,7 +264,7 @@ Weekly проходит Inbox, все проекты, их следующие ш
 
 | OP | Исходная цель | Текущий статус |
 |---|---|---|
-| OP-1 Thought-catcher | видимый capture | A: P01; O: DT-1 и [Inbox](../../skills/jedikit-tasks/references/inbox.md) |
+| OP-1 Thought-catcher | видимый capture | A: P01; O: DT-1 и [Inbox](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md) |
 | OP-2 Process, не read | решение и место | A: P02; O: one-by-one triage |
 | OP-3 Task | стартуемое действие | A: P03/P04; O: `done_when` |
 | OP-4 Project | результат + живой план | A: P05; O: один следующий шаг или два независимых |
@@ -272,9 +272,9 @@ Weekly проходит Inbox, все проекты, их следующие ш
 | OP-6 Идея | не превращать мнение в долг | A: P06; пользователь переносит идею в своё место, ADR0008 |
 | OP-7 Reference | отделить справку | A: P02/P03; место выбирает пользователь |
 | OP-8 Meeting/calendar | формула встречи | A: P07; JediKit календарь не читает |
-| OP-9 Dates/deadlines | не путать оценку и обязательство | A: P08; `start/deadline` — [Inbox](../../skills/jedikit-tasks/references/inbox.md) |
-| OP-10 Daily | выбор и закрытие дня | A: P09/P10; точный workflow — [Обзоры](../../skills/jedikit-tasks/references/reviews.md) |
-| OP-11 Weekly | обслуживание системы | A: P11; точный workflow — [Обзоры](../../skills/jedikit-tasks/references/reviews.md) |
+| OP-9 Dates/deadlines | не путать оценку и обязательство | A: P08; `start/deadline` — [Inbox](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md) |
+| OP-10 Daily | выбор и закрытие дня | A: P09/P10; точный workflow — [Обзоры](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/reviews.md) |
+| OP-11 Weekly | обслуживание системы | A: P11; точный workflow — [Обзоры](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/reviews.md) |
 | OP-12 Inbox debt | малая recovery-порция | A только TPL §§3.8–3.9; не universal |
 | OP-13 Nail-puller | вспомнить и записать | A: P10; дальнейший triage — O |
 | OP-14 Overload/refusal | явное решение по долгу | mixed: P16/P17 + product permissions |
@@ -308,11 +308,11 @@ Weekly проходит Inbox, все проекты, их следующие ш
 
 | Сущность | Проверочный вопрос | Авторское основание | Product overlay |
 |---|---|---|---|
-| task | уже понятно, что сделать? | B2/R26 | конкретный глагол, объект, criterion; [Inbox](../../skills/jedikit-tasks/references/inbox.md) |
-| project | результат нужен, но путь требует решений? | B1/B2/C7 | проект + один следующий шаг или два независимых; [Проекты](../../skills/jedikit-tasks/references/projects.md) |
+| task | уже понятно, что сделать? | B2/R26 | конкретный глагол, объект, criterion; [Inbox](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md) |
+| project | результат нужен, но путь требует решений? | B1/B2/C7 | проект + один следующий шаг или два независимых; [Проекты](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/projects.md) |
 | идея | ещё надо решить, стоит ли? | B2/R26 | перенос пользователем в своё место, затем отмена Inbox item с подтверждением |
 | reference | это информация, а не действие? | CQ | manual destination; no duplicate |
-| meeting | есть место, участники, время, повестка? | B2 | calendar not integrated; [Inbox](../../skills/jedikit-tasks/references/inbox.md) |
+| meeting | есть место, участники, время, повестка? | B2 | calendar not integrated; [Inbox](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md) |
 
 | Дата | Исследовательская граница | JediKit |
 |---|---|---|
@@ -341,19 +341,19 @@ Weekly проходит Inbox, все проекты, их следующие ш
 
 ## 10. Основания операционных правил MUST/SHOULD/MAY
 
-Таблица связывает 24 операционных правила с основаниями A и O; это не спецификация скилла — действующие правила находятся в [`skills/jedikit-tasks/`](../../skills/jedikit-tasks/SKILL.md).
+Таблица связывает 24 операционных правила с основаниями A и O; это не спецификация скилла — действующие правила находятся в [`skills/jedikit-tasks/`](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/SKILL.md).
 
 ### MUST
 
 | ID | Смысл | Статус после проверки |
 |---|---|---|
-| MUST-01 | scoped capture | ядро A P01; граница «не каждый ответ» — O/[Inbox](../../skills/jedikit-tasks/references/inbox.md) |
-| MUST-02 | temporary raw capture | O/[Inbox](../../skills/jedikit-tasks/references/inbox.md); автор не задаёт raw history |
+| MUST-01 | scoped capture | ядро A P01; граница «не каждый ответ» — O/[Inbox](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md) |
+| MUST-02 | temporary raw capture | O/[Inbox](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md); автор не задаёт raw history |
 | MUST-03 | process state, не read | A P02 + O storage |
 | MUST-04 | одна сущность | различия A P03; ровно одна enum value — O |
 | MUST-05 | стартуемая формулировка | глагол/no blocker A P04; `done_when` — O |
-| MUST-06 | project boundary | A P05; один следующий шаг или два независимых — O/[Проекты](../../skills/jedikit-tasks/references/projects.md) |
-| MUST-07 | date provenance | различие оценки/встречи A; exact fields O/[Inbox](../../skills/jedikit-tasks/references/inbox.md) |
+| MUST-06 | project boundary | A P05; один следующий шаг или два независимых — O/[Проекты](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/projects.md) |
+| MUST-07 | date provenance | различие оценки/встречи A; exact fields O/[Inbox](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md) |
 | MUST-08 | explicit closure | A P10/P17; полный набор статусов O |
 | MUST-09 | honest review debt | A CQ/TPL; oldest/count O |
 | MUST-10 | confirmation boundary | O/product write policy; книги не определяют полномочия агента |
@@ -362,8 +362,8 @@ Weekly проходит Inbox, все проекты, их следующие ш
 
 | ID | Смысл | Статус после проверки |
 |---|---|---|
-| SHOULD-01 | спросить ресурс | O/[Обзоры](../../skills/jedikit-tasks/references/reviews.md); не универсальная авторская шкала |
-| SHOULD-02 | Inbox debt 15/10/5 | A: старые списки после миграции, TPL §§3.8–3.9; O: отдельные сессии Inbox debt JediKit по [правилам обзоров](../../skills/jedikit-tasks/references/reviews.md) |
+| SHOULD-01 | спросить ресурс | O/[Обзоры](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/reviews.md); не универсальная авторская шкала |
+| SHOULD-02 | Inbox debt 15/10/5 | A: старые списки после миграции, TPL §§3.8–3.9; O: отдельные сессии Inbox debt JediKit по [правилам обзоров](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/reviews.md) |
 | SHOULD-03 | блок тишины | A R26; исключения O |
 | SHOULD-04 | одна задача до внешнего потока | A R26; optional по контексту |
 | SHOULD-05 | пропалывать Later | A R26; age/count O |
@@ -377,7 +377,7 @@ Weekly проходит Inbox, все проекты, их следующие ш
 |---|---|---|
 | MAY-01 | short-action rules | A: CQ 2 минуты при обработке, R26 30 секунд для «сначала записать»; контексты не смешивать |
 | MAY-02 | recurrence/tags/waiting | A-personal/product examples, но schema O; не универсальные правила JediKit |
-| MAY-03 | prep/follow-up | формула встречи A; автоматическое создание исключено [Inbox](../../skills/jedikit-tasks/references/inbox.md) |
+| MAY-03 | prep/follow-up | формула встречи A; автоматическое создание исключено [Inbox](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-tasks/references/inbox.md) |
 | MAY-04 | draft renegotiation | O/product permission; автор поддерживает решение по обязательству, не отправку агентом |
 | MAY-05 | project link | C7 поддерживает разделение плана и task; link mechanism O |
 | MAY-06 | optional checkpoint идеи | инкубация A; дата пересмотра O; не обязательное правило JediKit |

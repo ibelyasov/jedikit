@@ -127,7 +127,7 @@ MIT разрешает использование/изменение/распр�
 - Условия регистрации стороннего публичного connector с vendor-owned domain.
 - Как подтвердить понятность публичного onboarding о возрасте и передаче
   чувствительных данных Habitify/AI-хосту. Если предпочтение названий неизвестно,
-  скилл спрашивает его по [правилу setup](../skills/jedikit-habits/references/setup.md).
+  скилл спрашивает его по [правилу setup](https://github.com/ibelyasov/jedikit/blob/43fc19e/skills/jedikit-habits/references/setup.md).
 
 ## Практическое применение к исследовательской библиотеке
 
