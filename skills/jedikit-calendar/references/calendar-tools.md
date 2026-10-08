@@ -15,7 +15,7 @@
 
 `account` у `list-events` допускает строку/массив как у `list-calendars`; у get и записей — только строку. Nickname соответствует `^[a-z0-9_-]{1,64}$`. При нескольких аккаунтах связывай календарь с его аккаунтом и передавай выбранный nickname: `primary` без такого контекста неоднозначен. Это личный Google Calendar, подключённый рабочий Outlook не обслуживается.
 
-Стандартные поля list/get: `id`, `summary`, `start`, `end`, `status`, `htmlLink`, `location`, `attendees`. Для вида и идентификации роли явно запрашивай `fields: ["description", "recurringEventId", "originalStartTime", "recurrence", "transparency"]`; для нужного состояния можно добавить `updated`, `organizer`, `locked`. И list, и get поддерживают эти поля. Метки живут в `description`.
+Стандартные поля list/get: `id`, `summary`, `start`, `end`, `status`, `htmlLink`, `location`, `attendees`. Для вида и идентификации роли явно запрашивай `fields: ["description", "recurringEventId", "originalStartTime", "recurrence", "transparency"]`; перед update/delete добавляй `organizer`; для нужного состояния можно добавить `updated`, `locked`. И list, и get поддерживают эти поля. Метки живут в `description`.
 
 В схемах нет `pageToken`, `maxResults`, `singleEvents`, `orderBy` и поиска по тексту: не придумывай их. Получай диапазон через `timeMin`/`timeMax`, отбирай кандидатов по полученному ответу. Проверяй ошибки отдельных календарей и признаки неполноты; более 50 календарей читай несколькими запросами. Если ответ обрезан и продолжение недоступно, сужай диапазон разрешёнными чтениями или честно ограничивай охват. Отсутствие объекта в неполной выборке ничего не доказывает. Схема входа не гарантирует структуру ответа.
 
