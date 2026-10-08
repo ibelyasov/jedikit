@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "jedikit",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Пять русскоязычных Agent Skill для Hermes Agent: задачи в SingularityApp, привычки и ритуалы в Habitify, Google Calendar, План дня и навигатор.",
   "author": {
     "name": "Igor Belyasov",
