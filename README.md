@@ -40,14 +40,14 @@ hermes plugins install ibelyasov/jedikit --ref <FULL_JEDIKIT_COMMIT_SHA> --enabl
 
 ## Что нужно от Hermes
 
-JediKit задаёт поведение скиллов и ожидания к инструментам. Всё остальное делает Hermes: выбирает, подключает и реализует инструменты и MCP по этому контракту, отвечает за окружение и песочницу, доступы, расписания и доставку, кроме приглашений, которые скилл создаёт по просьбе пользователя, характер и самообучение агента, всё, что работает без модели, включение скиллов и развёртывание. Если сценарию нужен инструмент, которого у Hermes нет, JediKit добавляет ожидание в `tools.json` или в этот раздел. Новую потребность потребитель передаёт issue в этот репозиторий — рамкой задачи, а не спецификацией скилла ([ADR 0016](docs/adr/0016-consumer-boundary.md)).
+JediKit задаёт поведение скиллов и ожидания к инструментам. Hermes Agent загружает скиллы и вызывает инструменты. Всё остальное для Hermes обеспечивает потребитель — репозиторий, который подключает JediKit к Hermes (у владельца это clanwright): выбирает, подключает и реализует инструменты и MCP по этому контракту, отвечает за окружение и песочницу, доступы, расписания и доставку, кроме приглашений, которые скилл создаёт по просьбе пользователя, характер и самообучение агента, всё, что работает без модели, включение скиллов и развёртывание. Если сценарию нужен инструмент, которого у Hermes нет, JediKit добавляет ожидание в `tools.json` или в этот раздел. Новую потребность потребитель передаёт issue в этот репозиторий — рамкой задачи, а не спецификацией скилла ([ADR 0016](docs/adr/0016-consumer-boundary.md)).
 
 Ожидаемые операции перечислены в [`skills/jedikit-tasks/tools.json`](skills/jedikit-tasks/tools.json) (35 операций), [`skills/jedikit-habits/tools.json`](skills/jedikit-habits/tools.json) (23 операции) и [`skills/jedikit-calendar/tools.json`](skills/jedikit-calendar/tools.json) (7 операций). У каждой операции указаны MCP-сервер, базовое имя и доступ `read` или `write`; у Habitify и Google Calendar ещё обязательные аргументы `required`. Агент вызывает их как `mcp__<server>__<base_name>`, где `-` и другие символы вне `[A-Za-z0-9_]` заменены на `_`.
 
 **MCP-серверы:**
 
 - **`singularity`** — официальный hosted MCP SingularityApp `https://mcp.singularity-app.com/mcp`; OAuth проводит Hermes.
-- **`habitify_read`** и **`habitify`** — чтения и записи Habitify по официальному REST/OpenAPI v2 через доверенный адаптер. API-ключ хранится только у адаптера, агент его не видит. Официальный Habitify MCP не подходит: в нём нет создания и изменения привычек, заметок и архивации ([ADR 0001](docs/adr/0001-habitify-via-rest.md), [справка инструментов](skills/jedikit-habits/references/tools.md)).
+- **`habitify_read`** и **`habitify`** — чтения и записи Habitify по официальному REST/OpenAPI v2 через доверенный адаптер. API-ключ хранится только у адаптера, агент его не видит. Скилл рассчитывает на такую форму ответа: ошибка — `isError: true` и HTTP-код в тексте как `status code NNN`; успех — без `isError`, тело ответа Habitify как JSON в тексте, пустой текст — успех без тела (`204`). Официальный Habitify MCP не подходит: в нём нет создания и изменения привычек, заметок и архивации ([ADR 0001](docs/adr/0001-habitify-via-rest.md), [справка инструментов](skills/jedikit-habits/references/tools.md)).
 - **`google_calendar`** — Google Calendar с базовыми именами `list-calendars`, `list-events`, `get-event`, `get-current-time`, `create-event`, `update-event`, `delete-event`; у владельца это `nspady/google-calendar-mcp` `v2.7.0` ([ADR 0009](docs/adr/0009-separate-calendar-skill.md), [контракт инструментов](skills/jedikit-calendar/tools.json)).
 
 **Toolsets и скиллы Hermes:**
@@ -57,7 +57,7 @@ JediKit задаёт поведение скиллов и ожидания к и
 - `memory` — настройки скиллов, одна запись на скилл ([ADR 0006](docs/adr/0006-memory-holds-settings-only.md)).
 - `cronjob` — только если нужны приглашения по расписанию ([ADR 0003](docs/adr/0003-no-unattended-writes.md)). Время задания считается по timezone профиля Hermes.
 - Tool Search не обязателен: видимый MCP-инструмент скилл вызывает по имени, а при включённом Tool Search находит отложенные schemas через `tool_search` и `tool_describe` и вызывает через `tool_call`.
-- Задание утренней сводки заводит владелец Hermes, скиллы его не создают; toolsets cron должны включать чтения SingularityApp и Google Calendar. Фоновые запуски только читают.
+- Задание утренней сводки заводит потребитель, скиллы его не создают; toolsets cron должны включать чтения SingularityApp и Google Calendar. Фоновые запуски только читают.
 - **`grill-me`** — внешний скилл для редкого глубокого уточнения намерения (есть среди официальных optional skills Hermes). Если его нет, JediKit называет требование и рекомендует установить его; своё интервью не проводит.
 
 `jedikit-planning` использует `jedikit-tasks`, `jedikit-calendar`, `jedikit-habits` и их инструменты; своего провайдера и `tools.json` у него нет. `jedikit` требует остальные скиллы JediKit, работает только по запросу и своего `tools.json` не имеет.
